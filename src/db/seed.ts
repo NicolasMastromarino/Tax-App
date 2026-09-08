@@ -7,6 +7,11 @@ import {
   TAX_YEAR_2025_BRACKETS,
   TAX_YEAR_2025_QBI_PHASEOUT,
 } from "./seed-data/tax-2025";
+import {
+  TAX_YEAR_2026_PARAMETERS,
+  TAX_YEAR_2026_BRACKETS,
+  TAX_YEAR_2026_QBI_PHASEOUT,
+} from "./seed-data/tax-2026";
 import { eq, sql } from "drizzle-orm";
 
 async function seedTaxYear(
@@ -113,6 +118,14 @@ async function main() {
     TAX_YEAR_2025_PARAMETERS,
     TAX_YEAR_2025_BRACKETS,
     TAX_YEAR_2025_QBI_PHASEOUT
+  );
+
+  console.log("Seeding 2026 tax parameters/brackets/QBI phaseout...");
+  await seedTaxYear(
+    2026,
+    TAX_YEAR_2026_PARAMETERS,
+    TAX_YEAR_2026_BRACKETS,
+    TAX_YEAR_2026_QBI_PHASEOUT
   );
   console.log("Done seeding tax data.");
 
