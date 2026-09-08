@@ -17,9 +17,17 @@ See [`docs/WORKBOOK_SPEC.md`](./docs/WORKBOOK_SPEC.md) for the full analysis of 
 - Settings: business info, tax profile (filing status, sole prop / S-Corp + salary), home office, beginning bank balance
 - Help / Getting Started checklist
 
-### Not yet built (intentionally deferred — see below)
+## Tax Planner (v1.1)
 
-Contractor & 1099 tracking and the full Tax Planner (self-employment tax, QBI deduction, progressive tax brackets, S-Corp vs. Sole Prop comparison, quarterly estimated payments) were scoped out of this pass so the core bookkeeping experience could be built solidly rather than everything half-finished. `docs/WORKBOOK_SPEC.md` §6 has the complete, already-reverse-engineered tax logic (including one real bug found in the original workbook — it computes the QBI and SE-tax deductions but never actually subtracts them before calculating income tax) ready for a follow-up build. The `transactions` table already tracks a `vendorName` per transaction and flags Contract-Labor-category transactions (`categories.isContractLabor`), so a Contractors page can be built on top of existing data without a schema migration for the core linkage.
+- **Tax Estimate**: annualizes year-to-date net income based on how many months actually have bookkeeping data, then computes self-employment tax, the QBI deduction, taxable income, income tax (progressive 2025 brackets), total estimated tax, the per-quarter amount, and your marginal rate.
+- **Sole Proprietor vs. S-Corp comparison**: both scenarios computed side by side from the same projected income, with a callout for how much the S-Corp election could save (or cost) at the salary you've set.
+- **Quarterly Estimated Payments tracker**: the four standard IRS due dates, computed from your tax year, each with an editable amount paid / date paid and an over/underpaid badge against the recommended (evenly-split) amount.
+- **The one deliberate fix vs. the original workbook** (spec §12.3): the workbook computes the QBI deduction and the deductible half of SE tax but never actually subtracts them from income before running the tax-bracket calculation, which overstates projected tax. This app actually subtracts both first. See the header comment in `src/lib/calculations/tax.ts` for the full explanation, and everything else it deliberately does *not* change from the workbook's simplifications (no Additional Medicare Tax, no standard deduction modeled, linear QBI phaseout with no SSTB/W-2-wage branching, no safe-harbor quarterly calculation) — all disclosed in the Tax Planner page's own disclaimer, not hidden.
+- **Only 2025 tax figures are seeded** (`src/db/seed-data/tax-2025.ts`). Tax brackets, the QBI phaseout table, and SE-tax parameters are all versioned by tax year in the database (`tax_parameters`/`tax_brackets`/`qbi_phaseout_parameters` tables) so a future year's figures can be added without a code change — see that file's shape for the pattern. If your business's Tax Year (Settings) isn't seeded yet, the Tax Planner says so plainly instead of guessing.
+
+### Not yet built
+
+Contractor & 1099 tracking was scoped out so the core bookkeeping experience and the Tax Planner could each be built solidly. `docs/WORKBOOK_SPEC.md` §11 has the reverse-engineered logic ready for a follow-up build. The `transactions` table already tracks a `vendorName` per transaction and flags Contract-Labor-category transactions (`categories.isContractLabor`), so a Contractors page can be built on top of existing data without a schema migration for the core linkage.
 
 ## Tech stack
 
@@ -89,8 +97,10 @@ Visit http://localhost:3000, click "Create one" to register — this creates you
 Three layers of tests exist and were run against a real Postgres database while this app was built:
 
 ```bash
-npm run test        # unit tests for the money math (ledger.ts) — signed amounts,
-                     # running balances, reconciliation, home office calculator
+npm run test        # unit tests for the money math (ledger.ts) and tax math (tax.ts) —
+                     # signed amounts, running balances, reconciliation, home office
+                     # calculator, SE tax, QBI deduction/phaseout, bracket tax, the
+                     # QBI-subtraction bug fix, Sole-Prop-vs-S-Corp comparison
 npm run test:smoke  # integration test against a real database: creates a
                      # throwaway business, adds transactions, checks dashboard/
                      # P&L/reconciliation/Other-Expenses numbers, cleans up after itself
@@ -101,6 +111,8 @@ There's also `scripts/e2e-smoke-test.ts`, a headless-Chromium script that regist
 ```bash
 npx tsx scripts/e2e-smoke-test.ts
 ```
+
+Two more scripts cover the Tax Planner specifically: `npx tsx scripts/tax-planner-smoke-test.ts` (DB integration — needs `NODE_OPTIONS=--conditions=react-server`, same as `test:smoke`) and `npx tsx scripts/tax-planner-e2e-test.ts` (browser walkthrough — needs `npm run dev` running, same as the e2e script above; sets tax year to 2025 via Settings first, since that's the only seeded year).
 
 ## Deploying
 

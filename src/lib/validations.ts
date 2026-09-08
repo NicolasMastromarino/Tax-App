@@ -67,3 +67,14 @@ export const reconciliationSchema = z.object({
   month: z.string().regex(/^\d{4}-\d{2}-01$/),
   statementEndingBalance: z.coerce.number(),
 });
+
+export const taxPaymentSchema = z.object({
+  taxYear: z.coerce.number().int().min(2000).max(2100),
+  quarter: z.coerce.number().int().min(1).max(4),
+  amountPaid: z.coerce.number().min(0, "Amount can't be negative"),
+  datePaid: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid date")
+    .optional()
+    .or(z.literal("")),
+});

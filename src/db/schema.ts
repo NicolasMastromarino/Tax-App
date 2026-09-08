@@ -103,6 +103,7 @@ export const businessesRelations = relations(businesses, ({ one, many }) => ({
   user: one(users, { fields: [businesses.userId], references: [users.id] }),
   transactions: many(transactions),
   reconciliations: many(reconciliations),
+  taxPayments: many(taxPayments),
 }));
 
 // ---------------------------------------------------------------------------
@@ -214,6 +215,109 @@ export const reconciliations = pgTable(
 export const reconciliationsRelations = relations(reconciliations, ({ one }) => ({
   business: one(businesses, {
     fields: [reconciliations.businessId],
+    references: [businesses.id],
+  }),
+}));
+
+// ---------------------------------------------------------------------------
+// Tax Planner (spec §6, §14-20) — the progressive-bracket table, the QBI
+// phaseout table, and the SE-tax/QBI-rate parameters are all versioned by
+// tax year (spec §12.15) rather than hardcoded, so a future year's figures
+// can be added without a code change. Seeded with 2025 figures; see
+// src/db/seed-data/tax-2025.ts.
+//
+// NOTE on the fix applied here vs. the original workbook (spec §12.3): the
+// workbook computes the QBI deduction and the deductible half of SE tax but
+// never actually subtracts them from income before running the progressive
+// bracket calculation, which overstates projected income tax. This rebuild
+// subtracts both before the bracket calculation — see
+// src/lib/calculations/tax.ts.
+// ---------------------------------------------------------------------------
+
+export const taxParameters = pgTable(
+  "tax_parameters",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    taxYear: integer("tax_year").notNull(),
+    // Self-employment tax (spec §6.4). seWageBase = the Social Security wage
+    // base for the year (the workbook's misleadingly-named "MedMaxIncome").
+    seWageBase: numeric("se_wage_base", { precision: 14, scale: 2 }).notNull(),
+    seTaxableFraction: numeric("se_taxable_fraction", { precision: 6, scale: 4 })
+      .notNull()
+      .default("0.9235"),
+    seFullRate: numeric("se_full_rate", { precision: 6, scale: 4 }).notNull().default("0.153"),
+    seMedicareOnlyRate: numeric("se_medicare_only_rate", { precision: 6, scale: 4 })
+      .notNull()
+      .default("0.029"),
+    seDeductibleFraction: numeric("se_deductible_fraction", { precision: 6, scale: 4 })
+      .notNull()
+      .default("0.5"),
+    // QBI deduction (spec §6.5)
+    qbiRate: numeric("qbi_rate", { precision: 6, scale: 4 }).notNull().default("0.20"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("tax_parameters_year_idx").on(t.taxYear)]
+);
+
+export const taxBrackets = pgTable(
+  "tax_brackets",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    taxYear: integer("tax_year").notNull(),
+    filingStatus: filingStatusEnum("filing_status").notNull(),
+    rate: numeric("rate", { precision: 6, scale: 4 }).notNull(),
+    lowerBound: numeric("lower_bound", { precision: 14, scale: 2 }).notNull(),
+    // null = top/unbounded bracket
+    upperBound: numeric("upper_bound", { precision: 14, scale: 2 }),
+    sortOrder: integer("sort_order").notNull(),
+  },
+  (t) => [
+    index("tax_brackets_year_status_idx").on(t.taxYear, t.filingStatus, t.sortOrder),
+  ]
+);
+
+export const qbiPhaseoutParameters = pgTable(
+  "qbi_phaseout_parameters",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    taxYear: integer("tax_year").notNull(),
+    filingStatus: filingStatusEnum("filing_status").notNull(),
+    phaseoutStart: numeric("phaseout_start", { precision: 14, scale: 2 }).notNull(),
+    phaseoutEnd: numeric("phaseout_end", { precision: 14, scale: 2 }).notNull(),
+  },
+  (t) => [uniqueIndex("qbi_phaseout_year_status_idx").on(t.taxYear, t.filingStatus)]
+);
+
+// ---------------------------------------------------------------------------
+// Quarterly Estimated Tax Payment Tracker (spec §6.8)
+// ---------------------------------------------------------------------------
+
+export const taxPayments = pgTable(
+  "tax_payments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    taxYear: integer("tax_year").notNull(),
+    quarter: integer("quarter").notNull(), // 1-4
+    amountPaid: numeric("amount_paid", { precision: 14, scale: 2 }).notNull().default("0"),
+    datePaid: date("date_paid", { mode: "string" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("tax_payments_business_year_quarter_idx").on(
+      t.businessId,
+      t.taxYear,
+      t.quarter
+    ),
+  ]
+);
+
+export const taxPaymentsRelations = relations(taxPayments, ({ one }) => ({
+  business: one(businesses, {
+    fields: [taxPayments.businessId],
     references: [businesses.id],
   }),
 }));
