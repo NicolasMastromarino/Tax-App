@@ -94,7 +94,7 @@ export function TaxPlannerClient({
                 <strong>{business.isSCorp ? "S Corporation" : "Sole Proprietor"}</strong>.
               </p>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               <EstimateGrid result={projection.currentScenario} />
             </CardContent>
           </Card>
@@ -182,19 +182,33 @@ export function TaxPlannerClient({
 
 function EstimateGrid({ result }: { result: EntityTaxResult }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <Stat label="Total Estimated Tax" value={result.totalTax} tone="primary" big />
-      <Stat label="Quarterly Payment" value={result.quarterlyTax} tone="info" big />
-      <Stat label="Income Tax" value={result.incomeTax} />
-      <Stat label="Self-Employment / Payroll Tax" value={result.seTax} />
-      <Stat label="QBI Deduction" value={result.qbiDeduction} />
-      <Stat label="Taxable Income" value={result.taxableIncome} />
-      <Stat label="Adjusted Gross Income" value={result.agi} />
-      <Stat
-        label="Marginal Rate"
-        value={`${(result.marginalRate * 100).toFixed(0)}%`}
-        raw
-      />
+    <div>
+      {/* Headline numbers — what you actually owe, set apart from the
+          supporting detail below so the two most-asked-about figures don't
+          compete visually with the other six. */}
+      <div className="grid grid-cols-2 gap-3 rounded-lg bg-primary/5 p-4 sm:gap-4">
+        <Stat label="Total Estimated Tax" value={result.totalTax} tone="primary" big />
+        <Stat label="Quarterly Payment" value={result.quarterlyTax} tone="info" big />
+      </div>
+
+      {/* Supporting detail — how that number was arrived at, roughly in
+          calculation order (income in, deductions out, tax out). */}
+      <p className="mb-3 mt-5 text-xs font-medium uppercase tracking-wide text-muted">
+        How this was calculated
+      </p>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3">
+        <Stat label="Adjusted Gross Income" value={result.agi} small />
+        <Stat label="QBI Deduction" value={result.qbiDeduction} small />
+        <Stat label="Taxable Income" value={result.taxableIncome} small />
+        <Stat label="Income Tax" value={result.incomeTax} small />
+        <Stat label="Self-Employment / Payroll Tax" value={result.seTax} small />
+        <Stat
+          label="Marginal Rate"
+          value={`${(result.marginalRate * 100).toFixed(0)}%`}
+          raw
+          small
+        />
+      </div>
     </div>
   );
 }
@@ -246,12 +260,14 @@ function Stat({
   value,
   tone = "neutral",
   big = false,
+  small = false,
   raw = false,
 }: {
   label: string;
   value: number | string;
   tone?: "neutral" | "primary" | "info";
   big?: boolean;
+  small?: boolean;
   raw?: boolean;
 }) {
   const toneClass = {
@@ -260,10 +276,12 @@ function Stat({
     info: "text-info",
   }[tone];
 
+  const sizeClass = big ? "text-xl sm:text-2xl" : small ? "text-base" : "text-lg";
+
   return (
     <div>
       <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
-      <p className={`mt-1 tabular-nums font-semibold ${big ? "text-2xl" : "text-lg"} ${toneClass}`}>
+      <p className={`mt-1 tabular-nums font-semibold ${sizeClass} ${toneClass}`}>
         {raw ? value : formatCurrency(value as number)}
       </p>
     </div>

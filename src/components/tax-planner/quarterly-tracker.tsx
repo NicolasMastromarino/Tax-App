@@ -44,7 +44,10 @@ export function QuarterlyTracker({
         </p>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        {/* Table layout for tablet/desktop — seven columns don't fit a
+            phone screen without horizontal scrolling, so this is hidden
+            below sm and replaced with the stacked cards underneath. */}
+        <div className="hidden overflow-x-auto sm:block">
           <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-muted">
@@ -60,7 +63,8 @@ export function QuarterlyTracker({
             <tbody>
               {rows.map((row) => (
                 <QuarterRow
-                  key={`${row.quarter}-${editingQuarter === row.quarter}`}
+                  key={`table-${row.quarter}-${editingQuarter === row.quarter}`}
+                  variant="table"
                   taxYear={taxYear}
                   row={row}
                   editing={editingQuarter === row.quarter}
@@ -85,12 +89,39 @@ export function QuarterlyTracker({
             </tfoot>
           </table>
         </div>
+
+        {/* Stacked cards for phone-width screens — same data and the same
+            inline-edit flow, one quarter per card instead of a row. */}
+        <div className="space-y-3 sm:hidden">
+          {rows.map((row) => (
+            <QuarterRow
+              key={`card-${row.quarter}-${editingQuarter === row.quarter}`}
+              variant="card"
+              taxYear={taxYear}
+              row={row}
+              editing={editingQuarter === row.quarter}
+              onStartEdit={() => setEditingQuarter(row.quarter)}
+              onSaved={() => setEditingQuarter(null)}
+              onCancel={() => setEditingQuarter(null)}
+            />
+          ))}
+          <div className="flex items-center justify-between rounded-lg border border-border p-3">
+            <span className="text-sm font-medium">Total</span>
+            <div className="text-right">
+              <p className="text-sm font-semibold tabular-nums">{formatCurrency(totalPaid)}</p>
+              <div className="mt-1">
+                <OverUnderBadge amount={totalOverUnderpaid} />
+              </div>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
 }
 
 function QuarterRow({
+  variant,
   taxYear,
   row,
   editing,
@@ -98,6 +129,7 @@ function QuarterRow({
   onSaved,
   onCancel,
 }: {
+  variant: "table" | "card";
   taxYear: number;
   row: QuarterlyPaymentRow;
   editing: boolean;
@@ -116,6 +148,77 @@ function QuarterRow({
     }
   }, [state.success, row.label, onSaved]);
 
+  const editForm = (
+    <form action={formAction} className="flex flex-wrap items-center gap-2">
+      <input type="hidden" name="taxYear" value={taxYear} />
+      <input type="hidden" name="quarter" value={row.quarter} />
+      <Input
+        name="amountPaid"
+        type="number"
+        step="0.01"
+        value={amountPaid}
+        onChange={(e) => setAmountPaid(e.target.value)}
+        className="h-8 w-28"
+        placeholder="0.00"
+      />
+      <Input
+        name="datePaid"
+        type="date"
+        value={datePaid}
+        onChange={(e) => setDatePaid(e.target.value)}
+        className="h-8 w-40"
+      />
+      <Button type="submit" size="sm" disabled={pending}>
+        {pending ? "Saving..." : "Save"}
+      </Button>
+      <Button type="button" size="sm" variant="ghost" onClick={onCancel}>
+        Cancel
+      </Button>
+      {state.error && <p className="w-full text-xs text-danger">{state.error}</p>}
+    </form>
+  );
+
+  const recordButton = (
+    <Button size="sm" variant="outline" onClick={onStartEdit}>
+      {row.amountPaid > 0 || row.datePaid ? "Edit" : "Record Payment"}
+    </Button>
+  );
+
+  if (variant === "card") {
+    return (
+      <div className="rounded-lg border border-border p-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium">{row.label}</p>
+            <p className="text-xs text-muted">Due {formatDate(row.dueDate)}</p>
+          </div>
+          <OverUnderBadge amount={row.overUnderpaid} />
+        </div>
+        {editing ? (
+          <div className="mt-3">{editForm}</div>
+        ) : (
+          <>
+            <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <dt className="text-xs text-muted">Recommended</dt>
+                <dd className="tabular-nums">{formatCurrency(row.recommendedAmount)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted">Amount Paid</dt>
+                <dd className="tabular-nums">{formatCurrency(row.amountPaid)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted">Date Paid</dt>
+                <dd>{row.datePaid ? formatDate(row.datePaid) : "—"}</dd>
+              </div>
+            </dl>
+            <div className="mt-3">{recordButton}</div>
+          </>
+        )}
+      </div>
+    );
+  }
+
   if (editing) {
     return (
       <tr className="border-b border-border/60">
@@ -123,33 +226,7 @@ function QuarterRow({
         <td className="py-2 pr-3 text-muted">{formatDate(row.dueDate)}</td>
         <td className="py-2 pr-3 tabular-nums text-muted">{formatCurrency(row.recommendedAmount)}</td>
         <td colSpan={4} className="py-2">
-          <form action={formAction} className="flex flex-wrap items-center gap-2">
-            <input type="hidden" name="taxYear" value={taxYear} />
-            <input type="hidden" name="quarter" value={row.quarter} />
-            <Input
-              name="amountPaid"
-              type="number"
-              step="0.01"
-              value={amountPaid}
-              onChange={(e) => setAmountPaid(e.target.value)}
-              className="h-8 w-28"
-              placeholder="0.00"
-            />
-            <Input
-              name="datePaid"
-              type="date"
-              value={datePaid}
-              onChange={(e) => setDatePaid(e.target.value)}
-              className="h-8 w-40"
-            />
-            <Button type="submit" size="sm" disabled={pending}>
-              {pending ? "Saving..." : "Save"}
-            </Button>
-            <Button type="button" size="sm" variant="ghost" onClick={onCancel}>
-              Cancel
-            </Button>
-            {state.error && <p className="w-full text-xs text-danger">{state.error}</p>}
-          </form>
+          {editForm}
         </td>
       </tr>
     );
@@ -165,11 +242,7 @@ function QuarterRow({
       <td className="py-2 pr-3 tabular-nums">
         <OverUnderBadge amount={row.overUnderpaid} />
       </td>
-      <td className="py-2 text-right">
-        <Button size="sm" variant="outline" onClick={onStartEdit}>
-          {row.amountPaid > 0 || row.datePaid ? "Edit" : "Record Payment"}
-        </Button>
-      </td>
+      <td className="py-2 text-right">{recordButton}</td>
     </tr>
   );
 }
