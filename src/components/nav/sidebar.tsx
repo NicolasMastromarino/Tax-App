@@ -1,0 +1,106 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Receipt,
+  Scale,
+  FileBarChart,
+  BookOpen,
+  Settings,
+  HelpCircle,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { signOutAction } from "@/lib/actions/session-actions";
+
+const NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/transactions", label: "Transactions", icon: Receipt },
+  { href: "/reconciliation", label: "Reconciliation", icon: Scale },
+  { href: "/reports", label: "Reports", icon: FileBarChart },
+  { href: "/categories", label: "Expense Categories", icon: BookOpen },
+  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/help", label: "Help / Getting Started", icon: HelpCircle },
+];
+
+export function Sidebar({ businessName }: { businessName: string }) {
+  const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const nav = (
+    <nav className="flex flex-1 flex-col gap-1 px-3">
+      {NAV_ITEMS.map((item) => {
+        const active = pathname === item.href || pathname?.startsWith(item.href + "/");
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={() => setMobileOpen(false)}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              active
+                ? "bg-primary/10 text-primary"
+                : "text-foreground/80 hover:bg-surface-muted hover:text-foreground"
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+
+  return (
+    <>
+      {/* Mobile top bar */}
+      <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 md:hidden">
+        <span className="text-sm font-semibold">{businessName}</span>
+        <button onClick={() => setMobileOpen((o) => !o)} className="p-1">
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+      </div>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface md:flex">
+        <div className="px-5 py-5">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">Business</p>
+          <p className="mt-0.5 truncate text-sm font-semibold">{businessName}</p>
+        </div>
+        {nav}
+        <div className="border-t border-border p-3">
+          <form action={signOutAction}>
+            <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-surface-muted">
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 flex md:hidden">
+          <div className="fixed inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
+          <aside className="relative flex w-64 flex-col bg-surface pt-4">
+            {nav}
+            <div className="border-t border-border p-3">
+              <form action={signOutAction}>
+                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-surface-muted">
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </button>
+              </form>
+            </div>
+          </aside>
+        </div>
+      )}
+    </>
+  );
+}
