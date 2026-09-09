@@ -22,6 +22,8 @@ export function SettingsClient({ business }: { business: Business }) {
   const [homeOfficeUsed, setHomeOfficeUsed] = useState(business.homeOfficeUsed);
   const [officeSqFt, setOfficeSqFt] = useState(business.homeOfficeSqFt ?? "");
   const [totalSqFt, setTotalSqFt] = useState(business.totalHomeSqFt ?? "");
+  const [filingStatus, setFilingStatus] = useState(business.filingStatus);
+  const [isSstb, setIsSstb] = useState(business.isSstb);
 
   useEffect(() => {
     if (state.success) toast.success("Settings saved");
@@ -87,7 +89,12 @@ export function SettingsClient({ business }: { business: Business }) {
             </div>
             <div>
               <Label htmlFor="filingStatus">Filing Status</Label>
-              <Select id="filingStatus" name="filingStatus" defaultValue={business.filingStatus}>
+              <Select
+                id="filingStatus"
+                name="filingStatus"
+                defaultValue={business.filingStatus}
+                onChange={(e) => setFilingStatus(e.target.value as typeof filingStatus)}
+              >
                 <option value="single">Single</option>
                 <option value="married_filing_jointly">Married Filing Jointly</option>
                 <option value="married_filing_separately">Married Filing Separately</option>
@@ -118,6 +125,78 @@ export function SettingsClient({ business }: { business: Business }) {
                   defaultValue={business.sCorpSalary ?? ""}
                 />
                 <FieldError>{fieldErrors.sCorpSalary}</FieldError>
+              </div>
+            )}
+            {filingStatus === "married_filing_jointly" && (
+              <div>
+                <Label htmlFor="spouseIncome">Spouse&apos;s Income</Label>
+                <Input
+                  id="spouseIncome"
+                  name="spouseIncome"
+                  type="number"
+                  step="0.01"
+                  defaultValue={business.spouseIncome ?? ""}
+                />
+                <HelpText>
+                  Blended into your household AGI, QBI phaseout position, and the Additional
+                  Medicare Tax threshold on a joint return — not into this business&apos;s own
+                  self-employment tax.
+                </HelpText>
+                <FieldError>{fieldErrors.spouseIncome}</FieldError>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>QBI Deduction (§199A)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-2">
+              <input
+                id="isSstb"
+                name="isSstb"
+                type="checkbox"
+                defaultChecked={business.isSstb}
+                onChange={(e) => setIsSstb(e.target.checked)}
+                className="h-4 w-4 rounded border-border"
+              />
+              <Label htmlFor="isSstb" className="mb-0">
+                My business is a Specified Service Trade or Business (SSTB)
+              </Label>
+            </div>
+            <HelpText>
+              Law, health, consulting, financial services, and similar personal-service
+              businesses (including most real estate agents) are typically SSTBs — their QBI
+              deduction tapers straight to $0 once income clears the phaseout range. A non-SSTB
+              instead keeps a wage/property-limited floor. Leave this checked if you&apos;re not
+              sure.
+            </HelpText>
+            {!isSstb && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="w2WagesPaid">W-2 Wages Paid by the Business</Label>
+                  <Input
+                    id="w2WagesPaid"
+                    name="w2WagesPaid"
+                    type="number"
+                    step="0.01"
+                    defaultValue={business.w2WagesPaid}
+                  />
+                  <HelpText>Not counting an S-Corp owner&apos;s own salary — that&apos;s added automatically.</HelpText>
+                </div>
+                <div>
+                  <Label htmlFor="ubiaQualifiedProperty">UBIA of Qualified Property</Label>
+                  <Input
+                    id="ubiaQualifiedProperty"
+                    name="ubiaQualifiedProperty"
+                    type="number"
+                    step="0.01"
+                    defaultValue={business.ubiaQualifiedProperty}
+                  />
+                  <HelpText>Unadjusted basis immediately after acquisition of depreciable business property.</HelpText>
+                </div>
               </div>
             )}
           </CardContent>

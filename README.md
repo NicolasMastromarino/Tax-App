@@ -14,20 +14,27 @@ See [`docs/WORKBOOK_SPEC.md`](./docs/WORKBOOK_SPEC.md) for the full analysis of 
 - Bank Reconciliation: beginning balance → income/expenses/contributions/distributions → calculated ending balance, compared against your bank statement, with reconciliation history and a month is only "Complete" on the dashboard once it's reconciled
 - Reports: Profit & Loss (Monthly / YTD / Full Year / Custom range) and an itemized Other Expenses report (grouped by description, with count/total/date range)
 - Expense Category Guide: all 36 categories from the original workbook, searchable ("what category should I use for Adobe?")
-- Settings: business info, tax profile (filing status, sole prop / S-Corp + salary), home office, beginning bank balance
+- Settings: business info, tax profile (filing status, sole prop / S-Corp + salary, spouse income for MFJ, SSTB/wage/UBIA fields for the QBI deduction), home office, beginning bank balance
 - Help / Getting Started checklist
 
-## Tax Planner (v1.1)
+## Tax Planner (v1.2)
 
-- **Tax Estimate**: annualizes year-to-date net income based on how many months actually have bookkeeping data, then computes self-employment tax, the QBI deduction, taxable income, income tax (progressive 2025 brackets), total estimated tax, the per-quarter amount, and your marginal rate.
+- **Tax Estimate**: annualizes year-to-date net income based on how many months actually have bookkeeping data, then computes self-employment tax, the QBI deduction, taxable income, income tax (progressive brackets), the Additional Medicare Tax, total estimated tax, the per-quarter amount, and your marginal rate. The Quarterly Payments table and its inline edit form are responsive — a table on tablet/desktop, stacked cards on phone widths, so nothing gets clipped off-screen.
 - **Sole Proprietor vs. S-Corp comparison**: both scenarios computed side by side from the same projected income, with a callout for how much the S-Corp election could save (or cost) at the salary you've set.
-- **Quarterly Estimated Payments tracker**: the four standard IRS due dates, computed from your tax year, each with an editable amount paid / date paid and an over/underpaid badge against the recommended (evenly-split) amount.
-- **The one deliberate fix vs. the original workbook** (spec §12.3): the workbook computes the QBI deduction and the deductible half of SE tax but never actually subtracts them from income before running the tax-bracket calculation, which overstates projected tax. This app actually subtracts both first. See the header comment in `src/lib/calculations/tax.ts` for the full explanation, and everything else it deliberately does *not* change from the workbook's simplifications (no Additional Medicare Tax, no standard deduction modeled, linear QBI phaseout with no SSTB/W-2-wage branching, no safe-harbor quarterly calculation) — all disclosed in the Tax Planner page's own disclaimer, not hidden.
-- **Only 2025 tax figures are seeded** (`src/db/seed-data/tax-2025.ts`). Tax brackets, the QBI phaseout table, and SE-tax parameters are all versioned by tax year in the database (`tax_parameters`/`tax_brackets`/`qbi_phaseout_parameters` tables) so a future year's figures can be added without a code change — see that file's shape for the pattern. If your business's Tax Year (Settings) isn't seeded yet, the Tax Planner says so plainly instead of guessing.
+- **Quarterly Estimated Payments tracker**: the four standard IRS due dates, computed from your tax year, each with an editable amount paid / date paid and an over/underpaid badge against a true IRS **safe-harbor** recommended amount (see below) — not just an even split.
+- **The one deliberate fix vs. the original workbook** (spec §12.3): the workbook computes the QBI deduction and the deductible half of SE tax but never actually subtracts them from income before running the tax-bracket calculation, which overstates projected tax. This app actually subtracts both first. See the header comment in `src/lib/calculations/tax.ts` for the full explanation.
+- **Additional Medicare Tax** (spec §12.6): a flat 0.9% surtax on Medicare wages/SE income above statutory (not inflation-indexed) thresholds — $200k Single/HoH, $250k MFJ, $125k MFS.
+- **Spouse income for Married Filing Jointly** (spec §12.11): an optional Settings field that blends a spouse's income into household AGI, the QBI phaseout position, and the Additional Medicare Tax threshold check — but not into this business's own self-employment tax base.
+- **SSTB vs. non-SSTB QBI deduction** (spec §12.5): a Settings toggle for whether your business is a Specified Service Trade or Business. SSTB (the default — law, health, consulting, financial services, most real estate agents) still tapers the QBI deduction straight to $0 across the phaseout range. A non-SSTB instead keeps a wage/UBIA-limited floor (the greater of 50% of W-2 wages, or 25% of W-2 wages + 2.5% of qualified property basis) — with two more Settings fields to enter those.
+- **True IRS safe-harbor quarterly calculation** (spec §12.8): the recommended quarterly amount is the smaller of 90% of this year's projected tax or 100%/110% of last year's actual tax (110% if last year's household AGI was above $150k, or $75k filing separately) — computed from your actual prior-year transactions when that tax year is seeded, falling back to the 90%-of-current-year test otherwise. The Quarterly Payments card shows which basis is currently in effect.
+- **2025 and 2026 tax figures are seeded** (`src/db/seed-data/tax-2025.ts`, `src/db/seed-data/tax-2026.ts`). Tax brackets, the QBI phaseout table, and SE-tax parameters are all versioned by tax year in the database (`tax_parameters`/`tax_brackets`/`qbi_phaseout_parameters` tables) so a future year's figures can be added without a code change — see either file's shape for the pattern. If your business's Tax Year (Settings) isn't seeded yet, the Tax Planner says so plainly instead of guessing. The 2026 file's header comment documents exactly which figures came from a direct IRS.gov/IRS Pub 505 fetch (Single, MFJ, the SE wage base) versus a cross-checked secondary source (Head of Household, the QBI phase-out range) versus a statutory derivation (Married Filing Separately) — worth reading before relying on it for an actual filing.
+- **Known simplifications still disclosed in the Tax Planner's own disclaimer**: no standard deduction modeled, no state taxes.
 
-### Not yet built
+## Contractors & 1099s (v1.2)
 
-Contractor & 1099 tracking was scoped out so the core bookkeeping experience and the Tax Planner could each be built solidly. `docs/WORKBOOK_SPEC.md` §11 has the reverse-engineered logic ready for a follow-up build. The `transactions` table already tracks a `vendorName` per transaction and flags Contract-Labor-category transactions (`categories.isContractLabor`), so a Contractors page can be built on top of existing data without a schema migration for the core linkage.
+- A dedicated **Contractors & 1099s** page groups your Contract-Labor-category transactions by vendor name for the selected tax year, flags anyone paid **$600 or more** as likely needing a Form 1099-NEC (spec §7.4/§11), and lets you attach and edit each vendor's contact info, tax ID, and W-9-received status — separate from the payment total, which is always computed live from your transactions so it can't drift out of sync with the ledger.
+- Backed by a new `vendors` table (email, phone, address, tax ID, W-9 received, notes), matched to transactions by vendor name — see `src/lib/data/contractors.ts` and `src/lib/actions/contractor-actions.ts`.
+- Doesn't generate or file the actual 1099-NEC — that's flagged plainly in the page's own disclaimer.
 
 ## Tech stack
 
@@ -84,6 +91,8 @@ Then seed the 36 expense/income categories (safe to re-run; it upserts by name):
 npm run db:seed
 ```
 
+Updating an **existing** deployment to this version: `npm run db:push` (local) or `npm run db:migrate` (applies `drizzle/0002_remarkable_mach_iv.sql`, generated with `npm run db:generate`) adds the new `vendors` table and four new nullable/defaulted `businesses` columns (`spouse_income`, `is_sstb`, `w2_wages_paid`, `ubia_qualified_property`) — all additive, with defaults chosen to reproduce prior behavior exactly, so no backfill or downtime is required.
+
 ### 5. Run it
 
 ```bash
@@ -114,6 +123,8 @@ npx tsx scripts/e2e-smoke-test.ts
 
 Two more scripts cover the Tax Planner specifically: `npx tsx scripts/tax-planner-smoke-test.ts` (DB integration — needs `NODE_OPTIONS=--conditions=react-server`, same as `test:smoke`) and `npx tsx scripts/tax-planner-e2e-test.ts` (browser walkthrough — needs `npm run dev` running, same as the e2e script above; sets tax year to 2025 via Settings first, since that's the only seeded year).
 
+Two more after that cover this round's additions (Additional Medicare Tax, spouse income, SSTB toggle, safe harbor, Contractors & 1099s): `npx tsx scripts/tax-refinements-smoke-test.ts` (DB integration, same `NODE_OPTIONS` requirement) and `npx tsx scripts/tax-refinements-e2e-test.ts` (browser walkthrough — registers, sets MFJ + spouse income + non-SSTB via Settings, adds Contract-Labor transactions across two vendors, checks the $600 1099 threshold badge and vendor-contact-info save/reload on the Contractors page, and checks the Tax Planner renders the new Additional Medicare Tax line and safe-harbor basis label).
+
 ## Deploying
 
 This app has no framework-specific lock-in beyond "Next.js app + Postgres":
@@ -140,10 +151,12 @@ src/
   db/
     schema.ts                # Drizzle schema (source of truth for the DB shape)
     seed-data/categories.ts  # the 36 categories, ported from the original workbook
+    seed-data/tax-2025.ts, tax-2026.ts
     seed.ts, migrate.ts
 drizzle/                     # generated SQL migrations
 docs/WORKBOOK_SPEC.md        # full reverse-engineering of the original Excel workbook
-scripts/                     # smoke-test.ts (DB integration) and e2e-smoke-test.ts (browser)
+scripts/                     # smoke-test.ts / e2e-smoke-test.ts (core app), tax-planner-*
+                              # and tax-refinements-* smoke + e2e tests (Tax Planner, Contractors)
 ```
 
 ## Design decisions worth knowing about

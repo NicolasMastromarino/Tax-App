@@ -25,6 +25,10 @@ export async function updateBusinessSettingsAction(
     homeOfficeUsed: formData.get("homeOfficeUsed") === "on",
     homeOfficeSqFt: formData.get("homeOfficeSqFt") || null,
     totalHomeSqFt: formData.get("totalHomeSqFt") || null,
+    spouseIncome: formData.get("spouseIncome") || null,
+    isSstb: formData.get("isSstb") === "on",
+    w2WagesPaid: formData.get("w2WagesPaid") || 0,
+    ubiaQualifiedProperty: formData.get("ubiaQualifiedProperty") || 0,
   });
 
   if (!parsed.success) {
@@ -62,6 +66,16 @@ export async function updateBusinessSettingsAction(
       homeOfficeUsed: d.homeOfficeUsed,
       homeOfficeSqFt: d.homeOfficeUsed ? String(d.homeOfficeSqFt) : null,
       totalHomeSqFt: d.homeOfficeUsed ? String(d.totalHomeSqFt) : null,
+      // Spouse income only matters (and is only shown in the UI) for a
+      // Married Filing Jointly return — clear it otherwise so a stale value
+      // can't linger after a filing-status change (spec §12.11).
+      spouseIncome:
+        d.filingStatus === "married_filing_jointly" && d.spouseIncome != null
+          ? String(d.spouseIncome)
+          : null,
+      isSstb: d.isSstb,
+      w2WagesPaid: String(d.w2WagesPaid ?? 0),
+      ubiaQualifiedProperty: String(d.ubiaQualifiedProperty ?? 0),
       updatedAt: new Date(),
     })
     .where(eq(businesses.id, business.id));
@@ -70,5 +84,6 @@ export async function updateBusinessSettingsAction(
   revalidatePath("/dashboard");
   revalidatePath("/transactions");
   revalidatePath("/reconciliation");
+  revalidatePath("/tax-planner");
   return { success: true };
 }

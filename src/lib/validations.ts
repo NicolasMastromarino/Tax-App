@@ -44,6 +44,11 @@ export const businessSettingsSchema = z.object({
   homeOfficeUsed: z.coerce.boolean().optional().default(false),
   homeOfficeSqFt: z.coerce.number().min(0).optional().nullable(),
   totalHomeSqFt: z.coerce.number().min(0).optional().nullable(),
+  // Tax Planner refinements (spec §12.11, §12.5):
+  spouseIncome: z.coerce.number().min(0).optional().nullable(),
+  isSstb: z.coerce.boolean().optional().default(true),
+  w2WagesPaid: z.coerce.number().min(0).optional().default(0),
+  ubiaQualifiedProperty: z.coerce.number().min(0).optional().default(0),
 });
 
 export type BusinessSettingsInput = z.infer<typeof businessSettingsSchema>;
@@ -78,3 +83,23 @@ export const taxPaymentSchema = z.object({
     .optional()
     .or(z.literal("")),
 });
+
+// Vendor/contractor contact + compliance info for the 1099 page (spec §7.4 /
+// §11). Matched to a business's Contract-Labor transactions by name.
+export const vendorSchema = z.object({
+  name: z.string().trim().min(1, "Vendor name is required").max(255),
+  email: z
+    .string()
+    .trim()
+    .email("Enter a valid email address")
+    .max(255)
+    .optional()
+    .or(z.literal("")),
+  phone: z.string().trim().max(50).optional().or(z.literal("")),
+  address: z.string().trim().max(500).optional().or(z.literal("")),
+  taxId: z.string().trim().max(50).optional().or(z.literal("")),
+  w9Received: z.coerce.boolean().optional().default(false),
+  notes: z.string().trim().max(2000).optional().or(z.literal("")),
+});
+
+export type VendorInput = z.infer<typeof vendorSchema>;

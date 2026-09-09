@@ -15,6 +15,13 @@
       "when": 1788890770123,
       "tag": "0001_legal_ozymandias",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788969670607,
+      "tag": "0002_remarkable_mach_iv",
+      "breakpoints": true
     }
   ]
 }

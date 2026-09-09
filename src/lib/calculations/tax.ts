@@ -46,6 +46,21 @@ export interface TaxYearParams {
   qbiRate: number;
 }
 
+// Additional Medicare Tax (IRC §1401(b)(2)) — a flat 0.9% surtax on
+// self-employment income/wages above these thresholds, on top of the
+// regular 2.9% Medicare portion already inside SE tax / payroll tax. Unlike
+// the brackets, QBI phaseout, and SE wage base, these dollar thresholds are
+// NOT inflation-adjusted — they've been fixed by statute at these exact
+// values since the tax took effect in 2013 — so they're true constants
+// here rather than versioned-by-tax-year database rows (spec §12.6).
+export const ADDITIONAL_MEDICARE_TAX_RATE = 0.009;
+export const ADDITIONAL_MEDICARE_THRESHOLDS: Record<FilingStatus, number> = {
+  single: 200_000,
+  married_filing_jointly: 250_000,
+  married_filing_separately: 125_000,
+  head_of_household: 200_000,
+};
+
 /**
  * Progressive "bucket fill" bracket tax (spec §6.6 step 3-4), using clean
  * half-open bracket intervals [lowerBound, upperBound). Equivalent to the
@@ -91,22 +106,57 @@ export function computeSeTax(seTaxBase: number, params: TaxYearParams): number {
 }
 
 /**
- * QBI deduction with linear phaseout (spec §6.5). `ordIncome` (not
- * `qbiBase`) is what determines phaseout position, matching the workbook.
+ * QBI deduction with phaseout (spec §6.5, refined per spec §12.5).
+ * `ordIncome` (not `qbiBase`) is what determines phaseout position,
+ * matching the workbook.
+ *
+ * For an SSTB (the workbook's only case — real estate agents and similar
+ * service providers), the deduction still tapers straight to $0 across the
+ * phaseout band, exactly as before. For a non-SSTB, the real IRC §199A(b)(3)
+ * rule instead limits the deduction to the greater of 50% of W-2 wages paid
+ * by the business, or 25% of W-2 wages + 2.5% of the unadjusted basis
+ * immediately after acquisition (UBIA) of qualified property — phased in
+ * linearly across the same band rather than tapering to zero. Both cases
+ * fall out of one formula: an SSTB's "wage-limited amount" is defined as
+ * $0, which reduces to the original straight-line-to-zero taper.
  */
 export function computeQbiDeduction(params: {
   ordIncome: number;
   qbiBase: number;
   phaseout: QbiPhaseout;
   qbiRate: number;
+  isSstb?: boolean;
+  w2WagesPaid?: number;
+  ubiaQualifiedProperty?: number;
 }): number {
-  const { ordIncome, qbiBase, phaseout, qbiRate } = params;
+  const {
+    ordIncome,
+    qbiBase,
+    phaseout,
+    qbiRate,
+    isSstb = true,
+    w2WagesPaid = 0,
+    ubiaQualifiedProperty = 0,
+  } = params;
   const fullDeduction = qbiRate * Math.max(0, qbiBase);
   if (ordIncome <= phaseout.phaseoutStart) return round2(fullDeduction);
-  if (ordIncome >= phaseout.phaseoutEnd) return 0;
+
   const phaseWidth = phaseout.phaseoutEnd - phaseout.phaseoutStart;
   if (phaseWidth <= 0) return 0;
-  return round2(fullDeduction * (1 - (ordIncome - phaseout.phaseoutStart) / phaseWidth));
+
+  const wageLimitedAmount = isSstb
+    ? 0
+    : Math.max(
+        0.5 * Math.max(0, w2WagesPaid),
+        0.25 * Math.max(0, w2WagesPaid) + 0.025 * Math.max(0, ubiaQualifiedProperty)
+      );
+  const excessAmount = Math.max(0, fullDeduction - wageLimitedAmount);
+  const taperFraction =
+    ordIncome >= phaseout.phaseoutEnd
+      ? 1
+      : (ordIncome - phaseout.phaseoutStart) / phaseWidth;
+
+  return round2(fullDeduction - excessAmount * taperFraction);
 }
 
 export interface EntityTaxResult {
@@ -118,34 +168,82 @@ export interface EntityTaxResult {
   qbiDeduction: number;
   taxableIncome: number;
   incomeTax: number;
+  additionalMedicareTax: number;
   totalTax: number;
   quarterlyTax: number;
   marginalRate: number;
 }
 
+/**
+ * Optional household/QBI-refinement inputs shared by both entity scenarios
+ * (spec §12.5, §12.6, §12.11). All default to values that reproduce the
+ * original behavior exactly when omitted, so existing callers/tests are
+ * unaffected.
+ */
+interface HouseholdRefinements {
+  filingStatus?: FilingStatus;
+  spouseIncome?: number;
+  isSstb?: boolean;
+  w2WagesPaid?: number;
+  ubiaQualifiedProperty?: number;
+}
+
 /** Sole Proprietor scenario (spec §6.3 column D). */
-export function computeSoleProp(params: {
-  ordIncome: number;
-  brackets: TaxBracket[];
-  qbiPhaseout: QbiPhaseout;
-  taxParams: TaxYearParams;
-}): EntityTaxResult {
-  const { ordIncome, brackets, qbiPhaseout, taxParams } = params;
+export function computeSoleProp(
+  params: {
+    ordIncome: number;
+    brackets: TaxBracket[];
+    qbiPhaseout: QbiPhaseout;
+    taxParams: TaxYearParams;
+  } & HouseholdRefinements
+): EntityTaxResult {
+  const {
+    ordIncome,
+    brackets,
+    qbiPhaseout,
+    taxParams,
+    filingStatus = "single",
+    spouseIncome = 0,
+    isSstb = true,
+    w2WagesPaid = 0,
+    ubiaQualifiedProperty = 0,
+  } = params;
   const seTaxBase = round2(Math.max(0, ordIncome) * taxParams.seTaxableFraction);
   const seTax = computeSeTax(seTaxBase, taxParams);
   const seDeductible = round2(seTax * taxParams.seDeductibleFraction);
-  const agi = round2(ordIncome - seDeductible);
+  // The business's own AGI contribution (income minus the deductible half
+  // of SE tax) — this is also the QBI base, since QBI is about the
+  // business's own qualified income, not a spouse's separate income.
+  const businessAgi = round2(ordIncome - seDeductible);
+  // Household AGI blends in a spouse's income on a Married Filing Jointly
+  // return (spec §12.11) — spouseIncome will be 0 for every other filing
+  // status in practice, since the UI only surfaces that input for MFJ.
+  const agi = round2(businessAgi + spouseIncome);
+  // Phaseout position (QBI and, implicitly, the bracket calculation below)
+  // is a household-level determination, so it uses the combined figure.
+  const householdOrdIncome = round2(ordIncome + spouseIncome);
   const qbi = computeQbiDeduction({
-    ordIncome,
-    qbiBase: agi, // spec: qbi = income - dpset (the SE-tax deduction)
+    ordIncome: householdOrdIncome,
+    qbiBase: businessAgi, // spec: qbi base = income - dpset (the SE-tax deduction)
     phaseout: qbiPhaseout,
     qbiRate: taxParams.qbiRate,
+    isSstb,
+    w2WagesPaid,
+    ubiaQualifiedProperty,
   });
   // Corrected step (spec §12.3): actually subtract the QBI deduction
   // before computing income tax, instead of only displaying it.
   const taxableIncome = Math.max(0, round2(agi - qbi));
   const incomeTax = bracketTax(taxableIncome, brackets);
-  const totalTax = round2(incomeTax + seTax);
+  // Additional Medicare Tax (spec §12.6): approximates the spouse's
+  // earnings as also being Medicare-taxable wages/SE income for the
+  // threshold check — a reasonable simplification since this app doesn't
+  // separately model a second self-employed spouse's own SE tax.
+  const additionalMedicareTax = round2(
+    Math.max(0, seTaxBase + spouseIncome - ADDITIONAL_MEDICARE_THRESHOLDS[filingStatus]) *
+      ADDITIONAL_MEDICARE_TAX_RATE
+  );
+  const totalTax = round2(incomeTax + seTax + additionalMedicareTax);
   return {
     ordIncome: round2(ordIncome),
     seTaxBase,
@@ -155,6 +253,7 @@ export function computeSoleProp(params: {
     qbiDeduction: qbi,
     taxableIncome,
     incomeTax,
+    additionalMedicareTax,
     totalTax,
     quarterlyTax: round2(totalTax / 4),
     marginalRate: marginalRate(taxableIncome, brackets),
@@ -167,29 +266,53 @@ export function computeSoleProp(params: {
  * modeled on this side — carried over from the workbook as-is (spec §6.3
  * note on E20), not part of the QBI/SE-tax bug fix decided with the user.
  */
-export function computeSCorp(params: {
-  ordIncome: number;
-  sCorpSalary: number;
-  brackets: TaxBracket[];
-  qbiPhaseout: QbiPhaseout;
-  taxParams: TaxYearParams;
-}): EntityTaxResult {
-  const { ordIncome, sCorpSalary, brackets, qbiPhaseout, taxParams } = params;
+export function computeSCorp(
+  params: {
+    ordIncome: number;
+    sCorpSalary: number;
+    brackets: TaxBracket[];
+    qbiPhaseout: QbiPhaseout;
+    taxParams: TaxYearParams;
+  } & HouseholdRefinements
+): EntityTaxResult {
+  const {
+    ordIncome,
+    sCorpSalary,
+    brackets,
+    qbiPhaseout,
+    taxParams,
+    filingStatus = "single",
+    spouseIncome = 0,
+    isSstb = true,
+    w2WagesPaid = 0,
+    ubiaQualifiedProperty = 0,
+  } = params;
   const salary = Math.max(0, sCorpSalary);
   const seTaxBase = round2(salary);
   const seTax = round2(taxParams.seFullRate * salary);
   const seDeductible = 0; // spec: S-Corp side gets no above-the-line SE-tax deduction here
-  const agi = round2(ordIncome); // spec: S-Corp AGI doesn't net out payroll tax
+  const agi = round2(ordIncome + spouseIncome); // spec: S-Corp AGI doesn't net out payroll tax
+  const householdOrdIncome = round2(ordIncome + spouseIncome);
   const qbiBase = Math.max(0, round2(ordIncome - salary));
   const qbi = computeQbiDeduction({
-    ordIncome,
+    ordIncome: householdOrdIncome,
     qbiBase,
     phaseout: qbiPhaseout,
     qbiRate: taxParams.qbiRate,
+    isSstb,
+    // The owner's own S-Corp salary IS W-2 wages paid by the business for
+    // QBI wage-limitation purposes, on top of any other employees' wages
+    // entered separately.
+    w2WagesPaid: salary + w2WagesPaid,
+    ubiaQualifiedProperty,
   });
   const taxableIncome = Math.max(0, round2(agi - qbi));
   const incomeTax = bracketTax(taxableIncome, brackets);
-  const totalTax = round2(incomeTax + seTax);
+  const additionalMedicareTax = round2(
+    Math.max(0, seTaxBase + spouseIncome - ADDITIONAL_MEDICARE_THRESHOLDS[filingStatus]) *
+      ADDITIONAL_MEDICARE_TAX_RATE
+  );
+  const totalTax = round2(incomeTax + seTax + additionalMedicareTax);
   return {
     ordIncome: round2(ordIncome),
     seTaxBase,
@@ -199,6 +322,7 @@ export function computeSCorp(params: {
     qbiDeduction: qbi,
     taxableIncome,
     incomeTax,
+    additionalMedicareTax,
     totalTax,
     quarterlyTax: round2(totalTax / 4),
     marginalRate: marginalRate(taxableIncome, brackets),
@@ -231,4 +355,50 @@ export function quarterlyDueDates(taxYear: number): QuarterlyDueDate[] {
     { quarter: 3, dueDate: `${taxYear}-09-15`, label: "Q3 (Jun-Aug)" },
     { quarter: 4, dueDate: `${taxYear + 1}-01-15`, label: "Q4 (Sep-Dec)" },
   ];
+}
+
+export interface SafeHarborResult {
+  requiredAnnualPayment: number;
+  basis: "current-year-90pct" | "prior-year-100pct" | "prior-year-110pct";
+}
+
+/**
+ * A real IRS safe-harbor estimated-tax calculation (spec §12.8), replacing
+ * the flat "1/4 of this year's projection" split. To avoid the
+ * underpayment penalty, the IRS lets you pay the SMALLER of: 90% of this
+ * year's actual tax, or 100% of last year's total tax (110% if last year's
+ * AGI was above $150k, or $75k if filing separately). If last year's
+ * figures aren't available — a brand-new business, or a prior tax year
+ * this app doesn't have data for — only the 90%-of-current-year test
+ * applies, since the prior-year safe harbor requires having actually filed
+ * a full prior year.
+ *
+ * This still doesn't model (a) unequal income spread across the year (a
+ * seasonal business) or (b) catching up an underpaid earlier quarter in a
+ * later quarter's recommendation — both flagged in spec §12.8 as a further
+ * "stretch" level of accuracy beyond what's implemented here.
+ */
+export function computeSafeHarborQuarterly(params: {
+  currentYearProjectedTotalTax: number;
+  priorYear?: { totalTax: number; agi: number } | null;
+  filingStatus: FilingStatus;
+}): SafeHarborResult {
+  const { currentYearProjectedTotalTax, priorYear, filingStatus } = params;
+  const ninetyPctCurrent = round2(Math.max(0, currentYearProjectedTotalTax) * 0.9);
+
+  if (!priorYear) {
+    return { requiredAnnualPayment: ninetyPctCurrent, basis: "current-year-90pct" };
+  }
+
+  const highIncomeThreshold = filingStatus === "married_filing_separately" ? 75_000 : 150_000;
+  const multiplier = priorYear.agi > highIncomeThreshold ? 1.1 : 1.0;
+  const priorYearFloor = round2(Math.max(0, priorYear.totalTax) * multiplier);
+
+  if (ninetyPctCurrent <= priorYearFloor) {
+    return { requiredAnnualPayment: ninetyPctCurrent, basis: "current-year-90pct" };
+  }
+  return {
+    requiredAnnualPayment: priorYearFloor,
+    basis: multiplier === 1.1 ? "prior-year-110pct" : "prior-year-100pct",
+  };
 }

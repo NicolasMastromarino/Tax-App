@@ -91,6 +91,29 @@ export const businesses = pgTable("businesses", {
   homeOfficeUsed: boolean("home_office_used").notNull().default(false),
   homeOfficeSqFt: numeric("home_office_sq_ft", { precision: 10, scale: 2 }),
   totalHomeSqFt: numeric("total_home_sq_ft", { precision: 10, scale: 2 }),
+  // Tax Planner refinements (spec §12.6, §12.11, §12.5, §12.8):
+  // spouseIncome blends a spouse's income into the household figure used for
+  // bracket/QBI-phaseout/Additional-Medicare-Tax purposes on a Married Filing
+  // Jointly return — only meaningful when filingStatus is MFJ. The original
+  // workbook had a dead, never-wired-up named range for exactly this
+  // ("SpouseIncome", spec §2/§12.11).
+  spouseIncome: numeric("spouse_income", { precision: 14, scale: 2 }),
+  // isSstb: whether the business is a Specified Service Trade or Business
+  // for QBI purposes (law, health, consulting, financial services, and
+  // similar personal-service businesses). Defaults true because the original
+  // workbook's linear QBI phaseout-to-zero is only strictly correct for an
+  // SSTB (spec §6.5/§12.5) — most users of this tool (e.g. real estate
+  // agents) are SSTB-adjacent service providers, so this preserves existing
+  // behavior for the common case. Set to false to use the real non-SSTB
+  // wage/UBIA-limited formula instead.
+  isSstb: boolean("is_sstb").notNull().default(true),
+  // Only used when isSstb = false (spec §12.5's non-SSTB wage/UBIA
+  // limitation formula). Most solo service businesses with no employees and
+  // no significant depreciable property correctly leave these at 0.
+  w2WagesPaid: numeric("w2_wages_paid", { precision: 14, scale: 2 }).notNull().default("0"),
+  ubiaQualifiedProperty: numeric("ubia_qualified_property", { precision: 14, scale: 2 })
+    .notNull()
+    .default("0"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -104,6 +127,7 @@ export const businessesRelations = relations(businesses, ({ one, many }) => ({
   transactions: many(transactions),
   reconciliations: many(reconciliations),
   taxPayments: many(taxPayments),
+  vendors: many(vendors),
 }));
 
 // ---------------------------------------------------------------------------
@@ -320,4 +344,38 @@ export const taxPaymentsRelations = relations(taxPayments, ({ one }) => ({
     fields: [taxPayments.businessId],
     references: [businesses.id],
   }),
+}));
+
+// ---------------------------------------------------------------------------
+// Vendors — contractor contact/compliance info for the 1099 page (spec §7.4
+// / §11). The original workbook's "1099" sheet only tracked a name + amount
+// pair (aggregated from Contract-Labor-category transactions); it never
+// captured the contact/W-9/tax-ID info you'd actually need to file a 1099,
+// so this table adds that as a separate, optional-per-vendor record matched
+// by name. The $600/year "needs a 1099?" total itself is still computed
+// live from transactions (see lib/data/contractors.ts), not stored here.
+// ---------------------------------------------------------------------------
+
+export const vendors = pgTable(
+  "vendors",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    businessId: uuid("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    email: text("email"),
+    phone: text("phone"),
+    address: text("address"),
+    taxId: text("tax_id"), // EIN or SSN, as provided on the vendor's W-9
+    w9Received: boolean("w9_received").notNull().default(false),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("vendors_business_name_idx").on(t.businessId, t.name)]
+);
+
+export const vendorsRelations = relations(vendors, ({ one }) => ({
+  business: one(businesses, { fields: [vendors.businessId], references: [businesses.id] }),
 }));

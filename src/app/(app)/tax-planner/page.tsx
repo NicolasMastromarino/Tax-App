@@ -11,10 +11,18 @@ export default async function TaxPlannerPage() {
     filingStatus: business.filingStatus,
     isSCorp: business.isSCorp,
     sCorpSalary: business.sCorpSalary,
+    spouseIncome: business.spouseIncome,
+    isSstb: business.isSstb,
+    w2WagesPaid: business.w2WagesPaid,
+    ubiaQualifiedProperty: business.ubiaQualifiedProperty,
   });
 
   const quarterly = projection
-    ? await getQuarterlyPayments(business.id, business.taxYear, projection.currentScenario.quarterlyTax)
+    ? await getQuarterlyPayments(
+        business.id,
+        business.taxYear,
+        projection.safeHarbor.requiredAnnualPayment / 4
+      )
     : null;
 
   return (

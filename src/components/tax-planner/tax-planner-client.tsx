@@ -159,6 +159,7 @@ export function TaxPlannerClient({
               rows={quarterly.rows}
               totalPaid={quarterly.totalPaid}
               totalOverUnderpaid={quarterly.totalOverUnderpaid}
+              safeHarborBasis={projection.safeHarbor.basis}
             />
           )}
         </>
@@ -169,10 +170,8 @@ export function TaxPlannerClient({
           <p className="font-medium text-foreground">Not tax advice.</p>
           <p className="mt-1">
             This is an estimate for planning purposes only, based on the {business.taxYear} federal
-            brackets and a simplified QBI/self-employment-tax model. It does not account for the
-            standard deduction, the Additional Medicare Tax, state taxes, an IRS safe-harbor
-            calculation for quarterly payments, or SSTB/W-2-wage limits on the QBI deduction. Talk to
-            a tax professional before making decisions based on these numbers.
+            brackets. It does not account for the standard deduction or state taxes. Talk to a tax
+            professional before making decisions based on these numbers.
           </p>
         </CardContent>
       </Card>
@@ -202,6 +201,7 @@ function EstimateGrid({ result }: { result: EntityTaxResult }) {
         <Stat label="Taxable Income" value={result.taxableIncome} small />
         <Stat label="Income Tax" value={result.incomeTax} small />
         <Stat label="Self-Employment / Payroll Tax" value={result.seTax} small />
+        <Stat label="Additional Medicare Tax" value={result.additionalMedicareTax} small />
         <Stat
           label="Marginal Rate"
           value={`${(result.marginalRate * 100).toFixed(0)}%`}
@@ -235,6 +235,7 @@ function ScenarioColumn({
         <Row label="QBI Deduction" value={formatCurrency(result.qbiDeduction)} />
         <Row label="Taxable Income" value={formatCurrency(result.taxableIncome)} />
         <Row label="Income Tax" value={formatCurrency(result.incomeTax)} />
+        <Row label="Additional Medicare Tax" value={formatCurrency(result.additionalMedicareTax)} />
         <Row
           label="Total Tax"
           value={formatCurrency(result.totalTax)}

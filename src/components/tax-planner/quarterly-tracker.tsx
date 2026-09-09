@@ -16,19 +16,29 @@ import { saveTaxPaymentAction } from "@/lib/actions/tax-actions";
 import type { ActionState } from "@/lib/actions/auth-actions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { QuarterlyPaymentRow } from "@/lib/data/tax";
+import type { SafeHarborResult } from "@/lib/calculations/tax";
 
 const initialState: ActionState = {};
+
+const SAFE_HARBOR_LABELS: Record<SafeHarborResult["basis"], string> = {
+  "current-year-90pct": "90% of this year's projected tax",
+  "prior-year-100pct": "100% of last year's total tax",
+  "prior-year-110pct":
+    "110% of last year's total tax (last year's income was above the high-income threshold)",
+};
 
 export function QuarterlyTracker({
   taxYear,
   rows,
   totalPaid,
   totalOverUnderpaid,
+  safeHarborBasis,
 }: {
   taxYear: number;
   rows: QuarterlyPaymentRow[];
   totalPaid: number;
   totalOverUnderpaid: number;
+  safeHarborBasis: SafeHarborResult["basis"];
 }) {
   const [editingQuarter, setEditingQuarter] = useState<number | null>(null);
 
@@ -39,8 +49,9 @@ export function QuarterlyTracker({
           Quarterly Estimated Payments
         </CardTitle>
         <p className="mt-1 text-sm text-muted">
-          Recommended amount is your current total estimated tax split evenly across 4 quarters —
-          not a true IRS safe-harbor calculation.
+          Recommended amount uses the IRS safe-harbor rule — the smaller of 90% of this
+          year&apos;s projected tax or 100%/110% of last year&apos;s — split evenly across 4
+          quarters. Currently based on: <strong>{SAFE_HARBOR_LABELS[safeHarborBasis]}</strong>.
         </p>
       </CardHeader>
       <CardContent>

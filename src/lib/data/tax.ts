@@ -5,6 +5,7 @@ import { and, asc, eq, gte, lt } from "drizzle-orm";
 import {
   computeSoleProp,
   computeSCorp,
+  computeSafeHarborQuarterly,
   annualizeIncome,
   quarterlyDueDates,
   type TaxBracket,
@@ -12,6 +13,7 @@ import {
   type TaxYearParams,
   type EntityTaxResult,
   type FilingStatus,
+  type SafeHarborResult,
 } from "@/lib/calculations/tax";
 import { firstOfMonthISO } from "@/lib/utils";
 
@@ -119,6 +121,99 @@ export interface TaxProjection {
   sCorpSavings: number | null; // soleProp.totalTax - sCorp.totalTax, positive = S-Corp saves money
   currentScenario: EntityTaxResult; // whichever of the above matches the business's actual election
   dataAvailable: boolean; // false if the tax year isn't seeded, or there's no income data yet
+  safeHarbor: SafeHarborResult; // real IRS safe-harbor basis for the quarterly recommendation (spec §12.8)
+}
+
+/** Business fields that feed the household-level tax refinements (spec §12.5, §12.6, §12.11). */
+export interface TaxProjectionBusinessInput {
+  id: string;
+  taxYear: number;
+  filingStatus: FilingStatus;
+  isSCorp: boolean;
+  sCorpSalary: string | null;
+  spouseIncome?: string | null;
+  isSstb?: boolean | null;
+  w2WagesPaid?: string | null;
+  ubiaQualifiedProperty?: string | null;
+}
+
+/**
+ * Computes a prior tax year's total tax + AGI from that year's *actual*
+ * recorded transactions (not annualized — a completed year's real net
+ * income), run through that year's own seeded tax parameters and the
+ * business's current filing settings. This is the basis IRS safe harbor
+ * needs (spec §12.8): 100%/110% of "last year's tax". If the prior year
+ * isn't seeded, or there's no transaction history for it at all, returns
+ * null so the safe-harbor calc falls back to the 90%-of-current-year test
+ * only. Known simplification: the business's *current* filing status/entity
+ * election/spouse income is applied retroactively to prior-year income,
+ * since this app doesn't store a separate historical settings snapshot.
+ */
+async function getPriorYearActuals(
+  business: TaxProjectionBusinessInput,
+  priorTaxYear: number
+): Promise<{ totalTax: number; agi: number } | null> {
+  if (priorTaxYear < 0) return null;
+  const taxYearData = await getTaxYearData(priorTaxYear, business.filingStatus);
+  if (!taxYearData) return null;
+
+  const yearStart = firstOfMonthISO(priorTaxYear, 1);
+  const yearEndExclusive = firstOfMonthISO(priorTaxYear + 1, 1);
+  const rows = await db
+    .select({ type: transactions.type, amount: transactions.amount })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.businessId, business.id),
+        gte(transactions.date, yearStart),
+        lt(transactions.date, yearEndExclusive)
+      )
+    );
+  if (rows.length === 0) return null;
+
+  let revenue = 0;
+  let expenses = 0;
+  for (const r of rows) {
+    const mag = Math.abs(parseFloat(r.amount));
+    if (r.type === "income") revenue += mag;
+    else if (r.type === "expense") expenses += mag;
+  }
+  const priorNetIncome = Math.round((revenue - expenses) * 100) / 100;
+
+  const spouseIncome = business.spouseIncome != null ? parseFloat(business.spouseIncome) : 0;
+  const isSstb = business.isSstb ?? true;
+  const w2WagesPaid = business.w2WagesPaid != null ? parseFloat(business.w2WagesPaid) : 0;
+  const ubiaQualifiedProperty =
+    business.ubiaQualifiedProperty != null ? parseFloat(business.ubiaQualifiedProperty) : 0;
+  const salary = business.sCorpSalary != null ? parseFloat(business.sCorpSalary) : null;
+
+  const result =
+    business.isSCorp && salary != null
+      ? computeSCorp({
+          ordIncome: priorNetIncome,
+          sCorpSalary: salary,
+          brackets: taxYearData.brackets,
+          qbiPhaseout: taxYearData.qbiPhaseout,
+          taxParams: taxYearData.params,
+          filingStatus: business.filingStatus,
+          spouseIncome,
+          isSstb,
+          w2WagesPaid,
+          ubiaQualifiedProperty,
+        })
+      : computeSoleProp({
+          ordIncome: priorNetIncome,
+          brackets: taxYearData.brackets,
+          qbiPhaseout: taxYearData.qbiPhaseout,
+          taxParams: taxYearData.params,
+          filingStatus: business.filingStatus,
+          spouseIncome,
+          isSstb,
+          w2WagesPaid,
+          ubiaQualifiedProperty,
+        });
+
+  return { totalTax: result.totalTax, agi: result.agi };
 }
 
 /**
@@ -127,13 +222,9 @@ export interface TaxProjection {
  * the comparison table always has both sides, regardless of the business's
  * actual current election.
  */
-export async function getTaxProjection(business: {
-  id: string;
-  taxYear: number;
-  filingStatus: FilingStatus;
-  isSCorp: boolean;
-  sCorpSalary: string | null;
-}): Promise<TaxProjection | null> {
+export async function getTaxProjection(
+  business: TaxProjectionBusinessInput
+): Promise<TaxProjection | null> {
   const taxYearData = await getTaxYearData(business.taxYear, business.filingStatus);
   if (!taxYearData) return null;
 
@@ -162,11 +253,22 @@ export async function getTaxProjection(business: {
   const activeMonths = await getActiveMonthsCount(business.id, business.taxYear);
   const annualizedIncome = annualizeIncome(ytdNetIncome, activeMonths);
 
+  const spouseIncome = business.spouseIncome != null ? parseFloat(business.spouseIncome) : 0;
+  const isSstb = business.isSstb ?? true;
+  const w2WagesPaid = business.w2WagesPaid != null ? parseFloat(business.w2WagesPaid) : 0;
+  const ubiaQualifiedProperty =
+    business.ubiaQualifiedProperty != null ? parseFloat(business.ubiaQualifiedProperty) : 0;
+
   const soleProp = computeSoleProp({
     ordIncome: annualizedIncome,
     brackets: taxYearData.brackets,
     qbiPhaseout: taxYearData.qbiPhaseout,
     taxParams: taxYearData.params,
+    filingStatus: business.filingStatus,
+    spouseIncome,
+    isSstb,
+    w2WagesPaid,
+    ubiaQualifiedProperty,
   });
 
   const salary = business.sCorpSalary != null ? parseFloat(business.sCorpSalary) : null;
@@ -178,8 +280,22 @@ export async function getTaxProjection(business: {
           brackets: taxYearData.brackets,
           qbiPhaseout: taxYearData.qbiPhaseout,
           taxParams: taxYearData.params,
+          filingStatus: business.filingStatus,
+          spouseIncome,
+          isSstb,
+          w2WagesPaid,
+          ubiaQualifiedProperty,
         })
       : null;
+
+  const currentScenario = business.isSCorp && sCorp ? sCorp : soleProp;
+
+  const priorYearActuals = await getPriorYearActuals(business, business.taxYear - 1);
+  const safeHarbor = computeSafeHarborQuarterly({
+    currentYearProjectedTotalTax: currentScenario.totalTax,
+    priorYear: priorYearActuals,
+    filingStatus: business.filingStatus,
+  });
 
   return {
     taxYear: business.taxYear,
@@ -191,8 +307,9 @@ export async function getTaxProjection(business: {
     soleProp,
     sCorp,
     sCorpSavings: sCorp ? Math.round((soleProp.totalTax - sCorp.totalTax) * 100) / 100 : null,
-    currentScenario: business.isSCorp && sCorp ? sCorp : soleProp,
+    currentScenario,
     dataAvailable: activeMonths > 0,
+    safeHarbor,
   };
 }
 
@@ -209,8 +326,8 @@ export interface QuarterlyPaymentRow {
 /**
  * The quarterly estimated-payment tracker (spec §6.8): four rows, each
  * comparing what was actually paid against an even quarter-split of the
- * current projected total tax (a known simplification — no safe-harbor
- * logic, spec §12.8).
+ * IRS safe-harbor required annual payment (spec §12.8 — `recommendedQuarterlyAmount`
+ * should be `safeHarbor.requiredAnnualPayment / 4` from `getTaxProjection`).
  */
 export async function getQuarterlyPayments(
   businessId: string,
