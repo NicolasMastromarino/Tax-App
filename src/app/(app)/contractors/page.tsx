@@ -1,5 +1,5 @@
 import { requireBusiness } from "@/lib/current-business";
-import { getContractorRows, FORM_1099_THRESHOLD } from "@/lib/data/contractors";
+import { getContractorRows, get1099Threshold } from "@/lib/data/contractors";
 import { ContractorsClient } from "@/components/contractors/contractors-client";
 
 export default async function ContractorsPage() {
@@ -9,7 +9,7 @@ export default async function ContractorsPage() {
   return (
     <ContractorsClient
       taxYear={business.taxYear}
-      threshold={FORM_1099_THRESHOLD}
+      threshold={get1099Threshold(business.taxYear)}
       rows={rows}
     />
   );

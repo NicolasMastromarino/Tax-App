@@ -278,6 +278,19 @@ export const taxParameters = pgTable(
       .default("0.5"),
     // QBI deduction (spec §6.5)
     qbiRate: numeric("qbi_rate", { precision: 6, scale: 4 }).notNull().default("0.20"),
+    // QBI minimum deduction floor, added by the One Big Beautiful Bill Act
+    // (OBBBA §70105) for tax years beginning after 2025: if a taxpayer has
+    // at least qbiMinDeductionThreshold of aggregate QBI from active trades
+    // where they materially participate, their QBI deduction is the
+    // greater of the regular (possibly phased-out) calculation or
+    // qbiMinDeductionFloor. Both null for tax years before 2026, where this
+    // rule doesn't exist (verified against Rev. Proc. 2025-32 — not a
+    // guess).
+    qbiMinDeductionThreshold: numeric("qbi_min_deduction_threshold", {
+      precision: 14,
+      scale: 2,
+    }),
+    qbiMinDeductionFloor: numeric("qbi_min_deduction_floor", { precision: 14, scale: 2 }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [uniqueIndex("tax_parameters_year_idx").on(t.taxYear)]

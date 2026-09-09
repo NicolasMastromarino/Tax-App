@@ -13,7 +13,7 @@ import { users, businesses, transactions, categories, vendors } from "../src/db/
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { getTaxProjection } from "../src/lib/data/tax";
-import { getContractorRows, FORM_1099_THRESHOLD } from "../src/lib/data/contractors";
+import { getContractorRows, get1099Threshold } from "../src/lib/data/contractors";
 
 async function main() {
   console.log("Setting up test user...");
@@ -292,7 +292,11 @@ async function main() {
   assert.ok(jane, "expected Jane Designer row");
   assert.ok(bob, "expected Small Job Bob row");
   assert.equal(jane!.totalPaid, 750);
-  assert.equal(jane!.needs1099, true, `expected needs1099 at $750 >= $${FORM_1099_THRESHOLD}`);
+  assert.equal(
+    jane!.needs1099,
+    true,
+    `expected needs1099 at $750 >= $${get1099Threshold(contractorBusiness.taxYear)} (2025 threshold)`
+  );
   assert.equal(jane!.vendor?.email, "jane@example.com", "expected the vendor record to merge in by name");
   assert.equal(jane!.vendor?.w9Received, true);
   assert.equal(bob!.totalPaid, 200);
@@ -300,6 +304,99 @@ async function main() {
   assert.equal(bob!.vendor, null, "expected no vendor record for Bob (never saved one)");
   console.log(
     `  OK: Jane $${jane!.totalPaid} needs1099=${jane!.needs1099} (contact merged), Bob $${bob!.totalPaid} needs1099=${bob!.needs1099}`
+  );
+
+  // ---------------------------------------------------------------------
+  // 4b. OBBBA raised the 1099-NEC threshold from $600 to $2,000 for tax
+  // year 2026 and later -- a vendor paid $1,500 needs a 1099 in 2025 but
+  // NOT in 2026.
+  // ---------------------------------------------------------------------
+  console.log("Testing the OBBBA 2026 1099 threshold change ($600 -> $2,000)...");
+  assert.equal(get1099Threshold(2025), 600, "expected the pre-OBBBA $600 threshold for 2025");
+  assert.equal(get1099Threshold(2026), 2_000, "expected the OBBBA $2,000 threshold for 2026");
+  const [contractor2026Business] = await db
+    .insert(businesses)
+    .values({
+      userId: user.id,
+      businessName: "Contractors 2026 Threshold Smoke Test",
+      taxYear: 2026,
+      businessType: "sole_prop",
+      filingStatus: "single",
+      beginningBankBalance: "0",
+    })
+    .returning();
+  await db.insert(transactions).values({
+    businessId: contractor2026Business.id,
+    date: "2026-02-01",
+    description: "Contract work",
+    categoryId: contractLabor.id,
+    type: "expense",
+    amount: "1500.00",
+    vendorName: "Mid-Size Vendor",
+  });
+  const rows2026 = await getContractorRows(contractor2026Business.id, contractor2026Business.taxYear);
+  const midVendor = rows2026.find((r) => r.vendorName === "Mid-Size Vendor");
+  assert.ok(midVendor, "expected Mid-Size Vendor row");
+  assert.equal(
+    midVendor!.needs1099,
+    false,
+    "expected $1,500 paid in 2026 to NOT need a 1099 under the new $2,000 threshold"
+  );
+  console.log("  OK: $1,500 in 2026 correctly does not trigger a 1099 under the new $2,000 threshold");
+
+  // ---------------------------------------------------------------------
+  // 5. OBBBA's new QBI minimum deduction ($400 floor when aggregate QBI is
+  // at least $1,000), tax year 2026+ only.
+  // ---------------------------------------------------------------------
+  console.log("Testing the OBBBA QBI minimum deduction floor (2026+)...");
+  const [lowIncomeBusiness] = await db
+    .insert(businesses)
+    .values({
+      userId: user.id,
+      businessName: "Low Income QBI Floor Smoke Test",
+      taxYear: 2026,
+      businessType: "sole_prop",
+      filingStatus: "single",
+      beginningBankBalance: "0",
+    })
+    .returning();
+  // $250/mo x 6 months = $1,500 YTD -> annualized $3,000. 20% of that
+  // (minus the tiny SE-tax deduction) would normally round to roughly
+  // $550-600 -- comfortably above $400 already, so instead drop it low
+  // enough that the regular 20% calculation would fall under $400, to
+  // actually exercise the floor: $100/mo x 6 = $600 YTD -> annualized
+  // $1,200. 20% of ~$1,200 (less a small SE deduction) is under $400.
+  const lowIncomeRows = [];
+  for (let m = 1; m <= 6; m++) {
+    lowIncomeRows.push({
+      businessId: lowIncomeBusiness.id,
+      date: `2026-0${m}-10`,
+      description: `Small client payment ${m}`,
+      categoryId: revenue.id,
+      type: "income" as const,
+      amount: "100.00",
+    });
+  }
+  await db.insert(transactions).values(lowIncomeRows);
+  const lowIncomeProjection = await getTaxProjection({
+    id: lowIncomeBusiness.id,
+    taxYear: lowIncomeBusiness.taxYear,
+    filingStatus: lowIncomeBusiness.filingStatus,
+    isSCorp: lowIncomeBusiness.isSCorp,
+    sCorpSalary: lowIncomeBusiness.sCorpSalary,
+  });
+  assert.ok(lowIncomeProjection, "expected a projection for the low-income 2026 business");
+  assert.ok(
+    lowIncomeProjection!.annualizedIncome >= 1_000,
+    `expected annualized income >= $1,000 to trigger the floor's aggregate-QBI test, got $${lowIncomeProjection!.annualizedIncome}`
+  );
+  assert.equal(
+    lowIncomeProjection!.soleProp.qbiDeduction,
+    400,
+    `expected the QBI deduction to be floored at $400 for a low-income 2026 business (regular 20% calc would be well under $400), got $${lowIncomeProjection!.soleProp.qbiDeduction}`
+  );
+  console.log(
+    `  OK: annualized income $${lowIncomeProjection!.annualizedIncome}, QBI deduction floored at $${lowIncomeProjection!.soleProp.qbiDeduction}`
   );
 
   console.log("Cleaning up...");

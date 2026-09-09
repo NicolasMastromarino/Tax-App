@@ -16,10 +16,21 @@ import { eq, sql } from "drizzle-orm";
 
 async function seedTaxYear(
   taxYear: number,
-  params: typeof TAX_YEAR_2025_PARAMETERS,
+  params: typeof TAX_YEAR_2025_PARAMETERS & {
+    qbiMinDeductionThreshold?: number;
+    qbiMinDeductionFloor?: number;
+  },
   brackets: typeof TAX_YEAR_2025_BRACKETS,
   qbiPhaseout: typeof TAX_YEAR_2025_QBI_PHASEOUT
 ) {
+  // qbiMinDeductionThreshold/Floor only exist on tax-2026.ts's params object
+  // and later (OBBBA §70105, tax years beginning after 2025) — absent
+  // entirely on earlier years' params, so this reads as undefined -> null.
+  const qbiMinDeductionThreshold =
+    params.qbiMinDeductionThreshold != null ? String(params.qbiMinDeductionThreshold) : null;
+  const qbiMinDeductionFloor =
+    params.qbiMinDeductionFloor != null ? String(params.qbiMinDeductionFloor) : null;
+
   await db
     .insert(taxParameters)
     .values({
@@ -30,6 +41,8 @@ async function seedTaxYear(
       seMedicareOnlyRate: String(params.seMedicareOnlyRate),
       seDeductibleFraction: String(params.seDeductibleFraction),
       qbiRate: String(params.qbiRate),
+      qbiMinDeductionThreshold,
+      qbiMinDeductionFloor,
     })
     .onConflictDoUpdate({
       target: taxParameters.taxYear,
@@ -40,6 +53,8 @@ async function seedTaxYear(
         seMedicareOnlyRate: String(params.seMedicareOnlyRate),
         seDeductibleFraction: String(params.seDeductibleFraction),
         qbiRate: String(params.qbiRate),
+        qbiMinDeductionThreshold,
+        qbiMinDeductionFloor,
       },
     });
 

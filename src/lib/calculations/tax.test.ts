@@ -15,6 +15,7 @@ import {
   type TaxYearParams,
 } from "./tax";
 import { TAX_YEAR_2025_BRACKETS, TAX_YEAR_2025_QBI_PHASEOUT, TAX_YEAR_2025_PARAMETERS } from "@/db/seed-data/tax-2025";
+import { TAX_YEAR_2026_QBI_PHASEOUT, TAX_YEAR_2026_PARAMETERS } from "@/db/seed-data/tax-2026";
 
 const SINGLE_BRACKETS: TaxBracket[] = TAX_YEAR_2025_BRACKETS.filter(
   (b) => b.filingStatus === "single"
@@ -460,4 +461,85 @@ test("computeSafeHarborQuarterly: picks the smaller of the two applicable tests"
   });
   assert.equal(result.requiredAnnualPayment, 9_000);
   assert.equal(result.basis, "current-year-90pct");
+});
+
+// ---------------------------------------------------------------------------
+// OBBBA §70105 QBI minimum deduction (2026+, Rev. Proc. 2025-32 §4.26) and
+// the corrected 2025/2026 QBI phaseout thresholds (fact-check pass)
+// ---------------------------------------------------------------------------
+
+const SINGLE_QBI_2026 = TAX_YEAR_2026_QBI_PHASEOUT.find((q) => q.filingStatus === "single")!;
+const MIN_DEDUCTION_2026 = {
+  qbiThreshold: TAX_YEAR_2026_PARAMETERS.qbiMinDeductionThreshold,
+  floorAmount: TAX_YEAR_2026_PARAMETERS.qbiMinDeductionFloor,
+};
+
+test("2025 QBI phaseout thresholds match Rev. Proc. 2024-40 §2.27 (regression: were one year stale)", () => {
+  assert.equal(SINGLE_QBI.phaseoutStart, 197_300);
+  assert.equal(SINGLE_QBI.phaseoutEnd, 247_300);
+  assert.equal(MFJ_QBI.phaseoutStart, 394_600);
+  assert.equal(MFJ_QBI.phaseoutEnd, 494_600);
+});
+
+test("2026 Single/HoH QBI phaseout threshold matches Rev. Proc. 2025-32 §4.26, not the ordinary-bracket breakpoint (regression: was off by $25)", () => {
+  assert.equal(SINGLE_QBI_2026.phaseoutStart, 201_750);
+  assert.equal(SINGLE_QBI_2026.phaseoutEnd, 276_750);
+});
+
+test("computeQbiDeduction: minimum-deduction floor lifts a tiny regular deduction up to the floor amount", () => {
+  // qbiBase clears the $1,000 aggregate-QBI threshold but the regular 20%
+  // calc ($1,000 * 20% = $200) is below the $400 floor.
+  const d = computeQbiDeduction({
+    ordIncome: 1_000,
+    qbiBase: 1_000,
+    phaseout: SINGLE_QBI_2026,
+    qbiRate: 0.2,
+    minimumDeduction: MIN_DEDUCTION_2026,
+  });
+  assert.equal(d, 400);
+});
+
+test("computeQbiDeduction: minimum-deduction floor does not apply below the $1,000 aggregate-QBI threshold", () => {
+  const d = computeQbiDeduction({
+    ordIncome: 500,
+    qbiBase: 500, // below the $1,000 threshold -> no floor, even though 20% of 500 = 100 < 400
+    phaseout: SINGLE_QBI_2026,
+    qbiRate: 0.2,
+    minimumDeduction: MIN_DEDUCTION_2026,
+  });
+  assert.equal(d, 100);
+});
+
+test("computeQbiDeduction: minimum-deduction floor never reduces a regular deduction that already exceeds it", () => {
+  const d = computeQbiDeduction({
+    ordIncome: 100_000,
+    qbiBase: 100_000, // regular calc = 20,000, well above the $400 floor
+    phaseout: SINGLE_QBI_2026,
+    qbiRate: 0.2,
+    minimumDeduction: MIN_DEDUCTION_2026,
+  });
+  assert.equal(d, 20_000);
+});
+
+test("computeQbiDeduction: minimum-deduction floor is omitted entirely for pre-2026 years (no floor param passed)", () => {
+  const d = computeQbiDeduction({
+    ordIncome: 1_000,
+    qbiBase: 1_000,
+    phaseout: SINGLE_QBI, // 2025 phaseout
+    qbiRate: 0.2,
+    // no minimumDeduction passed -> defaults to null, same as pre-2026 TaxYearParams
+  });
+  assert.equal(d, 200); // plain 20% of 1,000, no floor applied
+});
+
+test("computeQbiDeduction: minimum-deduction floor applies even after the phaseout taper reduces the regular deduction to zero", () => {
+  const d = computeQbiDeduction({
+    ordIncome: SINGLE_QBI_2026.phaseoutEnd, // fully phased out
+    qbiBase: 1_000, // clears the $1,000 threshold
+    phaseout: SINGLE_QBI_2026,
+    qbiRate: 0.2,
+    isSstb: true, // SSTB taper -> regular deduction would be 0
+    minimumDeduction: MIN_DEDUCTION_2026,
+  });
+  assert.equal(d, 400);
 });

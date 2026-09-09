@@ -3,6 +3,19 @@
 // upperBound)) rather than the workbook's raw table, which fixes the
 // Head-of-Household $1 overlap noted in spec §6.6/§12.14 without changing
 // any other figure.
+//
+// CORRECTION (2026-09-09 fact-check, prompted by the user asking whether
+// every formula is accurate to the latest IRS guidance before opening this
+// up to real users): the QBI phase-out thresholds below were originally
+// ported as $191,950/$241,950 (single/MFS/HoH) and $383,900/$483,900
+// (MFJ) — those are actually the TAX YEAR 2024 figures, one year stale
+// (the original workbook's own data was out of date by the time it was
+// reverse-engineered). Verified directly against Rev. Proc. 2024-40 §2.27
+// (the real 2025 figures) and fixed below: $197,300/$247,300 single/MFS/
+// HoH, $394,600/$494,600 MFJ. Brackets, the SE wage base, and everything
+// else in this file were separately verified against Rev. Proc. 2024-40
+// and Fidelity's published 2025 bracket tables and were already correct —
+// only the QBI phase-out numbers needed this fix.
 
 import type { FilingStatus } from "@/lib/calculations/tax";
 
@@ -66,8 +79,9 @@ export const TAX_YEAR_2025_QBI_PHASEOUT: {
   phaseoutStart: number;
   phaseoutEnd: number;
 }[] = [
-  { filingStatus: "single", phaseoutStart: 191_950, phaseoutEnd: 241_950 },
-  { filingStatus: "married_filing_jointly", phaseoutStart: 383_900, phaseoutEnd: 483_900 },
-  { filingStatus: "married_filing_separately", phaseoutStart: 191_950, phaseoutEnd: 241_950 },
-  { filingStatus: "head_of_household", phaseoutStart: 191_950, phaseoutEnd: 241_950 },
+  // Rev. Proc. 2024-40 §2.27 — see header comment for the correction made here.
+  { filingStatus: "single", phaseoutStart: 197_300, phaseoutEnd: 247_300 },
+  { filingStatus: "married_filing_jointly", phaseoutStart: 394_600, phaseoutEnd: 494_600 },
+  { filingStatus: "married_filing_separately", phaseoutStart: 197_300, phaseoutEnd: 247_300 },
+  { filingStatus: "head_of_household", phaseoutStart: 197_300, phaseoutEnd: 247_300 },
 ];

@@ -68,6 +68,12 @@ export async function getTaxYearData(
       seMedicareOnlyRate: parseFloat(paramsRow.seMedicareOnlyRate),
       seDeductibleFraction: parseFloat(paramsRow.seDeductibleFraction),
       qbiRate: parseFloat(paramsRow.qbiRate),
+      qbiMinDeductionThreshold:
+        paramsRow.qbiMinDeductionThreshold != null
+          ? parseFloat(paramsRow.qbiMinDeductionThreshold)
+          : null,
+      qbiMinDeductionFloor:
+        paramsRow.qbiMinDeductionFloor != null ? parseFloat(paramsRow.qbiMinDeductionFloor) : null,
     },
     brackets: bracketRows.map((b) => ({
       rate: parseFloat(b.rate),

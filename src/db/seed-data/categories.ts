@@ -58,8 +58,16 @@ export const CATEGORY_SEED: SeedCategory[] = [
     type: "expense",
     isContractLabor: true,
     description: "Payments to independent contractors/freelancers for services. Tracked for 1099-NEC filing.",
+    // Does NOT hardcode a dollar threshold here on purpose: it used to say
+    // "$600 or more," which was correct through 2025 but became wrong for
+    // 2026+ once the One Big Beautiful Bill Act (OBBBA §90402) raised the
+    // Form 1099-NEC threshold to $2,000 (see get1099Threshold in
+    // src/lib/data/contractors.ts). This static, non-year-aware reference
+    // table has no way to show the right figure for every tax year, so it
+    // points to the Contractors & 1099s page instead, which computes the
+    // correct year-specific threshold live.
     taxGuidance:
-      "If you pay a service vendor $600 or more within a calendar year, you're generally required to issue them a Form 1099-NEC by January 31 of the following year. Track every contractor payment here so year-end totals are accurate.",
+      "If you pay a service vendor enough this year to cross the Form 1099-NEC filing threshold, you're generally required to issue them a Form 1099-NEC by January 31 of the following year. Check the Contractors & 1099s page for the exact threshold for your tax year (it changed for 2026 and later under the One Big Beautiful Bill Act). Track every contractor payment here so year-end totals are accurate.",
     keywords: "freelancer, subcontractor, 1099, independent contractor, virtual assistant",
   },
   {

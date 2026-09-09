@@ -34,11 +34,30 @@
 //
 // Bottom line: Single, MFJ, and the SE wage base are straight from the
 // IRS. HoH and the QBI phase-out are from a secondary source cross-checked
-// against IRS text. MFS is derived via the codified statutory rule. None
-// of it is a blind guess, but this hasn't been checked against the full
-// text of the underlying Revenue Procedure line-by-line — worth a
-// once-over before relying on it for an actual filing (the app's existing
-// "Not tax advice" disclaimer already covers this).
+// against IRS text. MFS is derived via the codified statutory rule.
+//
+// CORRECTION + ADDITION (2026-09-09 fact-check against the primary Rev.
+// Proc. 2025-32 text, prompted by the user asking whether every formula
+// is accurate before opening this up to real users):
+// - The QBI phase-out numbers below were originally $201,775/$276,775 for
+//   Single and Head of Household — that's actually the ordinary tax
+//   BRACKET threshold (the 24%->32% breakpoint), which happens to be only
+//   $25 away from the QBI threshold and is an easy mix-up. Rev. Proc.
+//   2025-32 §4.26 states the real QBI figures separately: $201,750/
+//   $276,750 for Single/HoH/QSS, and — deliberately NOT half of that —
+//   $201,775/$276,775 for Married Filing Separately (which was already
+//   correct here) and $403,500/$553,500 for MFJ (also already correct).
+//   Fixed Single/HoH below.
+// - Added `qbiMinDeductionThreshold`/`qbiMinDeductionFloor`: the One Big
+//   Beautiful Bill Act (OBBBA §70105) introduced a new QBI minimum
+//   deduction for tax years beginning after 2025 — if a taxpayer has at
+//   least $1,000 of aggregate QBI from active trades where they materially
+//   participate, their deduction is the greater of the regular calculation
+//   or $400. This app didn't implement it until this fact-check; see
+//   computeQbiDeduction's `minimumDeduction` param in
+//   src/lib/calculations/tax.ts. Both figures are inflation-indexed
+//   starting 2027, so a future year's seed file will need its own values
+//   here rather than reusing 2026's.
 
 import type { FilingStatus } from "@/lib/calculations/tax";
 
@@ -50,6 +69,8 @@ export const TAX_YEAR_2026_PARAMETERS = {
   seMedicareOnlyRate: 0.029,
   seDeductibleFraction: 0.5,
   qbiRate: 0.2,
+  qbiMinDeductionThreshold: 1_000, // OBBBA §70105 — see header comment
+  qbiMinDeductionFloor: 400,
 };
 
 interface BracketRow {
@@ -103,8 +124,9 @@ export const TAX_YEAR_2026_QBI_PHASEOUT: {
   phaseoutStart: number;
   phaseoutEnd: number;
 }[] = [
-  { filingStatus: "single", phaseoutStart: 201_775, phaseoutEnd: 276_775 },
+  // Rev. Proc. 2025-32 §4.26 — see header comment for the correction made here.
+  { filingStatus: "single", phaseoutStart: 201_750, phaseoutEnd: 276_750 },
   { filingStatus: "married_filing_jointly", phaseoutStart: 403_500, phaseoutEnd: 553_500 },
   { filingStatus: "married_filing_separately", phaseoutStart: 201_775, phaseoutEnd: 276_775 },
-  { filingStatus: "head_of_household", phaseoutStart: 201_775, phaseoutEnd: 276_775 },
+  { filingStatus: "head_of_household", phaseoutStart: 201_750, phaseoutEnd: 276_750 },
 ];

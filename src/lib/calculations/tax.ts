@@ -10,13 +10,22 @@
 // so it overstates projected income tax. Here, `taxableIncome` is AGI
 // minus the QBI deduction, and that's what feeds the bracket calculation.
 //
-// Known simplifications carried over from the workbook on purpose (flagged
-// to the user in the Tax Planner UI's disclaimer, not silently hidden):
-// no Additional Medicare Tax (spec §12.6), no standard deduction modeled,
-// a linear QBI phaseout with no SSTB/W-2-wage branching (spec §12.5), the
-// S-Corp side's payroll tax ignores the SE wage-base cap (spec §6.3 E20),
-// and the quarterly "recommended" amount is a flat even split with no
-// safe-harbor logic (spec §12.8).
+// Known simplifications still in place on purpose (flagged to the user in
+// the Tax Planner UI's disclaimer, not silently hidden): no standard
+// deduction modeled, no state taxes, and the S-Corp side's payroll tax
+// ignores the SE wage-base cap (spec §6.3 E20). Additional Medicare Tax,
+// SSTB-vs-non-SSTB QBI wage/UBIA limitations, and a true IRS safe-harbor
+// quarterly calculation were all added in a later round — see
+// ADDITIONAL_MEDICARE_TAX_RATE, computeQbiDeduction, and
+// computeSafeHarborQuarterly below.
+//
+// All dollar figures here are versioned by tax year in the database (see
+// src/db/seed-data/tax-2025.ts, tax-2026.ts) and were fact-checked against
+// primary IRS sources (Rev. Proc. 2024-40 for 2025, Rev. Proc. 2025-32 for
+// 2026, both reflecting the One Big Beautiful Bill Act's OBBBA §70105
+// changes to §199A effective for tax years beginning after 2025) — see
+// each seed file's header comment for the exact sourcing and any
+// corrections made during that fact-check.
 
 import { round2 } from "./ledger";
 
@@ -44,6 +53,11 @@ export interface TaxYearParams {
   seMedicareOnlyRate: number;
   seDeductibleFraction: number;
   qbiRate: number;
+  // QBI minimum deduction floor (OBBBA §70105, tax years beginning after
+  // 2025 — see computeQbiDeduction's header comment). Both undefined/null
+  // for years before this rule existed.
+  qbiMinDeductionThreshold?: number | null;
+  qbiMinDeductionFloor?: number | null;
 }
 
 // Additional Medicare Tax (IRC §1401(b)(2)) — a flat 0.9% surtax on
@@ -119,6 +133,15 @@ export function computeSeTax(seTaxBase: number, params: TaxYearParams): number {
  * linearly across the same band rather than tapering to zero. Both cases
  * fall out of one formula: an SSTB's "wage-limited amount" is defined as
  * $0, which reduces to the original straight-line-to-zero taper.
+ *
+ * `minimumDeduction` implements the OBBBA §70105 QBI minimum deduction
+ * (tax years beginning after 2025, verified against Rev. Proc. 2025-32):
+ * if aggregate QBI from active trades where the taxpayer materially
+ * participates is at least `qbiThreshold`, the deduction is the greater of
+ * the regular calculation above or `floorAmount` — applied independently
+ * of, and after, the phaseout/SSTB limitation. `qbiBase` is this app's
+ * proxy for "aggregate QBI" since it models one business per user. Pass
+ * `null`/omit for tax years before this rule existed.
  */
 export function computeQbiDeduction(params: {
   ordIncome: number;
@@ -128,6 +151,7 @@ export function computeQbiDeduction(params: {
   isSstb?: boolean;
   w2WagesPaid?: number;
   ubiaQualifiedProperty?: number;
+  minimumDeduction?: { qbiThreshold: number; floorAmount: number } | null;
 }): number {
   const {
     ordIncome,
@@ -137,12 +161,19 @@ export function computeQbiDeduction(params: {
     isSstb = true,
     w2WagesPaid = 0,
     ubiaQualifiedProperty = 0,
+    minimumDeduction = null,
   } = params;
   const fullDeduction = qbiRate * Math.max(0, qbiBase);
-  if (ordIncome <= phaseout.phaseoutStart) return round2(fullDeduction);
+
+  const applyFloor = (deduction: number) =>
+    minimumDeduction && qbiBase >= minimumDeduction.qbiThreshold
+      ? Math.max(deduction, minimumDeduction.floorAmount)
+      : deduction;
+
+  if (ordIncome <= phaseout.phaseoutStart) return round2(applyFloor(fullDeduction));
 
   const phaseWidth = phaseout.phaseoutEnd - phaseout.phaseoutStart;
-  if (phaseWidth <= 0) return 0;
+  if (phaseWidth <= 0) return round2(applyFloor(0));
 
   const wageLimitedAmount = isSstb
     ? 0
@@ -156,7 +187,7 @@ export function computeQbiDeduction(params: {
       ? 1
       : (ordIncome - phaseout.phaseoutStart) / phaseWidth;
 
-  return round2(fullDeduction - excessAmount * taperFraction);
+  return round2(applyFloor(fullDeduction - excessAmount * taperFraction));
 }
 
 export interface EntityTaxResult {
@@ -186,6 +217,18 @@ interface HouseholdRefinements {
   isSstb?: boolean;
   w2WagesPaid?: number;
   ubiaQualifiedProperty?: number;
+}
+
+/** Builds computeQbiDeduction's `minimumDeduction` param from a TaxYearParams row, or null pre-2026. */
+function qbiMinimumDeductionFrom(
+  taxParams: TaxYearParams
+): { qbiThreshold: number; floorAmount: number } | null {
+  return taxParams.qbiMinDeductionThreshold != null && taxParams.qbiMinDeductionFloor != null
+    ? {
+        qbiThreshold: taxParams.qbiMinDeductionThreshold,
+        floorAmount: taxParams.qbiMinDeductionFloor,
+      }
+    : null;
 }
 
 /** Sole Proprietor scenario (spec §6.3 column D). */
@@ -230,6 +273,7 @@ export function computeSoleProp(
     isSstb,
     w2WagesPaid,
     ubiaQualifiedProperty,
+    minimumDeduction: qbiMinimumDeductionFrom(taxParams),
   });
   // Corrected step (spec §12.3): actually subtract the QBI deduction
   // before computing income tax, instead of only displaying it.
@@ -305,6 +349,7 @@ export function computeSCorp(
     // entered separately.
     w2WagesPaid: salary + w2WagesPaid,
     ubiaQualifiedProperty,
+    minimumDeduction: qbiMinimumDeductionFrom(taxParams),
   });
   const taxableIncome = Math.max(0, round2(agi - qbi));
   const incomeTax = bracketTax(taxableIncome, brackets);
