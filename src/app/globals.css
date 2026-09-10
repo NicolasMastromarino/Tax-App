@@ -20,6 +20,11 @@
   --danger-bg: #fef2f2;
   --info: #2563eb;
   --info-bg: #eff6ff;
+
+  /* Marketing-only accent, used solely on the logged-out landing page for
+     hero gradients/blobs. Kept separate from the app's core token set
+     above so the in-app UI's palette is untouched. */
+  --marketing-accent: #7c3aed;
 }
 
 @theme inline {
@@ -40,6 +45,7 @@
   --color-danger-bg: var(--danger-bg);
   --color-info: var(--info);
   --color-info-bg: var(--info-bg);
+  --color-marketing-accent: var(--marketing-accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -56,3 +62,25 @@ body {
 ::selection {
   background: color-mix(in srgb, var(--primary) 25%, transparent);
 }
+
+/* --- Marketing landing page only, below --- */
+
+/* Subtle dot-grid texture for the hero background. Pure CSS (a repeating
+   radial-gradient), so it scales losslessly and needs no image request. */
+.marketing-dot-grid {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--primary) 18%, transparent) 1px,
+    transparent 1.5px
+  );
+  background-size: 28px 28px;
+}
+
+/* Note: an earlier version of this page used a scroll-driven
+   `animation-timeline: view()` reveal-on-scroll effect here. It was
+   removed after testing showed it could leave whole sections stuck at
+   opacity:0 in some capture/render paths (fill-mode "both" applies the
+   0%-opacity keyframe before the view-timeline attaches). Not worth that
+   risk on a page built to convert ad traffic — content must always be
+   visible by default. If reintroducing scroll animation later, drive it
+   off IntersectionObserver adding a class, not a CSS-only timeline. */
