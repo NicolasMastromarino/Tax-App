@@ -33,12 +33,12 @@ const FEATURES = [
   {
     icon: ReceiptText,
     title: "Simple bookkeeping",
-    body: "One clean ledger for income and expenses — searchable categories, vendor tracking, and a home office calculator built right into the form.",
+    body: "One clean ledger for income and expenses: searchable categories, vendor tracking, and a home office calculator built right into the form.",
   },
   {
     icon: Calculator,
     title: "Real tax estimates",
-    body: "Self-employment tax, the QBI deduction, and your income tax — annualized from your actual bookkeeping data, not a guess.",
+    body: "Self-employment tax, the QBI deduction, and your income tax, annualized from your actual bookkeeping data, not a guess.",
   },
   {
     icon: Scale,
@@ -48,7 +48,7 @@ const FEATURES = [
   {
     icon: CalendarClock,
     title: "Quarterly payments, done right",
-    body: "True IRS safe-harbor calculations — not just an even split — so you know exactly what to send in and when.",
+    body: "True IRS safe-harbor calculations, not just an even split, so you know exactly what to send in and when.",
   },
   {
     icon: Users,
@@ -65,7 +65,7 @@ const FEATURES = [
 const FAQS = [
   {
     q: "Is this tax advice?",
-    a: "No. Bookkeeply gives you planning estimates based on the numbers you enter and current IRS figures — it's not a substitute for a licensed CPA or tax advisor, especially for anything beyond a straightforward sole proprietorship or single-owner S-Corp.",
+    a: "No. Bookkeeply gives you planning estimates based on the numbers you enter and current IRS figures; it's not a substitute for a licensed CPA or tax advisor, especially for anything beyond a straightforward sole proprietorship or single-owner S-Corp.",
   },
   {
     q: "Do I need to know anything about accounting to use it?",
@@ -73,11 +73,11 @@ const FAQS = [
   },
   {
     q: "How do you keep the tax figures accurate?",
-    a: "Tax brackets, self-employment tax, and the QBI deduction are sourced directly from IRS Revenue Procedures and updated as the rules change — including the One Big Beautiful Bill Act changes that took effect for 2026.",
+    a: "Tax brackets, self-employment tax, and the QBI deduction are sourced directly from IRS Revenue Procedures and updated as the rules change, including the One Big Beautiful Bill Act changes that took effect for 2026.",
   },
   {
     q: "What kind of business is this built for?",
-    a: "Service-based freelancers and solopreneurs — consultants, designers, coaches, photographers, contractors, and similar one-person or small service businesses filing as a sole proprietor or S-Corp.",
+    a: "Service-based freelancers and solopreneurs: consultants, designers, coaches, photographers, contractors, and similar one-person or small service businesses filing as a sole proprietor or S-Corp.",
   },
   {
     q: "Is my financial data secure?",
@@ -85,7 +85,7 @@ const FAQS = [
   },
   {
     q: "What does it cost?",
-    a: "Bookkeeply is free to start right now, with no credit card required. Paid plans are on the way — see Pricing below for what's coming.",
+    a: "Bookkeeply is free to start right now, with no credit card required. Paid plans are on the way. See Pricing below for what's coming.",
   },
 ] as const;
 
@@ -226,8 +226,8 @@ function Hero() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-xl text-pretty text-lg text-muted">
-            Track your income and expenses in minutes a day, then see exactly what you&apos;ll owe —
-            self-employment tax, the QBI deduction, and quarterly payments — sourced straight from
+            Track your income and expenses in minutes a day, then see exactly what you&apos;ll owe:
+            self-employment tax, the QBI deduction, and quarterly payments, sourced straight from
             the IRS, not guesswork.
           </p>
 
@@ -287,7 +287,7 @@ function Hero() {
 function TrustStrip() {
   const items = [
     { icon: Landmark, text: "IRS-sourced tax figures, updated for 2026" },
-    { icon: ShieldCheck, text: "Your data stays private — never sold" },
+    { icon: ShieldCheck, text: "Your data stays private, never sold" },
     { icon: CheckCircle2, text: "No spreadsheets, no dread" },
   ];
   return (
@@ -312,7 +312,7 @@ function Features() {
           Everything your service business needs, nothing it doesn&apos;t
         </h2>
         <p className="mt-4 text-pretty text-lg text-muted">
-          Built from the ground up for one-person and small service businesses — not a stripped-down
+          Built from the ground up for one-person and small service businesses, not a stripped-down
           version of accounting software made for someone else.
         </p>
       </div>
@@ -346,12 +346,12 @@ function ScreenshotSpotlight() {
               Tax Planner
             </span>
             <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground">
-              Know your tax bill before you file — not after.
+              Know your tax bill before you file, not after.
             </h2>
             <p className="mt-4 text-pretty text-lg text-muted">
               Your Tax Estimate updates automatically as you add income and expenses: self-employment
               tax, the QBI deduction, your marginal rate, and a true IRS safe-harbor quarterly
-              payment schedule — all in one place.
+              payment schedule, all in one place.
             </p>
             <ul className="mt-6 space-y-3">
               {[
@@ -401,7 +401,7 @@ function ScreenshotSpotlight() {
             </h2>
             <p className="mt-4 text-pretty text-lg text-muted">
               Every Contract Labor payment is tracked by vendor automatically, with the current-year
-              1099-NEC filing threshold applied for you — so you know exactly who needs one by
+              1099-NEC filing threshold applied for you, so you know exactly who needs one by
               January 31.
             </p>
           </div>
@@ -416,7 +416,7 @@ function HowItWorks() {
     {
       n: "1",
       title: "Add your income & expenses",
-      body: "Enter transactions as they happen, or catch up in one sitting — a searchable category list makes it fast either way.",
+      body: "Enter transactions as they happen, or catch up in one sitting; a searchable category list makes it fast either way.",
     },
     {
       n: "2",
@@ -426,7 +426,7 @@ function HowItWorks() {
     {
       n: "3",
       title: "See what you owe",
-      body: "Your Tax Estimate and quarterly payment schedule update instantly — no more surprises in April.",
+      body: "Your Tax Estimate and quarterly payment schedule update instantly. No more surprises in April.",
     },
   ];
   return (
@@ -492,7 +492,7 @@ function FinalCta() {
           Stop guessing what you&apos;ll owe.
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-pretty text-lg text-white/90">
-          Set up your first month of bookkeeping in under 10 minutes — free, no credit card
+          Set up your first month of bookkeeping in under 10 minutes, free, no credit card
           required.
         </p>
         <Link
@@ -546,8 +546,8 @@ export function SiteFooter() {
         <div className="mt-10 border-t border-border pt-6">
           <p className="text-xs text-muted">
             © {new Date().getFullYear()} Bookkeeply. Not affiliated with the IRS. Tax
-            estimates are for planning purposes only and are not tax, legal, or financial advice —
-            talk to a licensed professional about your specific situation.
+            estimates are for planning purposes only and are not tax, legal, or financial advice.
+            Talk to a licensed professional about your specific situation.
           </p>
         </div>
       </div>

@@ -41,7 +41,7 @@ export function Pricing() {
           </h2>
           <p className="mt-4 text-pretty text-lg text-muted">
             Free to start right now, no credit card required. This is the plan we&apos;re
-            launching soon — start today and we&apos;ll let you know before anything changes.
+            launching soon. Start today and we&apos;ll let you know before anything changes.
           </p>
         </div>
 
@@ -112,7 +112,7 @@ export function Pricing() {
         </div>
 
         <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-muted">
-          Free during early access — you won&apos;t be charged unless we tell you first.
+          Free during early access. You won&apos;t be charged unless we tell you first.
         </p>
       </div>
     </section>

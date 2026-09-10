@@ -21,8 +21,8 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const PLAN_LABEL: Record<string, string> = {
-  monthly: "Monthly — $9.95/mo",
-  annual: "Annual — $100/yr",
+  monthly: "Monthly: $9.95/mo",
+  annual: "Annual: $100/yr",
   founder: "Founder account",
 };
 
@@ -62,7 +62,7 @@ export function BillingCard({
           <div className="flex items-start gap-2.5 text-sm text-foreground">
             <InfinityIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
             <div>
-              <p className="font-medium">Founder account — lifetime access</p>
+              <p className="font-medium">Founder account: lifetime access</p>
               <p className="mt-0.5 text-xs text-muted">
                 Every feature, permanently, no subscription needed.
               </p>
@@ -78,13 +78,13 @@ export function BillingCard({
               )}
               <div>
                 <p className="font-medium">
-                  {summary.plan ? PLAN_LABEL[summary.plan] ?? summary.plan : "Paid plan"} —{" "}
+                  {summary.plan ? PLAN_LABEL[summary.plan] ?? summary.plan : "Paid plan"} &middot;{" "}
                   {summary.status ? STATUS_LABEL[summary.status] ?? summary.status : "Unknown"}
                 </p>
                 {summary.status === "past_due" && (
                   <p className="mt-1 text-xs text-warning">
-                    Your last payment didn&apos;t go through. Update your card to keep access —
-                    it will be paused if this isn&apos;t resolved soon.
+                    Your last payment didn&apos;t go through. Update your card to keep access.
+                    It will be paused if this isn&apos;t resolved soon.
                   </p>
                 )}
                 {summary.currentPeriodEnd && summary.status !== "past_due" && (

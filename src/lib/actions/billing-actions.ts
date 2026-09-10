@@ -23,7 +23,7 @@ export async function openBillingPortalAction(
   const { business } = await requireBusiness();
 
   if (!business.paddleCustomerId) {
-    return { error: "No billing account yet — subscribe first." };
+    return { error: "No billing account yet. Subscribe first." };
   }
 
   const apiKey = process.env.PADDLE_API_KEY;

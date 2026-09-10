@@ -56,7 +56,7 @@ export function TaxPlannerClient({
             <p className="text-sm text-muted">
               Tax figures for {business.taxYear} aren&apos;t available yet. This app currently ships
               with {business.taxYear === 2025 ? "2025" : "2025 (not " + business.taxYear + ")"}{" "}
-              rates — bracket and QBI data for other years hasn&apos;t been loaded.
+              rates. Bracket and QBI data for other years hasn&apos;t been loaded.
             </p>
           </CardContent>
         </Card>
@@ -67,7 +67,7 @@ export function TaxPlannerClient({
           <CardContent className="py-8 text-center">
             <p className="text-sm text-muted">
               Add some income and expense transactions for {business.taxYear} to see your tax
-              estimate — this needs at least one month of bookkeeping data to annualize from.
+              estimate: this needs at least one month of bookkeeping data to annualize from.
             </p>
             <Link
               href="/transactions"

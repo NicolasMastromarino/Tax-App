@@ -49,8 +49,8 @@ export function QuarterlyTracker({
           Quarterly Estimated Payments
         </CardTitle>
         <p className="mt-1 text-sm text-muted">
-          Recommended amount uses the IRS safe-harbor rule — the smaller of 90% of this
-          year&apos;s projected tax or 100%/110% of last year&apos;s — split evenly across 4
+          Recommended amount uses the IRS safe-harbor rule: the smaller of 90% of this
+          year&apos;s projected tax or 100%/110% of last year&apos;s, split evenly across 4
           quarters. Currently based on: <strong>{SAFE_HARBOR_LABELS[safeHarborBasis]}</strong>.
         </p>
       </CardHeader>

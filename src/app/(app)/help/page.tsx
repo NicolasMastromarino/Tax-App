@@ -85,19 +85,19 @@ export default async function HelpPage() {
         <CardContent className="space-y-4 text-sm">
           <Concept
             title="Everything is one list of transactions"
-            body="Record income, expenses, owner contributions, and owner distributions as they happen. Your dashboard, reports, and reconciliation all update automatically — there's no separate step to 'close the books' each month."
+            body="Record income, expenses, owner contributions, and owner distributions as they happen. Your dashboard, reports, and reconciliation all update automatically. There's no separate step to 'close the books' each month."
           />
           <Concept
             title="Reconciling means checking your bank statement"
-            body="Once a month, compare your calculated ending balance to your real bank statement. If they match, mark the month reconciled — that's what turns a month's status from 'In Progress' to 'Complete' on your dashboard."
+            body="Once a month, compare your calculated ending balance to your real bank statement. If they match, mark the month reconciled. That's what turns a month's status from 'In Progress' to 'Complete' on your dashboard."
           />
           <Concept
             title="Owner contributions/distributions aren't income or expenses"
-            body="Money you put into or take out of the business affects your bank balance, but it isn't revenue or a deductible expense — it's tracked separately from your Net Income."
+            body="Money you put into or take out of the business affects your bank balance, but it isn't revenue or a deductible expense. It's tracked separately from your Net Income."
           />
           <Concept
             title={'"Other Expenses" needs a description'}
-            body="If nothing else fits, use the Other Expenses category, but always add a short description — your accountant will want to know what it was for at tax time. See the Other Expenses report to review everything you've itemized."
+            body="If nothing else fits, use the Other Expenses category, but always add a short description. Your accountant will want to know what it was for at tax time. See the Other Expenses report to review everything you've itemized."
           />
           <Concept
             title="Home office deduction"
@@ -114,8 +114,8 @@ export default async function HelpPage() {
           <p className="text-sm text-muted">
             Contractor &amp; 1099 tracking and the full Tax Planner (self-employment tax, QBI
             deduction, S-Corp comparison, and quarterly estimated payments) are on the roadmap for
-            a follow-up release. Core bookkeeping — transactions, reconciliation, and Profit &amp;
-            Loss — is fully functional today.
+            a follow-up release. Core bookkeeping (transactions, reconciliation, and Profit &amp;
+            Loss) is fully functional today.
           </p>
         </CardContent>
       </Card>

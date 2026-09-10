@@ -110,7 +110,7 @@ export function ContractorsClient({
           <p className="mt-1">
             The {formatCurrency(threshold)} threshold and the totals above are computed from your
             transactions tagged &quot;Contract Labor&quot;. This doesn&apos;t generate or file the
-            actual Form 1099-NEC — talk to a tax professional or use a payroll/1099 filing service
+            actual Form 1099-NEC. Talk to a tax professional or use a payroll/1099 filing service
             once you know who needs one.
           </p>
         </CardContent>

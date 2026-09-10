@@ -130,7 +130,7 @@ export function ReconciliationClient({
                   {difference === 0 ? (
                     <>
                       <CheckCircle2 className="h-4 w-4 shrink-0" />
-                      Reconciled — your books match your bank statement.
+                      Reconciled: your books match your bank statement.
                     </>
                   ) : (
                     <>

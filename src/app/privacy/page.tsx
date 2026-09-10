@@ -25,16 +25,16 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-semibold text-foreground">Information we collect</h2>
             <ul className="mt-3 list-disc space-y-2 pl-5 text-muted">
               <li>
-                <span className="text-foreground">Account information</span> — your name, email
+                <span className="text-foreground">Account information</span>: your name, email
                 address, and a securely hashed password when you register.
               </li>
               <li>
-                <span className="text-foreground">Business & bookkeeping data</span> — anything you
+                <span className="text-foreground">Business & bookkeeping data</span>: anything you
                 enter into the app, including your business name, tax profile, transactions,
                 vendor/contractor information, and bank reconciliation records.
               </li>
               <li>
-                <span className="text-foreground">Usage data</span> — basic technical information
+                <span className="text-foreground">Usage data</span>: basic technical information
                 like browser type and log data, used only to keep the app running reliably and
                 securely.
               </li>
@@ -71,8 +71,8 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground">Security</h2>
             <p className="mt-3 text-muted">
-              We use industry-standard measures — including encrypted connections and hashed
-              passwords — to protect your information. No method of transmission or storage is
+              We use industry-standard measures, including encrypted connections and hashed
+              passwords, to protect your information. No method of transmission or storage is
               perfectly secure, so we can&apos;t guarantee absolute security, but protecting your
               data is something we take seriously given its sensitivity.
             </p>

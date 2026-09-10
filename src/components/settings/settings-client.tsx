@@ -159,7 +159,7 @@ export function SettingsClient({
                 />
                 <HelpText>
                   Blended into your household AGI, QBI phaseout position, and the Additional
-                  Medicare Tax threshold on a joint return — not into this business&apos;s own
+                  Medicare Tax threshold on a joint return, not into this business&apos;s own
                   self-employment tax.
                 </HelpText>
                 <FieldError>{fieldErrors.spouseIncome}</FieldError>
@@ -188,7 +188,7 @@ export function SettingsClient({
             </div>
             <HelpText>
               Law, health, consulting, financial services, and similar personal-service
-              businesses (including most real estate agents) are typically SSTBs — their QBI
+              businesses (including most real estate agents) are typically SSTBs: their QBI
               deduction tapers straight to $0 once income clears the phaseout range. A non-SSTB
               instead keeps a wage/property-limited floor. Leave this checked if you&apos;re not
               sure.
@@ -204,7 +204,7 @@ export function SettingsClient({
                     step="0.01"
                     defaultValue={business.w2WagesPaid}
                   />
-                  <HelpText>Not counting an S-Corp owner&apos;s own salary — that&apos;s added automatically.</HelpText>
+                  <HelpText>Not counting an S-Corp owner&apos;s own salary. That&apos;s added automatically.</HelpText>
                 </div>
                 <div>
                   <Label htmlFor="ubiaQualifiedProperty">UBIA of Qualified Property</Label>

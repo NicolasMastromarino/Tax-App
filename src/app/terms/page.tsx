@@ -23,8 +23,8 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground">Not tax, legal, or financial advice</h2>
             <p className="mt-3 text-muted">
-              Bookkeeply is a bookkeeping and tax-planning tool. Every figure it shows you —
-              including tax estimates, quarterly payment amounts, and the 1099 filing threshold —
+              Bookkeeply is a bookkeeping and tax-planning tool. Every figure it shows you,
+              including tax estimates, quarterly payment amounts, and the 1099 filing threshold,
               is a planning estimate based on the information you enter and current IRS figures. It
               is not tax, legal, or financial advice, does not file anything on your behalf, and is
               not a substitute for a licensed CPA, enrolled agent, or attorney. You&apos;re
@@ -38,7 +38,7 @@ export default function TermsPage() {
             <p className="mt-3 text-muted">
               You&apos;re responsible for keeping your login credentials confidential and for all
               activity under your account. You must provide accurate information and are
-              responsible for the accuracy of the bookkeeping data you enter — the Service can only
+              responsible for the accuracy of the bookkeeping data you enter: the Service can only
               calculate estimates from what you give it.
             </p>
           </section>

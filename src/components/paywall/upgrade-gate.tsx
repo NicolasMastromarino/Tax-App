@@ -25,7 +25,7 @@ export function UpgradeGate({
       </span>
       <h1 className="mt-4 text-xl font-semibold text-foreground">{feature} is a paid feature</h1>
       <p className="mt-2 text-sm text-muted">
-        Core bookkeeping — transactions, reconciliation, and reports — stays free. {feature} is
+        Core bookkeeping (transactions, reconciliation, and reports) stays free. {feature} is
         part of the paid plan.
       </p>
 

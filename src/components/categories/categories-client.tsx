@@ -34,7 +34,7 @@ export function CategoriesClient({ categories }: { categories: CategoryRow[] }) 
       <div>
         <h1 className="text-2xl font-semibold">Expense Category Guide</h1>
         <p className="mt-1 text-sm text-muted">
-          Not sure which category to use? Search by what you bought — try &quot;Adobe&quot; or
+          Not sure which category to use? Search by what you bought: try &quot;Adobe&quot; or
           &quot;mileage&quot;.
         </p>
       </div>

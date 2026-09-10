@@ -36,7 +36,7 @@ export const CATEGORY_SEED: SeedCategory[] = [
   {
     name: "Auto Expenses",
     type: "expense",
-    description: "Vehicle costs for business use — either mileage or actual expenses (gas, maintenance, insurance).",
+    description: "Vehicle costs for business use: either mileage or actual expenses (gas, maintenance, insurance).",
     taxGuidance:
       "You must track mileage regardless of which method you use, and you generally cannot switch between the mileage method and the actual-expense method for the same vehicle once you've elected one.",
     keywords: "mileage, gas, car, vehicle, fuel, auto insurance, car repair",
@@ -81,7 +81,7 @@ export const CATEGORY_SEED: SeedCategory[] = [
     type: "expense",
     homeOfficeEligible: true,
     description: "Business liability, E&O, or property insurance. Use the full amount for a business-owned building; use the Home Office calculator for a home-office-apportioned amount.",
-    taxGuidance: "Health insurance has its own tax treatment — talk to your accountant, since you may benefit from an HSA/HRA instead of recording it here.",
+    taxGuidance: "Health insurance has its own tax treatment. Talk to your accountant, since you may benefit from an HSA/HRA instead of recording it here.",
     keywords: "liability insurance, e&o insurance, business insurance, errors and omissions",
   },
   {
@@ -114,7 +114,7 @@ export const CATEGORY_SEED: SeedCategory[] = [
     type: "expense",
     description: "Business meals with clients, prospects, or partners.",
     taxGuidance:
-      "Enter the FULL, un-reduced amount here — let your accountant apply the required deduction percentage so it isn't accidentally reduced twice. Annotate receipts with who you dined with and the business purpose, and keep them for 7 years.",
+      "Enter the FULL, un-reduced amount here. Let your accountant apply the required deduction percentage so it isn't accidentally reduced twice. Annotate receipts with who you dined with and the business purpose, and keep them for 7 years.",
     keywords: "restaurant, client lunch, business dinner, coffee meeting",
   },
   {
@@ -182,7 +182,7 @@ export const CATEGORY_SEED: SeedCategory[] = [
     name: "Security",
     type: "expense",
     description: "Security services or systems for your business.",
-    taxGuidance: "Be cautious about deducting pet-related expenses as \"security\" — this generally won't survive an audit.",
+    taxGuidance: "Be cautious about deducting pet-related expenses as \"security.\" This generally won't survive an audit.",
     keywords: "alarm system, security guard, camera system",
   },
   {
@@ -208,7 +208,7 @@ export const CATEGORY_SEED: SeedCategory[] = [
     type: "expense",
     description: "Airfare, lodging, and related costs for business travel.",
     taxGuidance:
-      "A common audit trigger — keep records showing the trip was primarily for business (a common rule of thumb is 4+ hours of business activity per day). Personal days mixed into a business trip should be apportioned, not deducted in full.",
+      "A common audit trigger: keep records showing the trip was primarily for business (a common rule of thumb is 4+ hours of business activity per day). Personal days mixed into a business trip should be apportioned, not deducted in full.",
     keywords: "airfare, hotel, flight, conference travel, lodging",
   },
   {
@@ -216,7 +216,7 @@ export const CATEGORY_SEED: SeedCategory[] = [
     type: "expense",
     description: "Required work clothing that isn't suitable for everyday streetwear.",
     taxGuidance:
-      "The IRS test is whether the clothing is suitable for everyday wear — a branded polo you'd never wear outside work generally qualifies. Note: the cost of imprinting a logo on an otherwise-ordinary garment can be deducted as Advertising even if the garment itself doesn't qualify as a Uniform.",
+      "The IRS test is whether the clothing is suitable for everyday wear: a branded polo you'd never wear outside work generally qualifies. Note: the cost of imprinting a logo on an otherwise-ordinary garment can be deducted as Advertising even if the garment itself doesn't qualify as a Uniform.",
     keywords: "work clothes, branded apparel, safety gear",
   },
   {
