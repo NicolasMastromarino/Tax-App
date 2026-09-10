@@ -7,7 +7,7 @@ export default async function SettingsPage() {
   return (
     <SettingsClient
       business={business}
-      subscription={getSubscriptionSummary(business)}
+      subscription={getSubscriptionSummary(business, session.user?.email)}
       email={session.user?.email ?? ""}
     />
   );

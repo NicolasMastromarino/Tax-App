@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Loader2, Infinity as InfinityIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckoutButton } from "@/components/billing/checkout-button";
@@ -17,11 +17,13 @@ const STATUS_LABEL: Record<string, string> = {
   past_due: "Past due",
   paused: "Paused",
   canceled: "Canceled",
+  lifetime: "Lifetime access",
 };
 
 const PLAN_LABEL: Record<string, string> = {
   monthly: "Monthly — $9.95/mo",
   annual: "Annual — $100/yr",
+  founder: "Founder account",
 };
 
 const initialState: BillingActionState = {};
@@ -56,7 +58,17 @@ export function BillingCard({
         <CardTitle>Billing</CardTitle>
       </CardHeader>
       <CardContent>
-        {summary.active ? (
+        {summary.isFounderOverride ? (
+          <div className="flex items-start gap-2.5 text-sm text-foreground">
+            <InfinityIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+            <div>
+              <p className="font-medium">Founder account — lifetime access</p>
+              <p className="mt-0.5 text-xs text-muted">
+                Every feature, permanently, no subscription needed.
+              </p>
+            </div>
+          </div>
+        ) : summary.active ? (
           <div className="space-y-4">
             <div className="flex items-start gap-2.5 text-sm text-foreground">
               {summary.status === "past_due" ? (

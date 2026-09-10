@@ -7,7 +7,7 @@ import { UpgradeGate } from "@/components/paywall/upgrade-gate";
 export default async function ContractorsPage() {
   const { session, business } = await requireBusiness();
 
-  if (!hasActiveSubscription(business)) {
+  if (!hasActiveSubscription(business, session.user?.email)) {
     return (
       <UpgradeGate
         feature="Contractors & 1099s"

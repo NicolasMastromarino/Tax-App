@@ -7,7 +7,16 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
 
 async function main() {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    throw new Error("DATABASE_URL is not set in this shell session.");
+  }
+  // Log only the host/db name (never the password) so it's obvious which
+  // database this run actually targeted — this printed line is the proof.
+  const safeTarget = url.replace(/:\/\/([^:]+):[^@]+@/, "://$1:***@");
+  console.log("Connecting to:", safeTarget);
+
+  const pool = new Pool({ connectionString: url });
   const db = drizzle(pool);
   console.log("Running migrations...");
   await migrate(db, { migrationsFolder: "./drizzle" });
