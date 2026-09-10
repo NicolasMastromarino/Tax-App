@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Pricing } from "./pricing";
 import {
   BookOpen,
   Calculator,
@@ -445,89 +446,6 @@ function HowItWorks() {
             <p className="mt-2 text-pretty text-sm text-muted">{step.body}</p>
           </div>
         ))}
-      </div>
-    </section>
-  );
-}
-
-function Pricing() {
-  const plans = [
-    {
-      name: "Monthly",
-      price: "$9.95",
-      period: "/month",
-      note: "Billed monthly, cancel anytime",
-    },
-    {
-      name: "Annual",
-      price: "$100",
-      period: "/year",
-      note: "Save about 16% vs. monthly",
-      highlighted: true,
-    },
-  ];
-  const included = [
-    "Unlimited transactions & categories",
-    "Tax Planner with quarterly estimates",
-    "Contractors & 1099 tracking",
-    "Bank reconciliation & reports",
-  ];
-  return (
-    <section id="pricing" className="border-y border-border bg-surface-muted/60">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Simple, honest pricing
-          </h2>
-          <p className="mt-4 text-pretty text-lg text-muted">
-            Free to start right now, no credit card required. These are the plans we&apos;re
-            launching soon — start today and we&apos;ll let you know before anything changes.
-          </p>
-        </div>
-
-        <div className="mx-auto mt-14 grid max-w-2xl grid-cols-1 gap-6 sm:grid-cols-2">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`relative rounded-2xl border p-8 shadow-sm ${
-                plan.highlighted ? "border-primary bg-surface ring-2 ring-primary/20" : "border-border bg-surface"
-              }`}
-            >
-              {plan.highlighted && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                  Best value
-                </span>
-              )}
-              <h3 className="text-sm font-semibold text-muted">{plan.name}</h3>
-              <p className="mt-2 flex items-baseline gap-1">
-                <span className="text-4xl font-semibold text-foreground">{plan.price}</span>
-                <span className="text-sm text-muted">{plan.period}</span>
-              </p>
-              <p className="mt-1 text-sm text-muted">{plan.note}</p>
-              <ul className="mt-6 space-y-2.5">
-                {included.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm text-foreground">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/register"
-                className={`mt-8 flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold transition-colors ${
-                  plan.highlighted
-                    ? "bg-primary text-primary-foreground hover:bg-primary-hover"
-                    : "border border-border bg-surface text-foreground hover:bg-surface-muted"
-                }`}
-              >
-                Start Free
-              </Link>
-            </div>
-          ))}
-        </div>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-muted">
-          Free during early access — you won&apos;t be charged unless we tell you first.
-        </p>
       </div>
     </section>
   );

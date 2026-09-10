@@ -98,8 +98,8 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-semibold text-foreground">Contact us</h2>
             <p className="mt-3 text-muted">
               Questions about this policy or your data? Email us at{" "}
-              <a href="mailto:nicolas.mastromarino@gmail.com" className="text-primary hover:underline">
-                nicolas.mastromarino@gmail.com
+              <a href="mailto:support@bookkeeply.me" className="text-primary hover:underline">
+                support@bookkeeply.me
               </a>
               .
             </p>
