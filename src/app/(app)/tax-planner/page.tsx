@@ -1,9 +1,21 @@
 import { requireBusiness } from "@/lib/current-business";
 import { getTaxProjection, getQuarterlyPayments } from "@/lib/data/tax";
+import { hasActiveSubscription } from "@/lib/data/subscription";
 import { TaxPlannerClient } from "@/components/tax-planner/tax-planner-client";
+import { UpgradeGate } from "@/components/paywall/upgrade-gate";
 
 export default async function TaxPlannerPage() {
-  const { business } = await requireBusiness();
+  const { session, business } = await requireBusiness();
+
+  if (!hasActiveSubscription(business)) {
+    return (
+      <UpgradeGate
+        feature="Tax Planner"
+        businessId={business.id}
+        email={session.user?.email ?? ""}
+      />
+    );
+  }
 
   const projection = await getTaxProjection({
     id: business.id,

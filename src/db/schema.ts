@@ -114,6 +114,25 @@ export const businesses = pgTable("businesses", {
   ubiaQualifiedProperty: numeric("ubia_qualified_property", { precision: 14, scale: 2 })
     .notNull()
     .default("0"),
+  // --- Paddle Billing (subscriptions) ---
+  // Core bookkeeping (dashboard, transactions, reconciliation, reports) is
+  // free forever. Tax Planner and Contractors & 1099s require an active
+  // subscription — see src/lib/data/subscription.ts for the access check.
+  // All nullable: null/no row activity means "never subscribed", which is
+  // the correct default for every existing business.
+  paddleCustomerId: text("paddle_customer_id"),
+  paddleSubscriptionId: text("paddle_subscription_id"),
+  // Raw status string as sent by Paddle (e.g. "active", "trialing",
+  // "past_due", "paused", "canceled") — stored as text rather than a Postgres
+  // enum so a new status Paddle introduces later doesn't require a migration
+  // before webhooks can be written. See subscription.ts for which statuses
+  // grant access.
+  subscriptionStatus: text("subscription_status"),
+  // "monthly" | "annual" — which price the customer is on, for display only.
+  subscriptionPlan: text("subscription_plan"),
+  subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end", {
+    withTimezone: true,
+  }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

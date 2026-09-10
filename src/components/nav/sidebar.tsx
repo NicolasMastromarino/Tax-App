@@ -15,24 +15,25 @@ import {
   LogOut,
   Menu,
   X,
+  Lock,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { signOutAction } from "@/lib/actions/session-actions";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/transactions", label: "Transactions", icon: Receipt },
-  { href: "/reconciliation", label: "Reconciliation", icon: Scale },
-  { href: "/reports", label: "Reports", icon: FileBarChart },
-  { href: "/tax-planner", label: "Tax Planner", icon: Calculator },
-  { href: "/contractors", label: "Contractors & 1099s", icon: Users },
-  { href: "/categories", label: "Expense Categories", icon: BookOpen },
-  { href: "/settings", label: "Settings", icon: Settings },
-  { href: "/help", label: "Help / Getting Started", icon: HelpCircle },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, paid: false },
+  { href: "/transactions", label: "Transactions", icon: Receipt, paid: false },
+  { href: "/reconciliation", label: "Reconciliation", icon: Scale, paid: false },
+  { href: "/reports", label: "Reports", icon: FileBarChart, paid: false },
+  { href: "/tax-planner", label: "Tax Planner", icon: Calculator, paid: true },
+  { href: "/contractors", label: "Contractors & 1099s", icon: Users, paid: true },
+  { href: "/categories", label: "Expense Categories", icon: BookOpen, paid: false },
+  { href: "/settings", label: "Settings", icon: Settings, paid: false },
+  { href: "/help", label: "Help / Getting Started", icon: HelpCircle, paid: false },
 ];
 
-export function Sidebar({ businessName }: { businessName: string }) {
+export function Sidebar({ businessName, subscribed }: { businessName: string; subscribed: boolean }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -54,7 +55,10 @@ export function Sidebar({ businessName }: { businessName: string }) {
             )}
           >
             <Icon className="h-4 w-4" />
-            {item.label}
+            <span className="flex-1">{item.label}</span>
+            {item.paid && !subscribed && (
+              <Lock className="h-3.5 w-3.5 shrink-0 text-muted" aria-label="Paid feature" />
+            )}
           </Link>
         );
       })}

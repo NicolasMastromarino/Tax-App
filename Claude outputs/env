@@ -1,0 +1,13 @@
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/taxapp"
+AUTH_SECRET="dev-only-secret-change-me-please-1234567890"
+NEXTAUTH_URL="http://localhost:3000"
+
+# Paddle billing - fill in with your sandbox values (see .env.example for
+# where to find each one). Left blank, checkout/portal buttons will no-op
+# with a console error instead of crashing the app.
+NEXT_PUBLIC_PADDLE_ENV="sandbox"
+NEXT_PUBLIC_PADDLE_CLIENT_TOKEN=""
+NEXT_PUBLIC_PADDLE_PRICE_ID_MONTHLY=""
+NEXT_PUBLIC_PADDLE_PRICE_ID_ANNUAL=""
+PADDLE_API_KEY=""
+PADDLE_WEBHOOK_SECRET=""

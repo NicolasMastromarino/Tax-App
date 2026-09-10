@@ -3,11 +3,14 @@
 import { useActionState, useState } from "react";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, FieldError, HelpText } from "@/components/ui/input";
+import { BillingCard } from "@/components/billing/billing-card";
 import { updateBusinessSettingsAction } from "@/lib/actions/business-actions";
 import type { ActionState } from "@/lib/actions/auth-actions";
+import type { SubscriptionSummary } from "@/lib/data/subscription";
 import { homeOfficeDeduction, simplifiedHomeOfficeDeduction } from "@/lib/calculations/ledger";
 import { formatCurrency } from "@/lib/utils";
 import type { businesses } from "@/db/schema";
@@ -16,7 +19,15 @@ type Business = typeof businesses.$inferSelect;
 
 const initialState: ActionState = {};
 
-export function SettingsClient({ business }: { business: Business }) {
+export function SettingsClient({
+  business,
+  subscription,
+  email,
+}: {
+  business: Business;
+  subscription: SubscriptionSummary;
+  email: string;
+}) {
   const [state, formAction, pending] = useActionState(updateBusinessSettingsAction, initialState);
   const [isSCorp, setIsSCorp] = useState(business.isSCorp);
   const [homeOfficeUsed, setHomeOfficeUsed] = useState(business.homeOfficeUsed);
@@ -24,10 +35,19 @@ export function SettingsClient({ business }: { business: Business }) {
   const [totalSqFt, setTotalSqFt] = useState(business.totalHomeSqFt ?? "");
   const [filingStatus, setFilingStatus] = useState(business.filingStatus);
   const [isSstb, setIsSstb] = useState(business.isSstb);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (state.success) toast.success("Settings saved");
   }, [state.success]);
+
+  useEffect(() => {
+    if (searchParams.get("upgraded") === "1") {
+      toast.success("You're subscribed! It may take a few seconds for access to unlock.");
+    }
+    // Only fire once on mount for whatever query string loaded the page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fieldErrors = state.fieldErrors ?? {};
   const pct = homeOfficeDeduction({
@@ -267,6 +287,8 @@ export function SettingsClient({ business }: { business: Business }) {
           {pending ? "Saving..." : "Save Settings"}
         </Button>
       </form>
+
+      <BillingCard summary={subscription} businessId={business.id} email={email} />
     </div>
   );
 }
