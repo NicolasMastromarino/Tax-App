@@ -3,7 +3,7 @@ import { SiteHeader, SiteFooter } from "@/components/marketing/landing-page";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "The terms that govern your use of Ten Minute Books.",
+  description: "The terms that govern your use of Bookkeeply.",
 };
 
 export default function TermsPage() {
@@ -16,14 +16,14 @@ export default function TermsPage() {
 
         <div className="mt-8 space-y-8 text-sm leading-relaxed text-foreground">
           <p>
-            These Terms of Service (&quot;Terms&quot;) govern your use of Ten Minute Books (the
+            These Terms of Service (&quot;Terms&quot;) govern your use of Bookkeeply (the
             &quot;Service&quot;). By creating an account, you agree to these Terms.
           </p>
 
           <section>
             <h2 className="text-lg font-semibold text-foreground">Not tax, legal, or financial advice</h2>
             <p className="mt-3 text-muted">
-              Ten Minute Books is a bookkeeping and tax-planning tool. Every figure it shows you —
+              Bookkeeply is a bookkeeping and tax-planning tool. Every figure it shows you —
               including tax estimates, quarterly payment amounts, and the 1099 filing threshold —
               is a planning estimate based on the information you enter and current IRS figures. It
               is not tax, legal, or financial advice, does not file anything on your behalf, and is
@@ -74,7 +74,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground">Limitation of liability</h2>
             <p className="mt-3 text-muted">
-              To the fullest extent permitted by law, Ten Minute Books is not liable for indirect,
+              To the fullest extent permitted by law, Bookkeeply is not liable for indirect,
               incidental, or consequential damages arising from your use of the Service, including
               any tax, penalty, or interest consequences of relying on an estimate it provided.
             </p>

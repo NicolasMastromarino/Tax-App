@@ -8,19 +8,19 @@ const description =
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Ten Minute Books — Bookkeeping and Taxes, Without the Dread",
+    absolute: "Bookkeeply — Bookkeeping and Taxes, Without the Dread",
   },
   description,
   openGraph: {
-    title: "Ten Minute Books — Bookkeeping and Taxes, Without the Dread",
+    title: "Bookkeeply — Bookkeeping and Taxes, Without the Dread",
     description,
-    siteName: "Ten Minute Books",
+    siteName: "Bookkeeply",
     type: "website",
     images: [{ url: "/marketing/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ten Minute Books — Bookkeeping and Taxes, Without the Dread",
+    title: "Bookkeeply — Bookkeeping and Taxes, Without the Dread",
     description,
     images: ["/marketing/og-image.png"],
   },

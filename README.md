@@ -1,4 +1,4 @@
-# Ten Minute Books
+# Bookkeeply
 
 A modern bookkeeping web application for service-based businesses, built to replace the "10 Minute Bookkeeping for Service-Based Businesses" Excel workbook. It preserves the workbook's business logic (categories, reconciliation math, home office deduction, double-entry validation) while replacing its Excel-specific mechanics (12 monthly tabs, manual "Transfer" macros, pivot tables that need manual refreshing) with a normal web app backed by one transactions database.
 

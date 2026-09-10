@@ -3,7 +3,7 @@ import { SiteHeader, SiteFooter } from "@/components/marketing/landing-page";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "How Ten Minute Books collects, uses, and protects your information.",
+  description: "How Bookkeeply collects, uses, and protects your information.",
 };
 
 export default function PrivacyPage() {
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
 
         <div className="mt-8 space-y-8 text-sm leading-relaxed text-foreground">
           <p>
-            Ten Minute Books (&quot;we,&quot; &quot;us&quot;) provides bookkeeping and tax-planning
+            Bookkeeply (&quot;we,&quot; &quot;us&quot;) provides bookkeeping and tax-planning
             software for service-based businesses. This policy explains what information we
             collect when you use the app, how we use it, and the choices you have.
           </p>
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground">Children&apos;s privacy</h2>
             <p className="mt-3 text-muted">
-              Ten Minute Books is intended for business owners and is not directed to children
+              Bookkeeply is intended for business owners and is not directed to children
               under 13, and we do not knowingly collect information from them.
             </p>
           </section>

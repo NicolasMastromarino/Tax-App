@@ -20,7 +20,7 @@ export default function LoginPage() {
             <BookOpen className="h-5 w-5" />
           </div>
           <h1 className="text-xl font-semibold">Welcome back</h1>
-          <p className="mt-1 text-sm text-muted">Sign in to Ten Minute Books</p>
+          <p className="mt-1 text-sm text-muted">Sign in to Bookkeeply</p>
         </div>
 
         <form action={formAction} className="space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-sm">

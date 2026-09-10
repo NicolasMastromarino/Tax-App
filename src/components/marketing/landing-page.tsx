@@ -64,7 +64,7 @@ const FEATURES = [
 const FAQS = [
   {
     q: "Is this tax advice?",
-    a: "No. Ten Minute Books gives you planning estimates based on the numbers you enter and current IRS figures — it's not a substitute for a licensed CPA or tax advisor, especially for anything beyond a straightforward sole proprietorship or single-owner S-Corp.",
+    a: "No. Bookkeeply gives you planning estimates based on the numbers you enter and current IRS figures — it's not a substitute for a licensed CPA or tax advisor, especially for anything beyond a straightforward sole proprietorship or single-owner S-Corp.",
   },
   {
     q: "Do I need to know anything about accounting to use it?",
@@ -84,7 +84,7 @@ const FAQS = [
   },
   {
     q: "What does it cost?",
-    a: "Ten Minute Books is free to start right now, with no credit card required. Paid plans are on the way — see Pricing below for what's coming.",
+    a: "Bookkeeply is free to start right now, with no credit card required. Paid plans are on the way — see Pricing below for what's coming.",
   },
 ] as const;
 
@@ -113,7 +113,7 @@ export function Logo({ className = "" }: { className?: string }) {
       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
         <BookOpen className="h-4 w-4" aria-hidden="true" />
       </span>
-      <span className="text-base font-semibold text-foreground">Ten Minute Books</span>
+      <span className="text-base font-semibold text-foreground">Bookkeeply</span>
     </Link>
   );
 }
@@ -261,7 +261,7 @@ function Hero() {
             </div>
             <Image
               src="/marketing/hero-dashboard.png"
-              alt="Ten Minute Books dashboard showing year-to-date revenue, expenses, net income, and a monthly revenue chart"
+              alt="Bookkeeply dashboard showing year-to-date revenue, expenses, net income, and a monthly revenue chart"
               width={1170}
               height={745}
               priority
@@ -627,7 +627,7 @@ export function SiteFooter() {
         </div>
         <div className="mt-10 border-t border-border pt-6">
           <p className="text-xs text-muted">
-            © {new Date().getFullYear()} Ten Minute Books. Not affiliated with the IRS. Tax
+            © {new Date().getFullYear()} Bookkeeply. Not affiliated with the IRS. Tax
             estimates are for planning purposes only and are not tax, legal, or financial advice —
             talk to a licensed professional about your specific situation.
           </p>
