@@ -135,6 +135,9 @@ export function SiteHeader() {
           <a href="#faq" className="text-sm font-medium text-muted hover:text-foreground">
             FAQ
           </a>
+          <Link href="/blog" className="text-sm font-medium text-muted hover:text-foreground">
+            Blog
+          </Link>
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -167,6 +170,9 @@ export function SiteHeader() {
             <a href="#faq" className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
               FAQ
             </a>
+            <Link href="/blog" className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
+              Blog
+            </Link>
             <div className="my-2 border-t border-border" />
             <Link href="/login" className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
               Log in
@@ -525,6 +531,7 @@ export function SiteFooter() {
                 <li><a href="#features" className="text-muted hover:text-foreground">Features</a></li>
                 <li><a href="#pricing" className="text-muted hover:text-foreground">Pricing</a></li>
                 <li><a href="#faq" className="text-muted hover:text-foreground">FAQ</a></li>
+                <li><Link href="/blog" className="text-muted hover:text-foreground">Blog</Link></li>
               </ul>
             </div>
             <div>
