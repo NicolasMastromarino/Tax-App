@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Input, Textarea, Label, FieldError, HelpText } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import type { BlogActionState } from "@/lib/actions/blog-actions";
 
 function slugify(value: string) {
@@ -36,6 +37,7 @@ export function PostForm({
   const [title, setTitle] = useState(initial?.title ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(Boolean(initial));
+  const [content, setContent] = useState(initial?.content ?? "");
 
   return (
     <form action={formAction} className="space-y-5">
@@ -86,20 +88,11 @@ export function PostForm({
 
       <div>
         <Label htmlFor="content">Content</Label>
-        <Textarea
-          id="content"
-          name="content"
-          rows={20}
-          defaultValue={initial?.content}
-          className="font-mono text-sm"
-          required
-        />
+        <RichTextEditor value={content} onChange={setContent} />
+        <input type="hidden" id="content" name="content" value={content} />
         <HelpText>
-          Markdown: **bold**, [link text](https://example.com), ## Heading, ### Smaller heading,
-          &ldquo;- item&rdquo; for a bulleted list, &ldquo;1. item&rdquo; for a numbered list,
-          and{" "}
-          ![alt text](/blog/your-image.jpg) for an image (put the file in the project&apos;s
-          public/blog folder first).
+          Use the toolbar to format text, add headings, lists, links, and quotes. Click the image
+          icon to upload a photo directly into the post.
         </HelpText>
         <FieldError>{state.fieldErrors?.content}</FieldError>
       </div>

@@ -7,8 +7,13 @@ import { blogPosts } from "@/db/schema";
 /**
  * The blog: posts are rows in blog_posts, written from /admin (gated to the
  * founder account, see requireFounder in src/lib/current-business.ts).
- * `content` is stored as raw markdown and rendered to HTML here, at read
- * time, so a styling/renderer change applies to every post retroactively.
+ *
+ * `content` holds HTML produced by the rich-text editor in /admin (see
+ * src/components/admin/rich-text-editor.tsx) and is rendered as-is. Posts
+ * written before the rich-text editor existed are stored as raw markdown;
+ * renderHtml() below detects which format a row is in and only runs it
+ * through `marked` when it isn't already HTML, so old posts keep rendering
+ * without a data migration.
  *
  * This does NOT sanitize the rendered HTML: post content only ever comes
  * from the founder-gated /admin editor, not from public input, so treating
@@ -31,7 +36,12 @@ export type BlogPost = BlogPostMeta & {
 };
 
 function renderHtml(content: string): string {
-  return marked.parse(content, { async: false }) as string;
+  const trimmed = content.trim();
+  // The rich-text editor always saves HTML starting with a tag. Markdown
+  // text (from posts written before the editor existed) never does, so
+  // this is a reliable enough check without a "format" column.
+  if (trimmed.startsWith("<")) return trimmed;
+  return marked.parse(trimmed, { async: false }) as string;
 }
 
 /** Published posts, newest first, for the public /blog index. */
