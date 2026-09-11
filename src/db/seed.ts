@@ -1,7 +1,8 @@
 import "dotenv/config";
 import { db } from "./index";
-import { categories, taxParameters, taxBrackets, qbiPhaseoutParameters } from "./schema";
+import { categories, taxParameters, taxBrackets, qbiPhaseoutParameters, blogPosts } from "./schema";
 import { CATEGORY_SEED } from "./seed-data/categories";
+import { BLOG_POST_SEED } from "./seed-data/blog-posts";
 import {
   TAX_YEAR_2025_PARAMETERS,
   TAX_YEAR_2025_BRACKETS,
@@ -143,6 +144,16 @@ async function main() {
     TAX_YEAR_2026_QBI_PHASEOUT
   );
   console.log("Done seeding tax data.");
+
+  // onConflictDoNothing (not onConflictDoUpdate, unlike the tax data above):
+  // these are starter posts meant to be edited from /admin afterward, so
+  // re-running the seed must never overwrite whatever the founder has
+  // since changed. Only inserts a post the first time its slug is seen.
+  console.log("Seeding starter blog posts...");
+  for (const post of BLOG_POST_SEED) {
+    await db.insert(blogPosts).values(post).onConflictDoNothing({ target: blogPosts.slug });
+  }
+  console.log("Done seeding blog posts.");
 
   process.exit(0);
 }

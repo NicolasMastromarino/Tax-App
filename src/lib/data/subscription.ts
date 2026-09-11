@@ -19,7 +19,7 @@ const ACTIVE_STATUSES = new Set(["active", "trialing", "past_due"]);
 // comparison is case-insensitive.
 const FOUNDER_EMAILS = new Set(["nicolas.mastromarino@gmail.com"]);
 
-function isFounder(email: string | null | undefined): boolean {
+export function isFounder(email: string | null | undefined): boolean {
   return !!email && FOUNDER_EMAILS.has(email.toLowerCase());
 }
 

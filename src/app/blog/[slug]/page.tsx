@@ -5,14 +5,15 @@ import { SiteHeader, SiteFooter } from "@/components/marketing/landing-page";
 import { getAllPosts, getPostBySlug } from "@/lib/blog";
 
 export async function generateStaticParams() {
-  return getAllPosts().map((post) => ({ slug: post.slug }));
+  const posts = await getAllPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata(
   props: PageProps<"/blog/[slug]">
 ): Promise<Metadata> {
   const { slug } = await props.params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) return {};
   return {
     title: post.title,
@@ -20,8 +21,8 @@ export async function generateMetadata(
   };
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
+function formatDate(date: Date) {
+  return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -31,7 +32,7 @@ function formatDate(iso: string) {
 
 export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
   const { slug } = await props.params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
 
   return (
@@ -43,8 +44,13 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
         </Link>
 
         <article className="mt-6">
+          {!post.published && (
+            <p className="mb-3 inline-block rounded-full bg-warning-bg px-3 py-1 text-xs font-semibold text-warning">
+              Draft &mdash; not listed on /blog yet
+            </p>
+          )}
           <p className="text-xs font-medium uppercase tracking-wide text-muted">
-            {formatDate(post.date)}
+            {formatDate(post.publishedAt)}
           </p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
             {post.title}
@@ -52,6 +58,7 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
 
           <div
             className="prose-content mt-8 text-foreground
+              [&_h1]:mt-8 [&_h1]:text-2xl [&_h1]:font-semibold [&_h1]:text-foreground
               [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-foreground
               [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground
               [&_p]:mt-4 [&_p]:leading-relaxed [&_p]:text-foreground
@@ -61,7 +68,9 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
               [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-primary-hover
               [&_strong]:font-semibold [&_strong]:text-foreground
               [&_code]:rounded [&_code]:bg-surface-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm
-              [&_blockquote]:mt-4 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-4 [&_blockquote]:text-muted"
+              [&_blockquote]:mt-4 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-4 [&_blockquote]:text-muted
+              [&_img]:mt-6 [&_img]:w-full [&_img]:rounded-xl [&_img]:border [&_img]:border-border
+              [&_figcaption]:mt-2 [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-muted"
             dangerouslySetInnerHTML={{ __html: post.html }}
           />
         </article>

@@ -411,3 +411,32 @@ export const vendors = pgTable(
 export const vendorsRelations = relations(vendors, ({ one }) => ({
   business: one(businesses, { fields: [vendors.businessId], references: [businesses.id] }),
 }));
+
+// ---------------------------------------------------------------------------
+// Blog posts — a single site-wide blog (not per-business/per-user). Written
+// and published from /admin, which is gated to the founder account (see
+// FOUNDER_EMAILS in src/lib/data/subscription.ts). `content` is the raw
+// markdown source; it's rendered to HTML at read time (see src/lib/blog.ts)
+// rather than stored pre-rendered, so a future change to the renderer or its
+// styling applies retroactively to every existing post.
+// ---------------------------------------------------------------------------
+
+export const blogPosts = pgTable(
+  "blog_posts",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    slug: text("slug").notNull(),
+    title: text("title").notNull(),
+    description: text("description").notNull().default(""),
+    content: text("content").notNull(),
+    // Drafts (published: false) are excluded from the public /blog index but
+    // are still viewable at their direct /blog/[slug] URL, so a draft link
+    // can be shared/previewed before it's announced. Low-risk for a
+    // single-author blog; revisit if this ever needs real access control.
+    published: boolean("published").notNull().default(false),
+    publishedAt: timestamp("published_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("blog_posts_slug_idx").on(t.slug)]
+);

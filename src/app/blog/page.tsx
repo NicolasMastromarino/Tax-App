@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description: "Bookkeeping and tax-planning notes for freelancers and service-based businesses.",
 };
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
+function formatDate(date: Date) {
+  return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -17,8 +17,8 @@ function formatDate(iso: string) {
   });
 }
 
-export default function BlogIndexPage() {
-  const posts = getAllPosts();
+export default async function BlogIndexPage() {
+  const posts = await getAllPosts();
 
   return (
     <div className="flex min-h-full flex-col">
@@ -39,7 +39,7 @@ export default function BlogIndexPage() {
                 className="rounded-2xl border border-border bg-surface p-6 shadow-sm transition-shadow hover:shadow-md"
               >
                 <p className="text-xs font-medium uppercase tracking-wide text-muted">
-                  {formatDate(post.date)}
+                  {formatDate(post.publishedAt)}
                 </p>
                 <h2 className="mt-2 text-xl font-semibold text-foreground">
                   <Link href={`/blog/${post.slug}`} className="hover:underline">

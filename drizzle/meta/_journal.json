@@ -36,6 +36,13 @@
       "when": 1789061435139,
       "tag": "0004_bent_absorbing_man",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789137967519,
+      "tag": "0005_elite_namor",
+      "breakpoints": true
     }
   ]
 }

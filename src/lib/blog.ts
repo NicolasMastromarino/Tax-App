@@ -1,71 +1,88 @@
 import "server-only";
-import fs from "node:fs";
-import path from "node:path";
-import matter from "gray-matter";
 import { marked } from "marked";
+import { eq, desc } from "drizzle-orm";
+import { db } from "@/db";
+import { blogPosts } from "@/db/schema";
 
 /**
- * Minimal file-based blog: posts are markdown files with frontmatter in
- * src/content/blog/*.md, rendered at /blog and /blog/[slug]. No CMS, no
- * separate hosting or database — add a new .md file here and it shows up.
+ * The blog: posts are rows in blog_posts, written from /admin (gated to the
+ * founder account, see requireFounder in src/lib/current-business.ts).
+ * `content` is stored as raw markdown and rendered to HTML here, at read
+ * time, so a styling/renderer change applies to every post retroactively.
  *
- * This intentionally does NOT sanitize the rendered HTML: post files are
- * only ever added by whoever has repo access (not user-submitted content),
- * so treating them as trusted markup is safe. Never wire this up to accept
- * post content from an untrusted source without adding sanitization first.
+ * This does NOT sanitize the rendered HTML: post content only ever comes
+ * from the founder-gated /admin editor, not from public input, so treating
+ * it as trusted markup is safe. Never wire a public-facing form into
+ * createPost/updatePost without adding sanitization first.
  */
 
-const POSTS_DIR = path.join(process.cwd(), "src/content/blog");
-
 export type BlogPostMeta = {
+  id: string;
   slug: string;
   title: string;
   description: string;
-  date: string; // ISO date string, e.g. "2026-09-11"
+  published: boolean;
+  publishedAt: Date;
 };
 
 export type BlogPost = BlogPostMeta & {
+  content: string;
   html: string;
 };
 
-function readSlugs(): string[] {
-  if (!fs.existsSync(POSTS_DIR)) return [];
-  return fs
-    .readdirSync(POSTS_DIR)
-    .filter((file) => file.endsWith(".md"))
-    .map((file) => file.replace(/\.md$/, ""));
+function renderHtml(content: string): string {
+  return marked.parse(content, { async: false }) as string;
 }
 
-function readPost(slug: string): BlogPost | null {
-  const filePath = path.join(POSTS_DIR, `${slug}.md`);
-  if (!fs.existsSync(filePath)) return null;
-
-  const raw = fs.readFileSync(filePath, "utf8");
-  const { data, content } = matter(raw);
-
-  const title = typeof data.title === "string" ? data.title : slug;
-  const description = typeof data.description === "string" ? data.description : "";
-  const date = typeof data.date === "string" ? data.date : new Date(0).toISOString();
-
-  return {
-    slug,
-    title,
-    description,
-    date,
-    html: marked.parse(content, { async: false }) as string,
-  };
+/** Published posts, newest first, for the public /blog index. */
+export async function getAllPosts(): Promise<BlogPostMeta[]> {
+  const rows = await db
+    .select({
+      id: blogPosts.id,
+      slug: blogPosts.slug,
+      title: blogPosts.title,
+      description: blogPosts.description,
+      published: blogPosts.published,
+      publishedAt: blogPosts.publishedAt,
+    })
+    .from(blogPosts)
+    .where(eq(blogPosts.published, true))
+    .orderBy(desc(blogPosts.publishedAt));
+  return rows;
 }
 
-/** All posts, newest first, for the /blog index. Doesn't include rendered HTML. */
-export function getAllPosts(): BlogPostMeta[] {
-  return readSlugs()
-    .map((slug) => readPost(slug))
-    .filter((post): post is BlogPost => post !== null)
-    .map(({ slug, title, description, date }) => ({ slug, title, description, date }))
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
+/**
+ * A single post by slug, with rendered HTML, for /blog/[slug]. Returns
+ * unpublished (draft) posts too — there's no public listing or search
+ * engine link to a draft, but a direct URL works as an unlisted preview.
+ * See the `published` column comment in schema.ts for why that's an
+ * acceptable simplification here.
+ */
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  const [row] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug)).limit(1);
+  if (!row) return null;
+  return { ...row, html: renderHtml(row.content) };
 }
 
-/** A single post with rendered HTML, for /blog/[slug]. */
-export function getPostBySlug(slug: string): BlogPost | null {
-  return readPost(slug);
+/** Every post regardless of published state, newest-created-first, for /admin. */
+export async function getAllPostsForAdmin(): Promise<BlogPostMeta[]> {
+  const rows = await db
+    .select({
+      id: blogPosts.id,
+      slug: blogPosts.slug,
+      title: blogPosts.title,
+      description: blogPosts.description,
+      published: blogPosts.published,
+      publishedAt: blogPosts.publishedAt,
+    })
+    .from(blogPosts)
+    .orderBy(desc(blogPosts.publishedAt));
+  return rows;
+}
+
+/** A single post by id (including unrendered markdown), for the /admin edit form. */
+export async function getPostById(id: string): Promise<BlogPost | null> {
+  const [row] = await db.select().from(blogPosts).where(eq(blogPosts.id, id)).limit(1);
+  if (!row) return null;
+  return { ...row, html: renderHtml(row.content) };
 }

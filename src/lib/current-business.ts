@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { businesses } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { isFounder } from "@/lib/data/subscription";
 
 /**
  * Resolves the signed-in user's business. The data model supports multiple
@@ -35,6 +36,24 @@ export async function requireSession() {
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
+  }
+  return session;
+}
+
+/**
+ * Gates /admin (the blog editor) to the founder account only — reuses the
+ * same login as the rest of the app rather than a separate admin password,
+ * so there's one credential to manage, not two. Anyone else signed in gets
+ * bounced to their dashboard; a signed-out visitor gets bounced to /login
+ * same as any other protected page.
+ */
+export async function requireFounder() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+  if (!isFounder(session.user.email)) {
+    redirect("/dashboard");
   }
   return session;
 }

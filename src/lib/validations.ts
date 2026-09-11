@@ -103,3 +103,22 @@ export const vendorSchema = z.object({
 });
 
 export type VendorInput = z.infer<typeof vendorSchema>;
+
+// Blog posts, written from /admin (see src/lib/actions/blog-actions.ts).
+// Slug is restricted to what's safe in a URL path segment and matches the
+// convention used in the filenames of the blog's original markdown-file
+// version (lowercase, hyphen-separated).
+export const blogPostSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(255),
+  slug: z
+    .string()
+    .trim()
+    .min(1, "Slug is required")
+    .max(255)
+    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens only"),
+  description: z.string().trim().max(500).optional().or(z.literal("")),
+  content: z.string().trim().min(1, "Post content can't be empty"),
+  published: z.coerce.boolean().optional().default(false),
+});
+
+export type BlogPostInput = z.infer<typeof blogPostSchema>;
