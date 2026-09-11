@@ -6,7 +6,6 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import {
-  Heading1,
   Heading2,
   Heading3,
   Heading4,
@@ -120,7 +119,11 @@ export function RichTextEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        heading: { levels: [1, 2, 3, 4] },
+        // Starts at H2, not H1: the post's title (rendered by the page
+        // itself, above this editor's content) is the page's only H1.
+        // Letting authored content include another H1-sized heading is
+        // what caused published posts to show the title twice.
+        heading: { levels: [2, 3, 4] },
       }),
       Image.configure({ HTMLAttributes: { class: "rounded-xl" } }),
       Placeholder.configure({
@@ -173,13 +176,6 @@ export function RichTextEditor({
   return (
     <div className="rounded-lg border border-border bg-surface">
       <div className="relative flex flex-wrap items-center gap-0.5 border-b border-border p-1.5">
-        <ToolbarButton
-          label="Heading 1"
-          active={editor.isActive("heading", { level: 1 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        >
-          <Heading1 className="h-4 w-4" />
-        </ToolbarButton>
         <ToolbarButton
           label="Heading 2"
           active={editor.isActive("heading", { level: 2 })}
