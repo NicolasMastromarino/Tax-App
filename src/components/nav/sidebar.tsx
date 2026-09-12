@@ -79,8 +79,11 @@ export function Sidebar({ businessName, subscribed }: { businessName: string; su
         </button>
       </div>
 
-      {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface md:flex">
+      {/* Desktop sidebar. Sticky + its own viewport height so it stays put
+          as the main column scrolls, instead of stretching to match a tall
+          page (the default flex cross-axis stretch) and pushing Sign out
+          off the bottom of the screen. */}
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface md:sticky md:top-0 md:flex md:h-screen md:overflow-y-auto">
         <div className="flex items-center gap-3 px-5 py-5">
           <BrandMark />
           <div className="min-w-0">

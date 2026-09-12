@@ -49,42 +49,47 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
     <div className="flex min-h-full flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <section className="marketing-dot-grid relative overflow-hidden border-b border-border">
+        {/* Gradient header, matching the blog index and login page's brand gradient */}
+        <section
+          className="relative overflow-hidden py-10 sm:py-14"
+          style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)" }}
+        >
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full opacity-20 blur-3xl"
+            className="pointer-events-none absolute inset-0"
             style={{
-              background:
-                "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent), transparent 70%)",
+              backgroundImage:
+                "radial-gradient(circle, rgba(255,255,255,0.12) 1.5px, transparent 1.5px)",
+              backgroundSize: "26px 26px",
             }}
           />
-          <div className="relative mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
+          <div className="relative mx-auto max-w-3xl px-4 sm:px-6">
             <Link
               href="/blog"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-foreground"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-white/85 hover:text-white"
             >
               <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
               Back to blog
             </Link>
 
             {!post.published && (
-              <p className="mt-4 inline-block rounded-full bg-warning-bg px-3 py-1 text-xs font-semibold text-warning">
+              <p className="mt-4 inline-block rounded-full bg-white/16 px-3 py-1 text-xs font-semibold text-white">
                 Draft &mdash; not listed on /blog yet
               </p>
             )}
 
-            <div className="mt-5 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted">
+            <h1 className="mt-5 text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              {post.title}
+            </h1>
+            <div className="mt-4 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-white/80">
               <span>{formatDate(post.publishedAt)}</span>
               <span aria-hidden="true">&middot;</span>
               <span>
                 {minutes} min read
               </span>
             </div>
-            <h1 className="mt-3 text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              {post.title}
-            </h1>
             {post.description && (
-              <p className="mt-4 max-w-2xl text-pretty text-lg text-muted">{post.description}</p>
+              <p className="mt-4 max-w-2xl text-pretty text-lg text-white/85">{post.description}</p>
             )}
           </div>
         </section>
