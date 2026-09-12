@@ -5,7 +5,14 @@ import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
+import UnderlineExtension from "@tiptap/extension-underline";
+import LinkExtension from "@tiptap/extension-link";
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableHeader from "@tiptap/extension-table-header";
+import TableCell from "@tiptap/extension-table-cell";
 import {
+  Heading1,
   Heading2,
   Heading3,
   Heading4,
@@ -20,10 +27,9 @@ import {
   Minus,
   ImagePlus,
   Link2,
-  Loader2,
+  Table as TableIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { uploadBlogImageAction } from "@/lib/actions/blog-actions";
 
 function ToolbarButton({
   onClick,
@@ -101,6 +107,56 @@ function LinkPopover({ editor, onClose }: { editor: Editor; onClose: () => void 
   );
 }
 
+/**
+ * There's no file storage wired up for this app (no blob/S3 client
+ * anywhere in the codebase), so this can't be a real upload button. It
+ * matches the documented workflow instead: drop the file in the project's
+ * public/blog folder yourself, then point the editor at that path.
+ */
+function ImagePopover({ editor, onClose }: { editor: Editor; onClose: () => void }) {
+  const [url, setUrl] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  function applyImage() {
+    const trimmed = url.trim();
+    if (trimmed) {
+      editor.chain().focus().setImage({ src: trimmed }).run();
+    }
+    onClose();
+  }
+
+  return (
+    <div className="absolute left-0 top-full z-10 mt-1 flex items-center gap-1.5 rounded-lg border border-border bg-surface p-1.5 shadow-md">
+      <input
+        ref={inputRef}
+        type="text"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            applyImage();
+          }
+          if (e.key === "Escape") onClose();
+        }}
+        placeholder="/blog/your-image.jpg"
+        className="h-7 w-56 rounded border border-border bg-surface px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      />
+      <button
+        type="button"
+        onClick={applyImage}
+        className="h-7 rounded bg-primary px-2 text-xs font-medium text-primary-foreground hover:bg-primary-hover"
+      >
+        Insert
+      </button>
+    </div>
+  );
+}
+
 export function RichTextEditor({
   value,
   onChange,
@@ -111,59 +167,41 @@ export function RichTextEditor({
   placeholder?: string;
 }) {
   const [linkMenuOpen, setLinkMenuOpen] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imageMenuOpen, setImageMenuOpen] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        // Starts at H2, not H1: the post's title (rendered by the page
-        // itself, above this editor's content) is the page's only H1.
-        // Letting authored content include another H1-sized heading is
-        // what caused published posts to show the title twice.
-        heading: { levels: [2, 3, 4] },
+        heading: { levels: [1, 2, 3, 4] },
       }),
       Image.configure({ HTMLAttributes: { class: "rounded-xl" } }),
       Placeholder.configure({
         placeholder: placeholder ?? "Write your post...",
       }),
+      // StarterKit doesn't include these two: the toolbar's underline
+      // button and link popover need them registered explicitly or their
+      // editor.chain() calls silently fail.
+      UnderlineExtension,
+      LinkExtension.configure({ openOnClick: false, autolink: true }),
+      // Table.configure({ resizable: false }) keeps columns evenly sized
+      // (table-fixed below) instead of needing extra CSS for drag handles.
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: value,
     editorProps: {
       attributes: {
         class:
-          "prose-content min-h-[320px] rounded-b-lg px-3 py-3 text-sm text-foreground focus:outline-none [&_h1]:mt-4 [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:mt-4 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mt-3 [&_h3]:text-base [&_h3]:font-semibold [&_h4]:mt-3 [&_h4]:text-sm [&_h4]:font-semibold [&_p]:mt-2 [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mt-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_blockquote]:mt-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:text-muted [&_hr]:my-4 [&_hr]:border-border [&_code]:rounded [&_code]:bg-surface-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_a]:text-primary [&_a]:underline [&_img]:mt-3 [&_img]:max-w-full",
+          "prose-content min-h-[320px] rounded-b-lg px-3 py-3 text-sm text-foreground focus:outline-none [&_h1]:mt-4 [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:mt-4 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mt-3 [&_h3]:text-base [&_h3]:font-semibold [&_h4]:mt-3 [&_h4]:text-sm [&_h4]:font-semibold [&_p]:mt-2 [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mt-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_blockquote]:mt-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:text-muted [&_hr]:my-4 [&_hr]:border-border [&_code]:rounded [&_code]:bg-surface-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_a]:text-primary [&_a]:underline [&_img]:mt-3 [&_img]:max-w-full [&_table]:mt-3 [&_table]:w-full [&_table]:table-fixed [&_table]:border-collapse [&_th]:border [&_th]:border-border [&_th]:bg-surface-muted [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_th]:align-top [&_th]:text-xs [&_th]:font-semibold [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1 [&_td]:align-top [&_td]:text-xs [&_td_p]:mt-0",
       },
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
   });
-
-  async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file || !editor) return;
-
-    setUploading(true);
-    setUploadError(null);
-    try {
-      const formData = new FormData();
-      formData.set("file", file);
-      const result = await uploadBlogImageAction(formData);
-      if ("error" in result) {
-        setUploadError(result.error);
-      } else {
-        editor.chain().focus().setImage({ src: result.url }).run();
-      }
-    } catch {
-      setUploadError("Upload failed. Try again.");
-    } finally {
-      setUploading(false);
-    }
-  }
 
   if (!editor) {
     return (
@@ -176,6 +214,13 @@ export function RichTextEditor({
   return (
     <div className="rounded-lg border border-border bg-surface">
       <div className="relative flex flex-wrap items-center gap-0.5 border-b border-border p-1.5">
+        <ToolbarButton
+          label="Heading 1"
+          active={editor.isActive("heading", { level: 1 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        >
+          <Heading1 className="h-4 w-4" />
+        </ToolbarButton>
         <ToolbarButton
           label="Heading 2"
           active={editor.isActive("heading", { level: 2 })}
@@ -265,27 +310,29 @@ export function RichTextEditor({
         >
           <Minus className="h-4 w-4" />
         </ToolbarButton>
+        <ToolbarButton
+          label="Insert table"
+          disabled={editor.isActive("table")}
+          onClick={() =>
+            editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+          }
+        >
+          <TableIcon className="h-4 w-4" />
+        </ToolbarButton>
 
         <div className="mx-1 h-5 w-px bg-border" />
 
-        <ToolbarButton
-          label="Insert image"
-          disabled={uploading}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          {uploading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
+        <div className="relative">
+          <ToolbarButton
+            label="Insert image"
+            onClick={() => setImageMenuOpen((open) => !open)}
+          >
             <ImagePlus className="h-4 w-4" />
+          </ToolbarButton>
+          {imageMenuOpen && (
+            <ImagePopover editor={editor} onClose={() => setImageMenuOpen(false)} />
           )}
-        </ToolbarButton>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="hidden"
-          onChange={handleFileSelected}
-        />
+        </div>
         <div className="relative">
           <ToolbarButton
             label="Link"
@@ -301,8 +348,6 @@ export function RichTextEditor({
       </div>
 
       <EditorContent editor={editor} />
-
-      {uploadError && <p className="border-t border-border px-3 py-2 text-xs text-danger">{uploadError}</p>}
     </div>
   );
 }
