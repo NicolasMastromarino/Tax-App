@@ -115,7 +115,12 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
               [&_blockquote]:mt-5 [&_blockquote]:border-l-2 [&_blockquote]:border-primary/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-muted
               [&_hr]:my-10 [&_hr]:border-border
               [&_img]:mt-8 [&_img]:w-full [&_img]:rounded-2xl [&_img]:border [&_img]:border-border [&_img]:shadow-sm
-              [&_figcaption]:mt-2 [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-muted"
+              [&_figcaption]:mt-2 [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-muted
+              [&_table]:mt-8 [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_table]:text-sm
+              [&_thead]:bg-surface-muted
+              [&_th]:border [&_th]:border-border [&_th]:px-4 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-semibold [&_th]:text-foreground
+              [&_td]:border [&_td]:border-border [&_td]:px-4 [&_td]:py-2.5 [&_td]:text-muted
+              [&_tbody_tr:nth-child(even)]:bg-surface-muted/40"
             dangerouslySetInnerHTML={{ __html: post.html }}
           />
 
