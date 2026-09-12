@@ -179,10 +179,13 @@ export function RichTextEditor({
         placeholder: placeholder ?? "Write your post...",
       }),
       // TableKit (v3) bundles Table + TableRow + TableHeader + TableCell
-      // from a single @tiptap/extension-table package. resizable: false
+      // from a single @tiptap/extension-table package. TableKit's own
+      // options just say which sub-extensions to register (or disable);
+      // each one's actual settings nest under its own key, so the table's
+      // resizable flag goes under `table`, not at the top level. false
       // keeps columns evenly sized (table-fixed below) instead of needing
       // extra CSS for drag handles.
-      TableKit.configure({ resizable: false }),
+      TableKit.configure({ table: { resizable: false } }),
     ],
     content: value,
     editorProps: {
