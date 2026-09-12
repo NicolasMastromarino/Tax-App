@@ -33,6 +33,21 @@ const NAV_ITEMS = [
   { href: "/help", label: "Help / Getting Started", icon: HelpCircle, paid: false },
 ];
 
+// Matches the app's favicon/app-icon mark: an indigo squircle, a bold white
+// "b", and a small violet corner dot.
+function BrandMark({ className = "h-8 w-8" }: { className?: string }) {
+  return (
+    <span className={cn("relative inline-flex shrink-0 items-center justify-center rounded-lg bg-primary", className)}>
+      <span className="text-base font-bold leading-none text-primary-foreground">b</span>
+      <span
+        className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full ring-2 ring-surface"
+        style={{ backgroundColor: "#7C3AED" }}
+        aria-hidden="true"
+      />
+    </span>
+  );
+}
+
 export function Sidebar({ businessName, subscribed }: { businessName: string; subscribed: boolean }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -69,7 +84,10 @@ export function Sidebar({ businessName, subscribed }: { businessName: string; su
     <>
       {/* Mobile top bar */}
       <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 md:hidden">
-        <span className="text-sm font-semibold">{businessName}</span>
+        <span className="flex items-center gap-2 text-sm font-semibold">
+          <BrandMark className="h-7 w-7" />
+          {businessName}
+        </span>
         <button onClick={() => setMobileOpen((o) => !o)} className="p-1">
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -77,9 +95,12 @@ export function Sidebar({ businessName, subscribed }: { businessName: string; su
 
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface md:flex">
-        <div className="px-5 py-5">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">Business</p>
-          <p className="mt-0.5 truncate text-sm font-semibold">{businessName}</p>
+        <div className="flex items-center gap-3 px-5 py-5">
+          <BrandMark />
+          <div className="min-w-0">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted">Business</p>
+            <p className="mt-0.5 truncate text-sm font-semibold">{businessName}</p>
+          </div>
         </div>
         {nav}
         <div className="border-t border-border p-3">

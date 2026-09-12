@@ -35,12 +35,25 @@ export function Combobox({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return options;
-    return options.filter(
-      (o) =>
-        o.label.toLowerCase().includes(q) ||
-        o.keywords?.toLowerCase().includes(q) ||
-        o.hint?.toLowerCase().includes(q)
-    );
+    // Rank matches so an exact/prefix/substring hit on the option's own
+    // name always outranks a match that only hits its keywords/hint text.
+    // Without this, a category whose *description* happens to mention the
+    // search term (e.g. "...not contract labor") could outrank the actual
+    // "Contract Labor" category, silently steering a user to the wrong one.
+    return options
+      .map((o, index) => {
+        const label = o.label.toLowerCase();
+        let rank: number;
+        if (label === q) rank = 0;
+        else if (label.startsWith(q)) rank = 1;
+        else if (label.includes(q)) rank = 2;
+        else if (o.keywords?.toLowerCase().includes(q) || o.hint?.toLowerCase().includes(q)) rank = 3;
+        else rank = -1;
+        return { option: o, rank, index };
+      })
+      .filter((entry) => entry.rank !== -1)
+      .sort((a, b) => a.rank - b.rank || a.index - b.index)
+      .map((entry) => entry.option);
   }, [options, query]);
 
   useEffect(() => {

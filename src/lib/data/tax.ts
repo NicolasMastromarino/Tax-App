@@ -351,14 +351,21 @@ export async function getQuarterlyPayments(
   const rows: QuarterlyPaymentRow[] = dueDates.map((d) => {
     const paid = byQuarter.get(d.quarter);
     const amountPaid = paid ? parseFloat(paid.amountPaid) : 0;
+    // Derive overUnderpaid from the already-rounded recommendedAmount (not
+    // the raw recommendedQuarterlyAmount) so the two columns can never
+    // disagree by a penny. Math.round rounds a .5-cent boundary toward
+    // +Infinity, which rounds a positive value away from zero but its
+    // negative counterpart toward zero — rounding both independently from
+    // the same unrounded figure could land them a cent apart.
+    const recommendedAmount = Math.round(recommendedQuarterlyAmount * 100) / 100;
     return {
       quarter: d.quarter,
       label: d.label,
       dueDate: d.dueDate,
-      recommendedAmount: Math.round(recommendedQuarterlyAmount * 100) / 100,
+      recommendedAmount,
       amountPaid,
       datePaid: paid?.datePaid ?? null,
-      overUnderpaid: Math.round((amountPaid - recommendedQuarterlyAmount) * 100) / 100,
+      overUnderpaid: Math.round((amountPaid - recommendedAmount) * 100) / 100,
     };
   });
 

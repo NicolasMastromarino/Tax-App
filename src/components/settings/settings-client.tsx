@@ -272,7 +272,7 @@ export function SettingsClient({
                   <p className="mt-1 text-xs">
                     This applies automatically when you record home-related bills (utilities,
                     insurance, mortgage interest, property tax) on the Transactions page.
-                    Simplified-method alternative (2025 rate): {formatCurrency(simplified)}
+                    Simplified-method alternative (a flat IRS rate): {formatCurrency(simplified)}
                     /year flat (capped at 300 sq ft).
                   </p>
                 </div>
