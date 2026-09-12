@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { BrandMark } from "@/components/brand-mark";
 import { signOutAction } from "@/lib/actions/session-actions";
 
 const NAV_ITEMS = [
@@ -32,21 +33,6 @@ const NAV_ITEMS = [
   { href: "/settings", label: "Settings", icon: Settings, paid: false },
   { href: "/help", label: "Help / Getting Started", icon: HelpCircle, paid: false },
 ];
-
-// Matches the app's favicon/app-icon mark: an indigo squircle, a bold white
-// "b", and a small violet corner dot.
-function BrandMark({ className = "h-8 w-8" }: { className?: string }) {
-  return (
-    <span className={cn("relative inline-flex shrink-0 items-center justify-center rounded-lg bg-primary", className)}>
-      <span className="text-base font-bold leading-none text-primary-foreground">b</span>
-      <span
-        className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full ring-2 ring-surface"
-        style={{ backgroundColor: "#7C3AED" }}
-        aria-hidden="true"
-      />
-    </span>
-  );
-}
 
 export function Sidebar({ businessName, subscribed }: { businessName: string; subscribed: boolean }) {
   const pathname = usePathname();

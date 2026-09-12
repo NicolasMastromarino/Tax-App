@@ -5,7 +5,7 @@ import Link from "next/link";
 import { registerAction, type ActionState } from "@/lib/actions/auth-actions";
 import { Button } from "@/components/ui/button";
 import { Input, Label, FieldError } from "@/components/ui/input";
-import { BookOpen } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
 
 const initialState: ActionState = {};
 
@@ -17,9 +17,7 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <BookOpen className="h-5 w-5" />
-          </div>
+          <BrandMark className="mb-3 h-11 w-11 rounded-xl" letterClassName="text-xl" />
           <h1 className="text-xl font-semibold">Create your account</h1>
           <p className="mt-1 text-sm text-muted">Set up bookkeeping for your business</p>
         </div>
