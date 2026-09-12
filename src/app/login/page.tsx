@@ -11,7 +11,7 @@ const initialState: LoginState = {};
 
 const BENEFITS = [
   "Sourced straight from the IRS, not guesswork",
-  "Free to start — set up in under 10 minutes",
+  "Free to start, set up in under 10 minutes",
 ];
 
 export default function LoginPage() {
@@ -19,7 +19,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Brand panel — hidden on small screens so the form stays front and center */}
+      {/* Brand panel, hidden on small screens so the form stays front and center */}
       <div
         className="relative hidden w-[45%] flex-col justify-between overflow-hidden p-12 md:flex"
         style={{ background: "linear-gradient(135deg, #4F46E5, #7C3AED)" }}
@@ -33,12 +33,12 @@ export default function LoginPage() {
           }}
         />
 
-        <div className="relative flex items-center gap-2.5">
+        <Link href="/" className="relative flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-white/15">
             <span className="text-[17px] font-bold text-white">b</span>
           </span>
           <span className="text-base font-semibold text-white">Bookkeeply</span>
-        </div>
+        </Link>
 
         <div className="relative flex max-w-md flex-col gap-5">
           <div className="text-[34px] font-semibold leading-tight text-white">
