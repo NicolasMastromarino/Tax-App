@@ -64,32 +64,42 @@ export default async function BlogIndexPage() {
               {posts.map((post) => (
                 <article
                   key={post.slug}
-                  className="group rounded-2xl border border-border bg-surface p-6 shadow-lg transition-shadow hover:shadow-xl sm:p-7"
+                  className="group overflow-hidden rounded-2xl border border-border bg-surface shadow-lg transition-shadow hover:shadow-xl"
                 >
                   <Link href={`/blog/${post.slug}`} className="block">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                        <BookOpen className="h-4 w-4" aria-hidden="true" />
-                      </span>
-                      <p className="text-xs font-medium uppercase tracking-wide text-muted">
-                        {formatDate(post.publishedAt)}
-                      </p>
-                    </div>
-                    <h2 className="mt-4 text-xl font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary sm:text-2xl">
-                      {post.title}
-                    </h2>
-                    {post.description && (
-                      <p className="mt-2 text-pretty text-sm leading-relaxed text-muted sm:text-base">
-                        {post.description}
-                      </p>
-                    )}
-                    <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
-                      Read more
-                      <ArrowRight
-                        className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                        aria-hidden="true"
+                    {post.featuredImage && (
+                      // eslint-disable-next-line @next/next/no-img-element -- admin-entered path/URL, not a static app asset
+                      <img
+                        src={post.featuredImage}
+                        alt=""
+                        className="aspect-[2/1] w-full object-cover"
                       />
-                    </span>
+                    )}
+                    <div className="p-6 sm:p-7">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                          <BookOpen className="h-4 w-4" aria-hidden="true" />
+                        </span>
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                          {formatDate(post.publishedAt)}
+                        </p>
+                      </div>
+                      <h2 className="mt-4 text-xl font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary sm:text-2xl">
+                        {post.title}
+                      </h2>
+                      {post.description && (
+                        <p className="mt-2 text-pretty text-sm leading-relaxed text-muted sm:text-base">
+                          {post.description}
+                        </p>
+                      )}
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+                        Read more
+                        <ArrowRight
+                          className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                          aria-hidden="true"
+                        />
+                      </span>
+                    </div>
                   </Link>
                 </article>
               ))}

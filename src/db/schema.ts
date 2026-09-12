@@ -429,6 +429,10 @@ export const blogPosts = pgTable(
     title: text("title").notNull(),
     description: text("description").notNull().default(""),
     content: text("content").notNull(),
+    // Path to a file in public/blog, or an external image URL. Shown on
+    // the /blog index card and at the top of the post; optional, so
+    // existing posts without one just render without an image.
+    featuredImage: text("featured_image"),
     // Drafts (published: false) are excluded from the public /blog index but
     // are still viewable at their direct /blog/[slug] URL, so a draft link
     // can be shared/previewed before it's announced. Low-risk for a

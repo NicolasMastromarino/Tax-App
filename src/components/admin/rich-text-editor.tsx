@@ -5,12 +5,7 @@ import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
-import UnderlineExtension from "@tiptap/extension-underline";
-import LinkExtension from "@tiptap/extension-link";
-import Table from "@tiptap/extension-table";
-import TableRow from "@tiptap/extension-table-row";
-import TableHeader from "@tiptap/extension-table-header";
-import TableCell from "@tiptap/extension-table-cell";
+import { TableKit } from "@tiptap/extension-table";
 import {
   Heading1,
   Heading2,
@@ -172,24 +167,22 @@ export function RichTextEditor({
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
+      // Tiptap v3's StarterKit bundles Underline and Link itself (it
+      // didn't in v2), so the toolbar's underline button and link popover
+      // just work without adding those as separate extensions.
       StarterKit.configure({
         heading: { levels: [1, 2, 3, 4] },
+        link: { openOnClick: false, autolink: true },
       }),
       Image.configure({ HTMLAttributes: { class: "rounded-xl" } }),
       Placeholder.configure({
         placeholder: placeholder ?? "Write your post...",
       }),
-      // StarterKit doesn't include these two: the toolbar's underline
-      // button and link popover need them registered explicitly or their
-      // editor.chain() calls silently fail.
-      UnderlineExtension,
-      LinkExtension.configure({ openOnClick: false, autolink: true }),
-      // Table.configure({ resizable: false }) keeps columns evenly sized
-      // (table-fixed below) instead of needing extra CSS for drag handles.
-      Table.configure({ resizable: false }),
-      TableRow,
-      TableHeader,
-      TableCell,
+      // TableKit (v3) bundles Table + TableRow + TableHeader + TableCell
+      // from a single @tiptap/extension-table package. resizable: false
+      // keeps columns evenly sized (table-fixed below) instead of needing
+      // extra CSS for drag handles.
+      TableKit.configure({ resizable: false }),
     ],
     content: value,
     editorProps: {

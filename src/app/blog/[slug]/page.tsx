@@ -94,6 +94,17 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
           </div>
         </section>
 
+        {post.featuredImage && (
+          <div className="relative mx-auto -mt-8 w-full max-w-3xl px-4 sm:-mt-10 sm:px-6">
+            {/* eslint-disable-next-line @next/next/no-img-element -- admin-entered path/URL, not a static app asset */}
+            <img
+              src={post.featuredImage}
+              alt=""
+              className="aspect-[2/1] w-full rounded-2xl border border-border object-cover shadow-lg"
+            />
+          </div>
+        )}
+
         <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
           <div
             className="prose-content text-base leading-7 text-muted sm:text-lg sm:leading-8

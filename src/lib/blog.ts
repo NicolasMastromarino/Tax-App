@@ -25,6 +25,7 @@ export type BlogPostMeta = {
   slug: string;
   title: string;
   description: string;
+  featuredImage: string | null;
   published: boolean;
   publishedAt: Date;
 };
@@ -49,6 +50,7 @@ export async function getAllPosts(): Promise<BlogPostMeta[]> {
       slug: blogPosts.slug,
       title: blogPosts.title,
       description: blogPosts.description,
+      featuredImage: blogPosts.featuredImage,
       published: blogPosts.published,
       publishedAt: blogPosts.publishedAt,
     })
@@ -79,6 +81,7 @@ export async function getAllPostsForAdmin(): Promise<BlogPostMeta[]> {
       slug: blogPosts.slug,
       title: blogPosts.title,
       description: blogPosts.description,
+      featuredImage: blogPosts.featuredImage,
       published: blogPosts.published,
       publishedAt: blogPosts.publishedAt,
     })

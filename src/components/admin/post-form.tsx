@@ -21,6 +21,7 @@ type PostFormValues = {
   slug: string;
   description: string;
   content: string;
+  featuredImage: string;
   published: boolean;
 };
 
@@ -38,6 +39,8 @@ export function PostForm({
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(Boolean(initial));
   const [content, setContent] = useState(initial?.content ?? "");
+  const [featuredImage, setFeaturedImage] = useState(initial?.featuredImage ?? "");
+  const [featuredImageBroken, setFeaturedImageBroken] = useState(false);
 
   return (
     <form action={formAction} className="space-y-5">
@@ -84,6 +87,39 @@ export function PostForm({
           placeholder="One sentence shown on the blog index and in search results."
         />
         <FieldError>{state.fieldErrors?.description}</FieldError>
+      </div>
+
+      <div>
+        <Label htmlFor="featuredImage">Featured image</Label>
+        <Input
+          id="featuredImage"
+          name="featuredImage"
+          value={featuredImage}
+          onChange={(e) => {
+            setFeaturedImage(e.target.value);
+            setFeaturedImageBroken(false);
+          }}
+          placeholder="/blog/your-image.jpg"
+        />
+        <HelpText>
+          Path to a file you&apos;ve put in the project&apos;s public/blog folder (e.g.
+          /blog/cover.jpg), or a full external image URL. Shown on the blog index card and at the
+          top of the post. Leave blank for none.
+        </HelpText>
+        {featuredImage.trim() && !featuredImageBroken && (
+          // eslint-disable-next-line @next/next/no-img-element -- arbitrary
+          // admin-entered path/URL, not one of the app's own optimizable assets
+          <img
+            src={featuredImage.trim()}
+            alt=""
+            onError={() => setFeaturedImageBroken(true)}
+            className="mt-2 h-32 w-full max-w-sm rounded-lg border border-border object-cover"
+          />
+        )}
+        {featuredImage.trim() && featuredImageBroken && (
+          <p className="mt-2 text-xs text-danger">Couldn&apos;t load an image from that path.</p>
+        )}
+        <FieldError>{state.fieldErrors?.featuredImage}</FieldError>
       </div>
 
       <div>
