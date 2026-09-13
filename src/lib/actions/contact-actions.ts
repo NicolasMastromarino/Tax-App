@@ -43,7 +43,7 @@ export async function sendContactMessageAction(
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   const { error } = await resend.emails.send({
-    from: "Bookkeeply Contact Form <onboarding@resend.dev>",
+    from: "Bookkeeply Contact Form <contact@bookkeeply.me>",
     to: SUPPORT_EMAIL,
     replyTo: email,
     subject: `[Contact] ${SUBJECT_LABELS[subject] ?? subject} from ${name}`,
