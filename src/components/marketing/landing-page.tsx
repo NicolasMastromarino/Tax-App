@@ -72,6 +72,11 @@ export async function SiteHeader() {
   const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
   const t = dict.marketing.nav;
   const href = (path: string) => localizedPath(locale, path);
+  // Features/Pricing/FAQ are sections on the homepage only. On any other
+  // page (blog, privacy, terms) a bare "#faq" just tacks the hash onto the
+  // current URL and does nothing — anchor through the homepage instead so
+  // the link always lands somewhere real.
+  const homeHref = href("/");
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/80 backdrop-blur-md supports-[backdrop-filter]:bg-surface/70">
@@ -79,13 +84,13 @@ export async function SiteHeader() {
         <Logo />
 
         <nav aria-label="Primary" className="hidden items-center gap-8 md:flex">
-          <a href="#features" className="text-sm font-medium text-muted hover:text-foreground">
+          <a href={`${homeHref}#features`} className="text-sm font-medium text-muted hover:text-foreground">
             {t.features}
           </a>
-          <a href="#pricing" className="text-sm font-medium text-muted hover:text-foreground">
+          <a href={`${homeHref}#pricing`} className="text-sm font-medium text-muted hover:text-foreground">
             {t.pricing}
           </a>
-          <a href="#faq" className="text-sm font-medium text-muted hover:text-foreground">
+          <a href={`${homeHref}#faq`} className="text-sm font-medium text-muted hover:text-foreground">
             {t.faq}
           </a>
           <Link href={href("/blog")} className="text-sm font-medium text-muted hover:text-foreground">
@@ -115,13 +120,13 @@ export async function SiteHeader() {
             <Menu className="h-5 w-5" aria-hidden="true" />
           </summary>
           <div className="absolute right-0 top-11 w-56 rounded-xl border border-border bg-surface p-2 shadow-lg">
-            <a href="#features" className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
+            <a href={`${homeHref}#features`} className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
               {t.features}
             </a>
-            <a href="#pricing" className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
+            <a href={`${homeHref}#pricing`} className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
               {t.pricing}
             </a>
-            <a href="#faq" className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
+            <a href={`${homeHref}#faq`} className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
               {t.faq}
             </a>
             <Link href={href("/blog")} className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
@@ -462,9 +467,9 @@ export async function SiteFooter() {
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">{t.product}</h3>
               <ul className="mt-3 space-y-2 text-sm">
-                <li><a href="#features" className="text-muted hover:text-foreground">{dict.marketing.nav.features}</a></li>
-                <li><a href="#pricing" className="text-muted hover:text-foreground">{dict.marketing.nav.pricing}</a></li>
-                <li><a href="#faq" className="text-muted hover:text-foreground">{dict.marketing.nav.faq}</a></li>
+                <li><a href={`${href("/")}#features`} className="text-muted hover:text-foreground">{dict.marketing.nav.features}</a></li>
+                <li><a href={`${href("/")}#pricing`} className="text-muted hover:text-foreground">{dict.marketing.nav.pricing}</a></li>
+                <li><a href={`${href("/")}#faq`} className="text-muted hover:text-foreground">{dict.marketing.nav.faq}</a></li>
                 <li><Link href={href("/blog")} className="text-muted hover:text-foreground">{dict.marketing.nav.blog}</Link></li>
               </ul>
             </div>
