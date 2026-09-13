@@ -125,3 +125,20 @@ export const blogPostSchema = z.object({
 });
 
 export type BlogPostInput = z.infer<typeof blogPostSchema>;
+
+export const CONTACT_SUBJECTS = [
+  "general",
+  "billing",
+  "bug",
+  "feature",
+  "other",
+] as const;
+
+export const contactSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(255),
+  email: z.string().trim().email("Enter a valid email address").max(255),
+  subject: z.enum(CONTACT_SUBJECTS, { error: "Choose a subject" }),
+  message: z.string().trim().min(1, "Message is required").max(5000, "Message is too long"),
+});
+
+export type ContactInput = z.infer<typeof contactSchema>;

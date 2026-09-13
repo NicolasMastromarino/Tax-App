@@ -10,6 +10,7 @@ export const en = {
       pricing: "Pricing",
       faq: "FAQ",
       blog: "Blog",
+      contact: "Contact",
       login: "Log in",
       signup: "Sign up",
       getStarted: "Get Started Free",
@@ -169,6 +170,32 @@ export const en = {
       disclaimer:
         "© {year} Bookkeeply. Not affiliated with the IRS. Tax estimates are for planning purposes only and are not tax, legal, or financial advice. Talk to a licensed professional about your specific situation.",
     },
+  },
+  contact: {
+    heading: "Contact Us",
+    subtitle: "Questions about your bookkeeping or taxes? Send us a message and we'll get back to you.",
+    form: {
+      name: "Name",
+      namePlaceholder: "Jane Freelancer",
+      email: "Email",
+      emailPlaceholder: "you@example.com",
+      subject: "What's this about?",
+      subjectOptions: {
+        general: "General question",
+        billing: "Billing question",
+        bug: "Bug report",
+        feature: "Feature request",
+        other: "Something else",
+      },
+      message: "Message",
+      messagePlaceholder: "How can we help?",
+      send: "Send Message",
+      sending: "Sending...",
+      sentToast: "Message sent. We'll get back to you soon.",
+    },
+    note: "We read every message ourselves, usually a reply within one business day. Prefer email? Write to",
+    faqEyebrow: "Common Questions",
+    seeFullFaq: "See the full FAQ",
   },
   nav: {
     dashboard: "Dashboard",
@@ -798,6 +825,13 @@ export const en = {
     "Couldn't open the billing portal right now. Try again shortly.":
       "Couldn't open the billing portal right now. Try again shortly.",
     "Type your email exactly to confirm.": "Type your email exactly to confirm.",
+    "Message is required": "Message is required",
+    "Message is too long": "Message is too long",
+    "Choose a subject": "Choose a subject",
+    "Message sending isn't configured yet. Try again shortly.":
+      "Message sending isn't configured yet. Try again shortly.",
+    "Couldn't send your message right now. Try again shortly.":
+      "Couldn't send your message right now. Try again shortly.",
   },
 };
 

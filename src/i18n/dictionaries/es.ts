@@ -12,6 +12,7 @@ export const es: Dictionary = {
       pricing: "Precios",
       faq: "Preguntas frecuentes",
       blog: "Blog",
+      contact: "Contacto",
       login: "Iniciar sesión",
       signup: "Registrarse",
       getStarted: "Empieza gratis",
@@ -171,6 +172,32 @@ export const es: Dictionary = {
       disclaimer:
         "© {year} Bookkeeply. No afiliado con el IRS. Las estimaciones de impuestos son solo para fines de planificación y no constituyen asesoría fiscal, legal o financiera. Consulta a un profesional con licencia sobre tu situación específica.",
     },
+  },
+  contact: {
+    heading: "Contáctanos",
+    subtitle: "¿Tienes preguntas sobre tu contabilidad o tus impuestos? Envíanos un mensaje y te responderemos.",
+    form: {
+      name: "Nombre",
+      namePlaceholder: "Jane Freelancer",
+      email: "Correo electrónico",
+      emailPlaceholder: "tu@ejemplo.com",
+      subject: "¿De qué se trata?",
+      subjectOptions: {
+        general: "Pregunta general",
+        billing: "Pregunta de facturación",
+        bug: "Reportar un error",
+        feature: "Sugerir una función",
+        other: "Otro motivo",
+      },
+      message: "Mensaje",
+      messagePlaceholder: "¿Cómo podemos ayudarte?",
+      send: "Enviar Mensaje",
+      sending: "Enviando...",
+      sentToast: "Mensaje enviado. Te responderemos pronto.",
+    },
+    note: "Leemos cada mensaje nosotros mismos, normalmente respondemos dentro de un día hábil. ¿Prefieres el correo electrónico? Escríbenos a",
+    faqEyebrow: "Preguntas Comunes",
+    seeFullFaq: "Ver todas las preguntas frecuentes",
   },
   nav: {
     dashboard: "Panel",
@@ -795,5 +822,12 @@ export const es: Dictionary = {
     "Couldn't open the billing portal right now. Try again shortly.":
       "No se pudo abrir el portal de facturación en este momento. Inténtalo de nuevo en breve.",
     "Type your email exactly to confirm.": "Escribe tu correo electrónico exactamente para confirmar.",
+    "Message is required": "El mensaje es obligatorio",
+    "Message is too long": "El mensaje es demasiado largo",
+    "Choose a subject": "Elige un motivo",
+    "Message sending isn't configured yet. Try again shortly.":
+      "El envío de mensajes aún no está configurado. Inténtalo de nuevo en breve.",
+    "Couldn't send your message right now. Try again shortly.":
+      "No se pudo enviar tu mensaje en este momento. Inténtalo de nuevo en breve.",
   },
 };

@@ -96,6 +96,9 @@ export async function SiteHeader() {
           <Link href={href("/blog")} className="text-sm font-medium text-muted hover:text-foreground">
             {t.blog}
           </Link>
+          <Link href={href("/contact")} className="text-sm font-medium text-muted hover:text-foreground">
+            {t.contact}
+          </Link>
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -131,6 +134,9 @@ export async function SiteHeader() {
             </a>
             <Link href={href("/blog")} className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
               {t.blog}
+            </Link>
+            <Link href={href("/contact")} className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
+              {t.contact}
             </Link>
             <div className="my-2 border-t border-border" />
             <div className="px-3 py-2">
@@ -471,6 +477,7 @@ export async function SiteFooter() {
                 <li><a href={`${href("/")}#pricing`} className="text-muted hover:text-foreground">{dict.marketing.nav.pricing}</a></li>
                 <li><a href={`${href("/")}#faq`} className="text-muted hover:text-foreground">{dict.marketing.nav.faq}</a></li>
                 <li><Link href={href("/blog")} className="text-muted hover:text-foreground">{dict.marketing.nav.blog}</Link></li>
+                <li><Link href={href("/contact")} className="text-muted hover:text-foreground">{dict.marketing.nav.contact}</Link></li>
               </ul>
             </div>
             <div>
