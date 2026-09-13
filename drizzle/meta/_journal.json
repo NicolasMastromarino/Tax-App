@@ -57,6 +57,13 @@
       "when": 1789260372619,
       "tag": "0007_amusing_hemingway",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789336055697,
+      "tag": "0008_minor_squirrel_girl",
+      "breakpoints": true
     }
   ]
 }

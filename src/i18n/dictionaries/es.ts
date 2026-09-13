@@ -658,6 +658,8 @@ export const es: Dictionary = {
     },
   },
   auth: {
+    continueWithGoogle: "Continuar con Google",
+    orDivider: "o",
     login: {
       heroHeadline: "Contabilidad e impuestos, sin el estrés.",
       heroBenefits: [

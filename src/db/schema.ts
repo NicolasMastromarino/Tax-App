@@ -56,7 +56,11 @@ export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
+  // Null for a user who has only ever signed in with Google -- there's no
+  // password to check, so the Credentials provider's authorize() rejects
+  // any password attempt for that account instead of hashing/comparing
+  // against nothing (see auth.ts).
+  passwordHash: text("password_hash"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

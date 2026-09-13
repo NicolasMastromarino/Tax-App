@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { loginAction, type LoginState } from "@/lib/actions/login-action";
 import { noResetSubmit } from "@/lib/no-reset-form-action";
+import { GoogleSignInButton } from "@/components/auth/google-button";
 import { Button } from "@/components/ui/button";
 import { Input, Label, FieldError } from "@/components/ui/input";
 import { useLocale } from "@/i18n/use-locale";
@@ -68,6 +69,14 @@ export default function LoginPage() {
           <div className="mb-6">
             <h1 className="text-xl font-semibold">{t.title}</h1>
             <p className="mt-1 text-sm text-muted">{t.subtitle}</p>
+          </div>
+
+          <GoogleSignInButton locale={locale} label={dict.auth.continueWithGoogle} />
+
+          <div className="my-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs font-medium uppercase tracking-wide text-muted">{dict.auth.orDivider}</span>
+            <div className="h-px flex-1 bg-border" />
           </div>
 
           <form onSubmit={noResetSubmit(formAction)} className="space-y-4">

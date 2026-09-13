@@ -656,6 +656,8 @@ export const en = {
     },
   },
   auth: {
+    continueWithGoogle: "Continue with Google",
+    orDivider: "or",
     login: {
       heroHeadline: "Bookkeeping and taxes, without the dread.",
       heroBenefits: ["Sourced straight from the IRS, not guesswork", "Free to start, set up in under 10 minutes"],
