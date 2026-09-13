@@ -1,10 +1,11 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Input, Textarea, Label, FieldError, HelpText } from "@/components/ui/input";
+import { Input, Textarea, Select, Label, FieldError, HelpText } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { ImagePicker } from "@/components/admin/image-picker";
+import { BLOG_CATEGORIES } from "@/lib/blog-categories";
 import type { BlogActionState } from "@/lib/actions/blog-actions";
 
 function slugify(value: string) {
@@ -22,6 +23,7 @@ type PostFormValues = {
   slug: string;
   description: string;
   content: string;
+  category: string | null;
   featuredImage: string;
   published: boolean;
 };
@@ -92,6 +94,20 @@ export function PostForm({
       </div>
 
       <div>
+        <Label htmlFor="category">Category</Label>
+        <Select id="category" name="category" defaultValue={initial?.category ?? ""}>
+          <option value="">No category</option>
+          {BLOG_CATEGORIES.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </Select>
+        <HelpText>Shown as a small tag next to the date on the blog index.</HelpText>
+        <FieldError>{state.fieldErrors?.category}</FieldError>
+      </div>
+
+      <div>
         <Label htmlFor="featuredImage">Featured image</Label>
         <div className="flex gap-2">
           <Input
@@ -144,7 +160,10 @@ export function PostForm({
           Use the toolbar for headings, bold/italic, lists, quotes, links, images (upload, browse
           images you&apos;ve used before, or paste a URL), and tables, the grid icon lets you pick
           a size before inserting a table with a header row; put your cursor in a cell and use Tab
-          to add more rows.
+          to add more rows. The calculator icon inserts a boxed callout for a number or
+          calculation worth setting apart; the info icon inserts the standard tax-disclaimer block
+          (divider + icon) pre-filled with the usual wording -- edit it in place if a post needs
+          different phrasing.
         </HelpText>
         <FieldError>{state.fieldErrors?.content}</FieldError>
       </div>

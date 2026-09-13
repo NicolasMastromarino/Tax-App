@@ -429,6 +429,12 @@ export const blogPosts = pgTable(
     title: text("title").notNull(),
     description: text("description").notNull().default(""),
     content: text("content").notNull(),
+    // One of BLOG_CATEGORIES (src/lib/blog-categories.ts), enforced at the
+    // app layer (Zod), not a Postgres enum, so adding a category later is
+    // just a constant-list change, not a migration. Nullable so existing
+    // posts written before this field existed keep working -- the /blog
+    // card and post header just skip the category pill when it's null.
+    category: text("category"),
     // Path to a file in public/blog, or an external image URL. Shown on
     // the /blog index card and at the top of the post; optional, so
     // existing posts without one just render without an image.

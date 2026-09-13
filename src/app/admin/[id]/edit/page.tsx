@@ -22,6 +22,7 @@ export default async function EditPostPage(props: PageProps<"/admin/[id]/edit">)
             slug: post.slug,
             description: post.description,
             content: post.content,
+            category: post.category,
             featuredImage: post.featuredImage ?? "",
             published: post.published,
           }}

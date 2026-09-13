@@ -25,10 +25,14 @@ export type BlogPostMeta = {
   slug: string;
   title: string;
   description: string;
+  category: string | null;
   featuredImage: string | null;
   published: boolean;
   publishedAt: Date;
 };
+
+/** Meta plus a reading-time estimate, for card lists (/blog, /admin). */
+export type BlogPostListItem = BlogPostMeta & { readingTime: number };
 
 export type BlogPost = BlogPostMeta & {
   content: string;
@@ -42,22 +46,34 @@ function renderHtml(content: string): string {
   return marked.parse(content, { async: false }) as string;
 }
 
+/** ~200 wpm, counted from the rendered text (tags stripped), min 1 minute. */
+export function readingTime(html: string): number {
+  const text = html.replace(/<[^>]+>/g, " ");
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
 /** Published posts, newest first, for the public /blog index. */
-export async function getAllPosts(): Promise<BlogPostMeta[]> {
+export async function getAllPosts(): Promise<BlogPostListItem[]> {
   const rows = await db
     .select({
       id: blogPosts.id,
       slug: blogPosts.slug,
       title: blogPosts.title,
       description: blogPosts.description,
+      category: blogPosts.category,
       featuredImage: blogPosts.featuredImage,
       published: blogPosts.published,
       publishedAt: blogPosts.publishedAt,
+      content: blogPosts.content,
     })
     .from(blogPosts)
     .where(eq(blogPosts.published, true))
     .orderBy(desc(blogPosts.publishedAt));
-  return rows;
+  return rows.map(({ content, ...meta }) => ({
+    ...meta,
+    readingTime: readingTime(renderHtml(content)),
+  }));
 }
 
 /**
@@ -81,6 +97,7 @@ export async function getAllPostsForAdmin(): Promise<BlogPostMeta[]> {
       slug: blogPosts.slug,
       title: blogPosts.title,
       description: blogPosts.description,
+      category: blogPosts.category,
       featuredImage: blogPosts.featuredImage,
       published: blogPosts.published,
       publishedAt: blogPosts.publishedAt,

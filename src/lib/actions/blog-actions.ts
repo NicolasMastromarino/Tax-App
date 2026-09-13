@@ -20,6 +20,7 @@ function parseForm(formData: FormData) {
     slug: formData.get("slug"),
     description: formData.get("description") ?? "",
     content: formData.get("content"),
+    category: formData.get("category") ?? "",
     featuredImage: formData.get("featuredImage") ?? "",
     published: formData.get("published") === "on",
   });
@@ -63,6 +64,7 @@ export async function createPostAction(
       slug: parsed.data.slug,
       description: parsed.data.description || "",
       content: parsed.data.content,
+      category: parsed.data.category || null,
       featuredImage: parsed.data.featuredImage || null,
       published: parsed.data.published,
     })
@@ -97,6 +99,7 @@ export async function updatePostAction(
       slug: parsed.data.slug,
       description: parsed.data.description || "",
       content: parsed.data.content,
+      category: parsed.data.category || null,
       featuredImage: parsed.data.featuredImage || null,
       published: parsed.data.published,
       updatedAt: new Date(),

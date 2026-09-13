@@ -23,9 +23,12 @@ import {
   ImagePlus,
   Link2,
   Table as TableIcon,
+  Calculator,
+  Info,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ImagePicker } from "@/components/admin/image-picker";
+import { Callout, Disclaimer, STANDARD_TAX_DISCLAIMER } from "@/components/admin/blog-extensions";
 
 function ToolbarButton({
   onClick,
@@ -211,12 +214,14 @@ export function RichTextEditor({
       // keeps columns evenly sized (table-fixed below) instead of needing
       // extra CSS for drag handles.
       TableKit.configure({ table: { resizable: false } }),
+      Callout,
+      Disclaimer,
     ],
     content: value,
     editorProps: {
       attributes: {
         class:
-          "prose-content min-h-[320px] rounded-b-lg px-3 py-3 text-sm text-foreground focus:outline-none [&_h1]:mt-4 [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:mt-4 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mt-3 [&_h3]:text-base [&_h3]:font-semibold [&_h4]:mt-3 [&_h4]:text-sm [&_h4]:font-semibold [&_p]:mt-2 [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mt-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_blockquote]:mt-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:text-muted [&_hr]:my-4 [&_hr]:border-border [&_code]:rounded [&_code]:bg-surface-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_a]:text-primary [&_a]:underline [&_img]:mt-3 [&_img]:max-w-full [&_table]:mt-3 [&_table]:w-full [&_table]:table-fixed [&_table]:border-collapse [&_th]:border [&_th]:border-border [&_th]:bg-surface-muted [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_th]:align-top [&_th]:text-xs [&_th]:font-semibold [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1 [&_td]:align-top [&_td]:text-xs [&_td_p]:mt-0",
+          "prose-content min-h-[320px] rounded-b-lg px-3 py-3 text-sm text-foreground focus:outline-none [&_h1]:mt-4 [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:mt-4 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mt-3 [&_h3]:text-base [&_h3]:font-semibold [&_h4]:mt-3 [&_h4]:text-sm [&_h4]:font-semibold [&_p]:mt-2 [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mt-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_blockquote]:mt-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:text-muted [&_hr]:my-4 [&_hr]:border-border [&_code]:rounded [&_code]:bg-surface-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_a]:text-primary [&_a]:underline [&_img]:mt-3 [&_img]:max-w-full [&_table]:mt-3 [&_table]:w-full [&_table]:table-fixed [&_table]:border-collapse [&_th]:border [&_th]:border-border [&_th]:bg-surface-muted [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_th]:align-top [&_th]:text-xs [&_th]:font-semibold [&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1 [&_td]:align-top [&_td]:text-xs [&_td_p]:mt-0 [&_.blog-callout]:mt-2 [&_.blog-callout]:flex [&_.blog-callout]:flex-col [&_.blog-callout]:gap-1 [&_.blog-callout]:rounded-lg [&_.blog-callout]:border [&_.blog-callout]:border-border [&_.blog-callout]:bg-background [&_.blog-callout]:px-3 [&_.blog-callout]:py-2 [&_.blog-callout_p]:mt-0 [&_.blog-callout_p]:font-semibold [&_.blog-disclaimer]:mt-2 [&_.blog-disclaimer]:flex [&_.blog-disclaimer]:items-start [&_.blog-disclaimer]:gap-2 [&_.blog-disclaimer]:border-t [&_.blog-disclaimer]:border-border [&_.blog-disclaimer]:pt-2 [&_.blog-disclaimer_svg]:mt-0.5 [&_.blog-disclaimer_svg]:shrink-0 [&_.blog-disclaimer_svg]:text-muted [&_.blog-disclaimer_p]:mt-0 [&_.blog-disclaimer_p]:text-xs [&_.blog-disclaimer_p]:italic [&_.blog-disclaimer_p]:text-muted",
       },
     },
     onUpdate: ({ editor }) => {
@@ -343,6 +348,38 @@ export function RichTextEditor({
             <TablePopover editor={editor} onClose={() => setTableMenuOpen(false)} />
           )}
         </div>
+        <ToolbarButton
+          label="Insert callout box (for an equation or number to set apart)"
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertContent({
+                type: "callout",
+                content: [
+                  { type: "paragraph", content: [{ type: "text", text: "$6,000 x 30% = $1,800" }] },
+                ],
+              })
+              .run()
+          }
+        >
+          <Calculator className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton
+          label="Insert tax disclaimer"
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertContent({
+                type: "disclaimer",
+                content: [{ type: "text", text: STANDARD_TAX_DISCLAIMER }],
+              })
+              .run()
+          }
+        >
+          <Info className="h-4 w-4" />
+        </ToolbarButton>
 
         <div className="mx-1 h-5 w-px bg-border" />
 

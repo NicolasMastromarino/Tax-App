@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BLOG_CATEGORIES } from "@/lib/blog-categories";
 
 export const transactionTypeSchema = z.enum([
   "income",
@@ -118,6 +119,7 @@ export const blogPostSchema = z.object({
     .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens only"),
   description: z.string().trim().max(500).optional().or(z.literal("")),
   content: z.string().trim().min(1, "Post content can't be empty"),
+  category: z.enum(BLOG_CATEGORIES).optional().or(z.literal("")),
   featuredImage: z.string().trim().max(500).optional().or(z.literal("")),
   published: z.coerce.boolean().optional().default(false),
 });

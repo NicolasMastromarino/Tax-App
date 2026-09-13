@@ -3,14 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/marketing/landing-page";
-import { getAllPosts, getPostBySlug } from "@/lib/blog";
-
-/** ~200 wpm, counted from the rendered text (tags stripped), min 1 minute. */
-function readingTime(html: string): number {
-  const text = html.replace(/<[^>]+>/g, " ");
-  const words = text.trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
-}
+import { getAllPosts, getPostBySlug, readingTime } from "@/lib/blog";
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
@@ -131,7 +124,12 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
               [&_thead]:bg-surface-muted
               [&_th]:border [&_th]:border-border [&_th]:px-4 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-semibold [&_th]:text-foreground
               [&_td]:border [&_td]:border-border [&_td]:px-4 [&_td]:py-2.5 [&_td]:text-muted
-              [&_tbody_tr:nth-child(even)]:bg-surface-muted/40"
+              [&_tbody_tr:nth-child(even)]:bg-surface-muted/40
+              [&_.blog-callout]:mt-5 [&_.blog-callout]:flex [&_.blog-callout]:flex-col [&_.blog-callout]:gap-2 [&_.blog-callout]:rounded-xl [&_.blog-callout]:border [&_.blog-callout]:border-border [&_.blog-callout]:bg-background [&_.blog-callout]:px-5 [&_.blog-callout]:py-4
+              [&_.blog-callout_p]:mt-0 [&_.blog-callout_p]:font-semibold [&_.blog-callout_p]:text-foreground [&_.blog-callout_p]:[font-variant-numeric:tabular-nums]
+              [&_.blog-disclaimer]:mt-10 [&_.blog-disclaimer]:flex [&_.blog-disclaimer]:items-start [&_.blog-disclaimer]:gap-2.5 [&_.blog-disclaimer]:border-t [&_.blog-disclaimer]:border-border [&_.blog-disclaimer]:pt-5
+              [&_.blog-disclaimer_svg]:mt-0.5 [&_.blog-disclaimer_svg]:shrink-0 [&_.blog-disclaimer_svg]:text-muted
+              [&_.blog-disclaimer_p]:mt-0 [&_.blog-disclaimer_p]:text-xs [&_.blog-disclaimer_p]:italic [&_.blog-disclaimer_p]:text-muted"
             dangerouslySetInnerHTML={{ __html: post.html }}
           />
 
