@@ -7,6 +7,8 @@ import bcrypt from "bcryptjs";
 import { registerSchema } from "@/lib/validations";
 import { signIn } from "@/lib/auth";
 import { isLocale, localizedPath } from "@/i18n/locales";
+import { sendSystemEmail } from "@/lib/email";
+import { welcomeEmail } from "@/lib/email-templates";
 
 export interface ActionState {
   error?: string;
@@ -70,6 +72,8 @@ export async function registerAction(
       homeOfficeUsed: false,
     });
   });
+
+  await sendSystemEmail({ to: normalizedEmail, ...welcomeEmail(name) });
 
   await signIn("credentials", {
     email: normalizedEmail,

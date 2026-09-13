@@ -5,6 +5,8 @@ import { db } from "@/db";
 import { users, businesses } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+import { sendSystemEmail } from "@/lib/email";
+import { welcomeEmail } from "@/lib/email-templates";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
@@ -79,6 +81,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         user.id = created.id;
       });
+
+      await sendSystemEmail({ to: email, ...welcomeEmail(user.name ?? email) });
 
       return true;
     },

@@ -86,7 +86,15 @@ export default function LoginPage() {
               <Input id="email" name="email" type="email" autoComplete="email" required />
             </div>
             <div>
-              <Label htmlFor="password">{t.password}</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">{t.password}</Label>
+                <Link
+                  href={localizedPath(locale, "/forgot-password")}
+                  className="mb-1.5 text-xs font-medium text-primary hover:underline"
+                >
+                  {t.forgotPassword}
+                </Link>
+              </div>
               <Input id="password" name="password" type="password" autoComplete="current-password" required />
             </div>
             <FieldError>{translateMessage(dict, state.error)}</FieldError>

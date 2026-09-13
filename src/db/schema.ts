@@ -71,6 +71,33 @@ export const usersRelations = relations(users, ({ many }) => ({
 }));
 
 // ---------------------------------------------------------------------------
+// Password reset tokens -- short-lived, single-use links emailed to a user
+// who requests one (spec: system emails). Only the SHA-256 hash of the raw
+// token is stored, same reasoning as a password hash: a database leak alone
+// shouldn't be enough to let someone reset an account's password with a
+// token that was already emailed out.
+// ---------------------------------------------------------------------------
+
+export const passwordResetTokens = pgTable(
+  "password_reset_tokens",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull().unique(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("password_reset_tokens_user_idx").on(t.userId)]
+);
+
+export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
+  user: one(users, { fields: [passwordResetTokens.userId], references: [users.id] }),
+}));
+
+// ---------------------------------------------------------------------------
 // Businesses (one user -> many businesses; MVP UI only surfaces one active
 // business at a time, but the schema is multi-business-ready per spec §21)
 // ---------------------------------------------------------------------------

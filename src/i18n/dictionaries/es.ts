@@ -674,6 +674,29 @@ export const es: Dictionary = {
       submitting: "Iniciando sesión...",
       noAccount: "¿No tienes una cuenta?",
       createOne: "Crea una",
+      forgotPassword: "¿Olvidaste tu contraseña?",
+    },
+    forgotPassword: {
+      title: "Restablece tu contraseña",
+      subtitle: "Ingresa tu correo electrónico y te enviaremos un enlace para restablecerla",
+      email: "Correo electrónico",
+      submit: "Enviar enlace",
+      submitting: "Enviando...",
+      backToLogin: "Volver a iniciar sesión",
+      sentTitle: "Revisa tu correo electrónico",
+      sentBody: "Si existe una cuenta con ese correo electrónico, te enviamos un enlace para restablecer la contraseña. El enlace vence en 1 hora.",
+    },
+    resetPassword: {
+      title: "Elige una nueva contraseña",
+      subtitle: "Ingresa una nueva contraseña para tu cuenta",
+      password: "Nueva contraseña",
+      confirmPassword: "Confirmar nueva contraseña",
+      submit: "Restablecer contraseña",
+      submitting: "Restableciendo...",
+      successTitle: "Contraseña actualizada",
+      successBody: "Tu contraseña ha sido cambiada. Ahora puedes iniciar sesión con tu nueva contraseña.",
+      goToLogin: "Ir a iniciar sesión",
+      missingToken: "Este enlace no tiene su token de restablecimiento. Solicita uno nuevo desde la página de inicio de sesión.",
     },
     register: {
       title: "Crea tu cuenta",
@@ -824,6 +847,8 @@ export const es: Dictionary = {
     "Couldn't open the billing portal right now. Try again shortly.":
       "No se pudo abrir el portal de facturación en este momento. Inténtalo de nuevo en breve.",
     "Type your email exactly to confirm.": "Escribe tu correo electrónico exactamente para confirmar.",
+    "This reset link is invalid or has expired. Request a new one.":
+      "Este enlace no es válido o ha vencido. Solicita uno nuevo.",
     "Message is required": "El mensaje es obligatorio",
     "Message is too long": "El mensaje es demasiado largo",
     "Choose a subject": "Elige un motivo",

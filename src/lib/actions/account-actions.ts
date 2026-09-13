@@ -1,11 +1,13 @@
 "use server";
 
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { users, businesses } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { auth, signOut } from "@/lib/auth";
 import { localizedPath, type Locale } from "@/i18n/locales";
 import type { ActionState } from "@/lib/actions/auth-actions";
+import { sendSystemEmail } from "@/lib/email";
+import { accountDeletedEmail } from "@/lib/email-templates";
 
 // Bound to the current locale by its caller, same pattern as signOutAction
 // (session-actions.ts) — see login-action.ts for why the post-auth redirect
@@ -34,7 +36,18 @@ export async function deleteAccountAction(
     return { fieldErrors: { confirmEmail: "Type your email exactly to confirm." } };
   }
 
+  const [business] = await db
+    .select({ businessName: businesses.businessName })
+    .from(businesses)
+    .where(eq(businesses.userId, session.user.id))
+    .limit(1);
+
   await db.delete(users).where(eq(users.id, session.user.id));
+
+  await sendSystemEmail({
+    to: session.user.email,
+    ...accountDeletedEmail(business?.businessName ?? "your business"),
+  });
 
   await signOut({ redirectTo: localizedPath(locale, "/") });
   return {}; // unreachable — signOut's redirect throws — but keeps the return type honest

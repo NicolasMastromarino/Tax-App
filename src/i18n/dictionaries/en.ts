@@ -669,6 +669,29 @@ export const en = {
       submitting: "Signing in...",
       noAccount: "Don't have an account?",
       createOne: "Create one",
+      forgotPassword: "Forgot password?",
+    },
+    forgotPassword: {
+      title: "Reset your password",
+      subtitle: "Enter your email and we'll send you a reset link",
+      email: "Email",
+      submit: "Send reset link",
+      submitting: "Sending...",
+      backToLogin: "Back to login",
+      sentTitle: "Check your email",
+      sentBody: "If an account exists for that email, we've sent a link to reset the password. The link expires in 1 hour.",
+    },
+    resetPassword: {
+      title: "Choose a new password",
+      subtitle: "Enter a new password for your account",
+      password: "New password",
+      confirmPassword: "Confirm new password",
+      submit: "Reset password",
+      submitting: "Resetting...",
+      successTitle: "Password updated",
+      successBody: "Your password has been changed. You can now sign in with your new password.",
+      goToLogin: "Go to login",
+      missingToken: "This link is missing its reset token. Request a new one from the login page.",
     },
     register: {
       title: "Create your account",
@@ -827,6 +850,8 @@ export const en = {
     "Couldn't open the billing portal right now. Try again shortly.":
       "Couldn't open the billing portal right now. Try again shortly.",
     "Type your email exactly to confirm.": "Type your email exactly to confirm.",
+    "This reset link is invalid or has expired. Request a new one.":
+      "This reset link is invalid or has expired. Request a new one.",
     "Message is required": "Message is required",
     "Message is too long": "Message is too long",
     "Choose a subject": "Choose a subject",
