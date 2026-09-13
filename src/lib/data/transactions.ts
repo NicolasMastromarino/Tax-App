@@ -31,9 +31,14 @@ export async function listTransactions(businessId: string, filters: TransactionF
     );
   }
 
+  // `amount` is stored as an unsigned magnitude (see schema.ts) with `type`
+  // determining the sign everywhere else in the app -- sorting by the raw
+  // column would order by magnitude instead of actual value (e.g. a -$200
+  // expense sorting above a -$150 expense). Sort by the signed value instead.
+  const signedAmount = sql<number>`(CASE WHEN ${transactions.type} IN ('expense', 'owner_distribution') THEN -${transactions.amount} ELSE ${transactions.amount} END)`;
   const sortColumn =
     filters.sortBy === "amount"
-      ? transactions.amount
+      ? signedAmount
       : filters.sortBy === "category"
         ? categories.name
         : filters.sortBy === "description"

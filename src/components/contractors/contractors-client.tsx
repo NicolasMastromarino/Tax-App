@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Label, HelpText } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { saveVendorAction } from "@/lib/actions/contractor-actions";
+import { noResetSubmit } from "@/lib/no-reset-form-action";
 import type { ActionState } from "@/lib/actions/auth-actions";
 import { formatCurrency } from "@/lib/utils";
 import type { ContractorRow } from "@/lib/data/contractors";
@@ -171,7 +172,7 @@ function VendorRow({
   );
 
   const editForm = (
-    <form action={formAction} className="grid gap-3 sm:grid-cols-2">
+    <form onSubmit={noResetSubmit(formAction)} className="grid gap-3 sm:grid-cols-2">
       <input type="hidden" name="name" value={row.vendorName} />
       <div>
         <Label htmlFor={`email-${row.vendorName}`}>{t.email}</Label>

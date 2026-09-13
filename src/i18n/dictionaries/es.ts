@@ -465,6 +465,17 @@ export const es: Dictionary = {
     saving: "Guardando...",
     savedToast: "Configuración guardada",
     upgradedToast: "¡Ya estás suscrito! El acceso puede tardar unos segundos en desbloquearse.",
+    dangerZone: {
+      heading: "Zona de Peligro",
+      body: "Elimina permanentemente tu cuenta, tu negocio y todas las transacciones, conciliaciones y datos fiscales. Esto no se puede deshacer.",
+      deleteButton: "Eliminar Cuenta",
+      dialogTitle: "¿Eliminar tu cuenta?",
+      dialogBody: "Esto elimina permanentemente tu cuenta y cada negocio, transacción, conciliación y registro fiscal asociado. No hay forma de deshacerlo ni período de gracia.",
+      confirmLabel: "Escribe {email} para confirmar",
+      cancel: "Cancelar",
+      confirmDelete: "Eliminar Permanentemente",
+      deleting: "Eliminando...",
+    },
   },
   taxPlanner: {
     title: "Planificador de Impuestos",
@@ -783,5 +794,6 @@ export const es: Dictionary = {
       "El portal de facturación aún no está configurado. Inténtalo de nuevo en breve.",
     "Couldn't open the billing portal right now. Try again shortly.":
       "No se pudo abrir el portal de facturación en este momento. Inténtalo de nuevo en breve.",
+    "Type your email exactly to confirm.": "Escribe tu correo electrónico exactamente para confirmar.",
   },
 };

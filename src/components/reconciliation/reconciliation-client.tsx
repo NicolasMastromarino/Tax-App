@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { saveReconciliationAction } from "@/lib/actions/reconciliation-actions";
+import { noResetSubmit } from "@/lib/no-reset-form-action";
 import type { ActionState } from "@/lib/actions/auth-actions";
 import { cn, formatCurrency, formatDate, getMonthNames } from "@/lib/utils";
 import type { PeriodSummary } from "@/lib/calculations/ledger";
@@ -115,7 +116,7 @@ export function ReconciliationClient({
             <CardTitle>{t.compareToStatement}</CardTitle>
           </CardHeader>
           <CardContent>
-            <form action={formAction} className="space-y-4">
+            <form onSubmit={noResetSubmit(formAction)} className="space-y-4">
               <input type="hidden" name="month" value={monthISO} />
               <div>
                 <Label htmlFor="statementEndingBalance">{t.statementEndingBalance}</Label>

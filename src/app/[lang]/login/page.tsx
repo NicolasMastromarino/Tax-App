@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { loginAction, type LoginState } from "@/lib/actions/login-action";
+import { noResetSubmit } from "@/lib/no-reset-form-action";
 import { Button } from "@/components/ui/button";
 import { Input, Label, FieldError } from "@/components/ui/input";
 import { useLocale } from "@/i18n/use-locale";
@@ -69,7 +70,7 @@ export default function LoginPage() {
             <p className="mt-1 text-sm text-muted">{t.subtitle}</p>
           </div>
 
-          <form action={formAction} className="space-y-4">
+          <form onSubmit={noResetSubmit(formAction)} className="space-y-4">
             <input type="hidden" name="locale" value={locale} />
             <div>
               <Label htmlFor="email">{t.email}</Label>

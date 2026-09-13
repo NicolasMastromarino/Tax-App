@@ -165,8 +165,16 @@ export function computeQbiDeduction(params: {
   } = params;
   const fullDeduction = qbiRate * Math.max(0, qbiBase);
 
+  // The OBBBA minimum deduction (IRC §199A(b)(7)) only floors the QBI
+  // deduction for a "qualified trade or business." An SSTB stops being one
+  // entirely once income clears the phaseout range (IRC §199A(d)(3)) — at
+  // that point there's no QBI deduction left to floor, so the $400 minimum
+  // doesn't apply and the deduction is correctly $0. A non-SSTB (which
+  // never loses qualified status, only becomes wage/UBIA-limited) or an
+  // SSTB still partway through its taper can still be floored.
+  const isQualifiedTradeOrBusiness = !(isSstb && ordIncome >= phaseout.phaseoutEnd);
   const applyFloor = (deduction: number) =>
-    minimumDeduction && qbiBase >= minimumDeduction.qbiThreshold
+    minimumDeduction && isQualifiedTradeOrBusiness && qbiBase >= minimumDeduction.qbiThreshold
       ? Math.max(deduction, minimumDeduction.floorAmount)
       : deduction;
 

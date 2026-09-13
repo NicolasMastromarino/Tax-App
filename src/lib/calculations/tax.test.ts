@@ -532,13 +532,33 @@ test("computeQbiDeduction: minimum-deduction floor is omitted entirely for pre-2
   assert.equal(d, 200); // plain 20% of 1,000, no floor applied
 });
 
-test("computeQbiDeduction: minimum-deduction floor applies even after the phaseout taper reduces the regular deduction to zero", () => {
+test("computeQbiDeduction: minimum-deduction floor does NOT apply to a fully phased-out SSTB (regression: was incorrectly returning $400)", () => {
+  // A fully phased-out SSTB isn't a "qualified trade or business" at all
+  // (IRC §199A(d)(3)), so there's no QBI deduction left to floor -- the
+  // correct result is $0, not the $400 minimum.
   const d = computeQbiDeduction({
     ordIncome: SINGLE_QBI_2026.phaseoutEnd, // fully phased out
     qbiBase: 1_000, // clears the $1,000 threshold
     phaseout: SINGLE_QBI_2026,
     qbiRate: 0.2,
-    isSstb: true, // SSTB taper -> regular deduction would be 0
+    isSstb: true,
+    minimumDeduction: MIN_DEDUCTION_2026,
+  });
+  assert.equal(d, 0);
+});
+
+test("computeQbiDeduction: minimum-deduction floor still applies to a fully wage/UBIA-limited non-SSTB", () => {
+  // A non-SSTB never loses "qualified trade or business" status -- above
+  // the phaseout it's wage/UBIA-limited (here to $0, no wages/property
+  // entered) rather than excluded outright, so the $400 floor still lifts it.
+  const d = computeQbiDeduction({
+    ordIncome: SINGLE_QBI_2026.phaseoutEnd, // fully phased out
+    qbiBase: 1_000, // clears the $1,000 threshold
+    phaseout: SINGLE_QBI_2026,
+    qbiRate: 0.2,
+    isSstb: false,
+    w2WagesPaid: 0,
+    ubiaQualifiedProperty: 0,
     minimumDeduction: MIN_DEDUCTION_2026,
   });
   assert.equal(d, 400);

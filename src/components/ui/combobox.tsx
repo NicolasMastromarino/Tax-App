@@ -68,7 +68,22 @@ export function Combobox({
   }, []);
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div
+      className="relative"
+      ref={containerRef}
+      onKeyDown={(e) => {
+        // Close just the dropdown on Escape, not whatever's underneath it
+        // (e.g. an "Add Transaction" Dialog, which has its own Escape
+        // handler on `document` and would otherwise also close/discard the
+        // whole form). Stopping propagation here keeps the native keydown
+        // from ever reaching that outer listener.
+        if (open && e.key === "Escape") {
+          e.stopPropagation();
+          setOpen(false);
+          setQuery("");
+        }
+      }}
+    >
       {name && <input type="hidden" name={name} value={value} />}
       <button
         type="button"

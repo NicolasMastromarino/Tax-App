@@ -7,6 +7,7 @@ import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { ImagePicker } from "@/components/admin/image-picker";
 import { BLOG_CATEGORIES } from "@/lib/blog-categories";
 import type { BlogActionState } from "@/lib/actions/blog-actions";
+import { noResetSubmit } from "@/lib/no-reset-form-action";
 
 function slugify(value: string) {
   return value
@@ -47,7 +48,7 @@ export function PostForm({
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form onSubmit={noResetSubmit(formAction)} className="space-y-5">
       {state.error && <p className="text-sm text-danger">{state.error}</p>}
 
       <div>

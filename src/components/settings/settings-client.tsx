@@ -6,9 +6,12 @@ import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
 import { Input, Label, Select, FieldError, HelpText } from "@/components/ui/input";
 import { BillingCard } from "@/components/billing/billing-card";
 import { updateBusinessSettingsAction } from "@/lib/actions/business-actions";
+import { deleteAccountAction } from "@/lib/actions/account-actions";
+import { noResetSubmit } from "@/lib/no-reset-form-action";
 import type { ActionState } from "@/lib/actions/auth-actions";
 import type { SubscriptionSummary } from "@/lib/data/subscription";
 import { homeOfficeDeduction, simplifiedHomeOfficeDeduction } from "@/lib/calculations/ledger";
@@ -33,7 +36,14 @@ export function SettingsClient({
   subscription: SubscriptionSummary;
   email: string;
 }) {
+  const locale = useLocale();
   const [state, formAction, pending] = useActionState(updateBusinessSettingsAction, initialState);
+  const [deleteState, deleteFormAction, deletePending] = useActionState(
+    deleteAccountAction.bind(null, locale),
+    initialState
+  );
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [confirmEmail, setConfirmEmail] = useState("");
   const [isSCorp, setIsSCorp] = useState(business.isSCorp);
   const [homeOfficeUsed, setHomeOfficeUsed] = useState(business.homeOfficeUsed);
   const [officeSqFt, setOfficeSqFt] = useState(business.homeOfficeSqFt ?? "");
@@ -41,7 +51,6 @@ export function SettingsClient({
   const [filingStatus, setFilingStatus] = useState(business.filingStatus);
   const [isSstb, setIsSstb] = useState(business.isSstb);
   const searchParams = useSearchParams();
-  const locale = useLocale();
   const dict = DICTIONARIES[locale];
   const t = dict.settings;
 
@@ -73,7 +82,7 @@ export function SettingsClient({
         <p className="mt-1 text-sm text-muted">{t.subtitle}</p>
       </div>
 
-      <form action={formAction} className="space-y-6">
+      <form onSubmit={noResetSubmit(formAction)} className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>{t.business.heading}</CardTitle>
@@ -287,6 +296,59 @@ export function SettingsClient({
       </form>
 
       <BillingCard summary={subscription} businessId={business.id} email={email} />
+
+      <Card className="border-danger/30">
+        <CardHeader>
+          <CardTitle className="text-danger">{t.dangerZone.heading}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted">{t.dangerZone.body}</p>
+          <Button
+            type="button"
+            variant="danger"
+            className="mt-4"
+            onClick={() => {
+              setConfirmEmail("");
+              setDeleteDialogOpen(true);
+            }}
+          >
+            {t.dangerZone.deleteButton}
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        title={t.dangerZone.dialogTitle}
+      >
+        <form onSubmit={noResetSubmit(deleteFormAction)} className="space-y-4">
+          <p className="text-sm text-muted">{t.dangerZone.dialogBody}</p>
+          <div>
+            <Label htmlFor="confirmEmail">{t.dangerZone.confirmLabel.replace("{email}", email)}</Label>
+            <Input
+              id="confirmEmail"
+              name="confirmEmail"
+              value={confirmEmail}
+              onChange={(e) => setConfirmEmail(e.target.value)}
+              autoComplete="off"
+              required
+            />
+            <FieldError>{translateMessage(dict, deleteState.fieldErrors?.confirmEmail)}</FieldError>
+          </div>
+          {deleteState.error && (
+            <p className="text-sm text-danger">{translateMessage(dict, deleteState.error)}</p>
+          )}
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              {t.dangerZone.cancel}
+            </Button>
+            <Button type="submit" variant="danger" disabled={deletePending || confirmEmail.trim().toLowerCase() !== email.toLowerCase()}>
+              {deletePending ? t.dangerZone.deleting : t.dangerZone.confirmDelete}
+            </Button>
+          </div>
+        </form>
+      </Dialog>
     </div>
   );
 }

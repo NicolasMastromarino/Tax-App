@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { saveTaxPaymentAction } from "@/lib/actions/tax-actions";
+import { noResetSubmit } from "@/lib/no-reset-form-action";
 import type { ActionState } from "@/lib/actions/auth-actions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { QuarterlyPaymentRow } from "@/lib/data/tax";
@@ -168,7 +169,7 @@ function QuarterRow({
   }, [state.success, row.label, onSaved]);
 
   const editForm = (
-    <form action={formAction} className="flex flex-wrap items-center gap-2">
+    <form onSubmit={noResetSubmit(formAction)} className="flex flex-wrap items-center gap-2">
       <input type="hidden" name="taxYear" value={taxYear} />
       <input type="hidden" name="quarter" value={row.quarter} />
       <Input

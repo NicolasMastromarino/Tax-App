@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { registerAction, type ActionState } from "@/lib/actions/auth-actions";
+import { noResetSubmit } from "@/lib/no-reset-form-action";
 import { Button } from "@/components/ui/button";
 import { Input, Label, FieldError } from "@/components/ui/input";
 import { BrandMark } from "@/components/brand-mark";
@@ -31,7 +32,10 @@ export default function RegisterPage() {
           <p className="mt-1 text-sm text-muted">{t.subtitle}</p>
         </div>
 
-        <form action={formAction} className="space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-sm">
+        <form
+          onSubmit={noResetSubmit(formAction)}
+          className="space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-sm"
+        >
           <input type="hidden" name="locale" value={locale} />
           <div>
             <Label htmlFor="name">{t.yourName}</Label>

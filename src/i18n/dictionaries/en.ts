@@ -463,6 +463,17 @@ export const en = {
     saving: "Saving...",
     savedToast: "Settings saved",
     upgradedToast: "You're subscribed! It may take a few seconds for access to unlock.",
+    dangerZone: {
+      heading: "Danger Zone",
+      body: "Permanently delete your account, business, and all transactions, reconciliations, and tax data. This can't be undone.",
+      deleteButton: "Delete Account",
+      dialogTitle: "Delete your account?",
+      dialogBody: "This permanently deletes your account and every business, transaction, reconciliation, and tax record tied to it. There's no undo and no grace period.",
+      confirmLabel: "Type {email} to confirm",
+      cancel: "Cancel",
+      confirmDelete: "Permanently Delete",
+      deleting: "Deleting...",
+    },
   },
   taxPlanner: {
     title: "Tax Planner",
@@ -786,6 +797,7 @@ export const en = {
     "Billing portal isn't configured yet. Try again shortly.": "Billing portal isn't configured yet. Try again shortly.",
     "Couldn't open the billing portal right now. Try again shortly.":
       "Couldn't open the billing portal right now. Try again shortly.",
+    "Type your email exactly to confirm.": "Type your email exactly to confirm.",
   },
 };
 

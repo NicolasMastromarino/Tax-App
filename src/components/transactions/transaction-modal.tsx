@@ -12,6 +12,7 @@ import {
 } from "@/lib/actions/transaction-actions";
 import { homeOfficeDeduction } from "@/lib/calculations/ledger";
 import { formatCurrency, todayISO } from "@/lib/utils";
+import { noResetSubmit } from "@/lib/no-reset-form-action";
 import type { CategoryRow } from "@/lib/data/categories";
 import type { TransactionRow } from "@/lib/data/transactions";
 import { useLocale } from "@/i18n/use-locale";
@@ -89,7 +90,7 @@ export function TransactionModal({
       title={editing ? t.editTitle : t.addTitle}
       description={editing ? undefined : t.addDescription}
     >
-      <form action={formAction} className="space-y-4">
+      <form onSubmit={noResetSubmit(formAction)} className="space-y-4">
         <div>
           <Label htmlFor="type">{t.transactionType}</Label>
           <Select
@@ -115,7 +116,13 @@ export function TransactionModal({
             options={categoryOptions}
             placeholder={t.searchCategories}
           />
-          <FieldError>{translateMessage(dict, state.fieldErrors?.categoryId)}</FieldError>
+          {/* Once a category is actually selected, the error from the last
+              failed submission no longer applies -- state.fieldErrors is a
+              snapshot from that submission and doesn't clear on its own as
+              the user keeps editing. */}
+          {!effectiveCategoryId && (
+            <FieldError>{translateMessage(dict, state.fieldErrors?.categoryId)}</FieldError>
+          )}
         </div>
 
         {isOtherExpense && (
