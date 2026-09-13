@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "../globals.css";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { isLocale, defaultLocale } from "@/i18n/locales";
 
 // Resolves relative Open Graph/Twitter image URLs (used on the marketing
@@ -36,6 +38,10 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
       >
         {children}
         <Toaster position="top-right" richColors closeButton />
+        <Analytics />
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+        )}
       </body>
     </html>
   );
