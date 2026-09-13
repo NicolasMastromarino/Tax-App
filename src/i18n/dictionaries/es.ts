@@ -677,6 +677,8 @@ export const es: Dictionary = {
       forgotPassword: "¿Olvidaste tu contraseña?",
     },
     forgotPassword: {
+      heroHeadline: "Tu contabilidad sigue exactamente donde la dejaste.",
+      heroBenefits: ["Nada cambia hasta que elijas una nueva contraseña", "Los enlaces vencen en 1 hora, por tu seguridad"],
       title: "Restablece tu contraseña",
       subtitle: "Ingresa tu correo electrónico y te enviaremos un enlace para restablecerla",
       email: "Correo electrónico",
@@ -687,6 +689,8 @@ export const es: Dictionary = {
       sentBody: "Si existe una cuenta con ese correo electrónico, te enviamos un enlace para restablecer la contraseña. El enlace vence en 1 hora.",
     },
     resetPassword: {
+      heroHeadline: "Un paso más y estarás de vuelta.",
+      heroBenefits: ["Tus transacciones, reportes y estimaciones de impuestos siguen ahí", "Te enviaremos una confirmación en cuanto esté listo"],
       title: "Elige una nueva contraseña",
       subtitle: "Ingresa una nueva contraseña para tu cuenta",
       password: "Nueva contraseña",

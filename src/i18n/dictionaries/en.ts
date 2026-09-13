@@ -672,6 +672,8 @@ export const en = {
       forgotPassword: "Forgot password?",
     },
     forgotPassword: {
+      heroHeadline: "Your books are exactly where you left them.",
+      heroBenefits: ["Nothing changes until you set a new password", "Reset links expire in 1 hour, for your security"],
       title: "Reset your password",
       subtitle: "Enter your email and we'll send you a reset link",
       email: "Email",
@@ -682,6 +684,8 @@ export const en = {
       sentBody: "If an account exists for that email, we've sent a link to reset the password. The link expires in 1 hour.",
     },
     resetPassword: {
+      heroHeadline: "One more step and you're back in.",
+      heroBenefits: ["Your transactions, reports, and tax estimates are all still there", "We'll email you a confirmation the moment it's done"],
       title: "Choose a new password",
       subtitle: "Enter a new password for your account",
       password: "New password",

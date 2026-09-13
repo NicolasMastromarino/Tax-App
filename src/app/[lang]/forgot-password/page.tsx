@@ -22,7 +22,6 @@ export default function ForgotPasswordPage() {
   const locale = useLocale();
   const dict = DICTIONARIES[locale];
   const t = dict.auth.forgotPassword;
-  const loginHero = dict.auth.login;
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -48,9 +47,9 @@ export default function ForgotPasswordPage() {
         </Link>
 
         <div className="relative flex max-w-md flex-col gap-5">
-          <div className="text-[34px] font-semibold leading-tight text-white">{loginHero.heroHeadline}</div>
+          <div className="text-[34px] font-semibold leading-tight text-white">{t.heroHeadline}</div>
           <div className="flex flex-col gap-3">
-            {loginHero.heroBenefits.map((benefit) => (
+            {t.heroBenefits.map((benefit) => (
               <div key={benefit} className="flex items-center gap-2.5">
                 <Check className="h-[18px] w-[18px] shrink-0 text-white" strokeWidth={2.4} />
                 <span className="text-sm text-white/90">{benefit}</span>
