@@ -103,6 +103,79 @@ function LinkPopover({ editor, onClose }: { editor: Editor; onClose: () => void 
   );
 }
 
+function TablePopover({ editor, onClose }: { editor: Editor; onClose: () => void }) {
+  const [rows, setRows] = useState(3);
+  const [cols, setCols] = useState(3);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  function clamp(value: number, max: number) {
+    if (Number.isNaN(value)) return 1;
+    return Math.min(Math.max(value, 1), max);
+  }
+
+  function insert() {
+    editor
+      .chain()
+      .focus()
+      .insertTable({ rows: clamp(rows, 20), cols: clamp(cols, 10), withHeaderRow: true })
+      .run();
+    onClose();
+  }
+
+  return (
+    <div className="absolute left-0 top-full z-10 mt-1 flex items-center gap-2 rounded-lg border border-border bg-surface p-1.5 shadow-md">
+      <label className="flex items-center gap-1 text-xs text-muted">
+        Rows
+        <input
+          ref={inputRef}
+          type="number"
+          min={1}
+          max={20}
+          value={rows}
+          onChange={(e) => setRows(clamp(e.target.valueAsNumber, 20))}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              insert();
+            }
+            if (e.key === "Escape") onClose();
+          }}
+          className="h-7 w-14 rounded border border-border bg-surface px-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        />
+      </label>
+      <label className="flex items-center gap-1 text-xs text-muted">
+        Columns
+        <input
+          type="number"
+          min={1}
+          max={10}
+          value={cols}
+          onChange={(e) => setCols(clamp(e.target.valueAsNumber, 10))}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              insert();
+            }
+            if (e.key === "Escape") onClose();
+          }}
+          className="h-7 w-14 rounded border border-border bg-surface px-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        />
+      </label>
+      <button
+        type="button"
+        onClick={insert}
+        className="h-7 rounded bg-primary px-2 text-xs font-medium text-primary-foreground hover:bg-primary-hover"
+      >
+        Insert
+      </button>
+    </div>
+  );
+}
+
 export function RichTextEditor({
   value,
   onChange,
@@ -113,6 +186,7 @@ export function RichTextEditor({
   placeholder?: string;
 }) {
   const [linkMenuOpen, setLinkMenuOpen] = useState(false);
+  const [tableMenuOpen, setTableMenuOpen] = useState(false);
   const [imagePickerOpen, setImagePickerOpen] = useState(false);
 
   const editor = useEditor({
@@ -257,15 +331,18 @@ export function RichTextEditor({
         >
           <Minus className="h-4 w-4" />
         </ToolbarButton>
-        <ToolbarButton
-          label="Insert table"
-          disabled={editor.isActive("table")}
-          onClick={() =>
-            editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-          }
-        >
-          <TableIcon className="h-4 w-4" />
-        </ToolbarButton>
+        <div className="relative">
+          <ToolbarButton
+            label="Insert table"
+            disabled={editor.isActive("table")}
+            onClick={() => setTableMenuOpen((open) => !open)}
+          >
+            <TableIcon className="h-4 w-4" />
+          </ToolbarButton>
+          {tableMenuOpen && (
+            <TablePopover editor={editor} onClose={() => setTableMenuOpen(false)} />
+          )}
+        </div>
 
         <div className="mx-1 h-5 w-px bg-border" />
 

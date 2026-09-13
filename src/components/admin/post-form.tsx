@@ -142,9 +142,9 @@ export function PostForm({
         <input type="hidden" name="content" value={content} />
         <HelpText>
           Use the toolbar for headings, bold/italic, lists, quotes, links, images (upload, browse
-          images you&apos;ve used before, or paste a URL), and tables, the grid icon inserts a
-          3&times;3 table with a header row; put your cursor in a cell and use Tab to add more
-          rows.
+          images you&apos;ve used before, or paste a URL), and tables, the grid icon lets you pick
+          a size before inserting a table with a header row; put your cursor in a cell and use Tab
+          to add more rows.
         </HelpText>
         <FieldError>{state.fieldErrors?.content}</FieldError>
       </div>
