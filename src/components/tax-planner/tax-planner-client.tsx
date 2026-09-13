@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { DollarSign, CalendarClock, ArrowLeftRight, Info } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
@@ -14,6 +15,14 @@ import { es as es_ } from "@/i18n/dictionaries/es";
 import type { Dictionary } from "@/i18n/dictionaries/en";
 
 const DICTIONARIES = { en: en_, es: es_ };
+
+// Soft-CTA treatment shared by the two Settings hand-offs on this page (the
+// header link and the S-Corp comparison prompt) — a plain text link reads
+// as a dead end here, but a solid primary button is too heavy for a
+// secondary action. Mirrors Button's "soft" variant, inlined because these
+// are next/link anchors, not <button>s.
+const softLinkClass =
+  "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-primary/20 bg-primary/[0.04] px-3.5 py-2 text-sm font-semibold text-primary hover:bg-primary/10";
 
 interface BusinessTaxProfile {
   businessName: string;
@@ -37,25 +46,22 @@ export function TaxPlannerClient({
   const t = dict.taxPlanner;
 
   return (
-    <div className="max-w-5xl space-y-6">
+    <div className="max-w-5xl space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">{t.title}</h1>
-          <p className="mt-1 text-sm text-muted">
+          <h1 className="text-[26px] font-bold tracking-tight">{t.title}</h1>
+          <p className="mt-1.5 text-sm text-muted">
             {business.businessName} &middot; {dict.dashboard.subtitleTaxYear} {business.taxYear} &middot;{" "}
             {t.filingStatus[business.filingStatus]}
           </p>
         </div>
-        <Link
-          href={localizedPath(locale, "/settings")}
-          className="text-sm font-medium text-primary hover:underline"
-        >
+        <Link href={localizedPath(locale, "/settings")} className={softLinkClass}>
           {t.editProfileLink}
         </Link>
       </div>
 
       {!projection && (
-        <Card>
+        <Card className="rounded-2xl">
           <CardContent className="py-8 text-center">
             <p className="text-sm text-muted">{t.noDataForYear.replace("{taxYear}", String(business.taxYear))}</p>
           </CardContent>
@@ -63,7 +69,7 @@ export function TaxPlannerClient({
       )}
 
       {projection && !projection.dataAvailable && (
-        <Card>
+        <Card className="rounded-2xl">
           <CardContent className="py-8 text-center">
             <p className="text-sm text-muted">
               {t.noBookkeepingData.replace("{taxYear}", String(business.taxYear))}
@@ -80,91 +86,99 @@ export function TaxPlannerClient({
 
       {projection && projection.dataAvailable && (
         <>
-          <Card>
-            <CardHeader>
+          <Card className="rounded-2xl">
+            <CardHeader className="px-7 pt-7">
               <CardTitle className="text-base font-semibold text-foreground">{t.estimate.heading}</CardTitle>
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1.5 max-w-2xl text-sm text-muted">
                 {(projection.activeMonths === 1 ? t.estimate.subtitleOne : t.estimate.subtitleMany)
                   .replace("{months}", String(projection.activeMonths))
                   .replace("{netIncome}", formatCurrency(projection.ytdNetIncome))
                   .replace("{annualized}", formatCurrency(projection.annualizedIncome))}{" "}
-                <strong>{business.isSCorp ? t.estimate.sCorp : t.estimate.soleProp}</strong>.
+                <strong className="font-semibold text-foreground">
+                  {business.isSCorp ? t.estimate.sCorp : t.estimate.soleProp}
+                </strong>
+                .
               </p>
             </CardHeader>
-            <CardContent className="pt-4">
+            <CardContent className="px-7 pb-7 pt-5">
               <EstimateGrid result={projection.currentScenario} t={t} />
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-semibold text-foreground">{t.comparison.heading}</CardTitle>
-              <p className="mt-1 text-sm text-muted">{t.comparison.subtitle}</p>
-            </CardHeader>
-            <CardContent>
-              {projection.sCorp ? (
-                <>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <ScenarioColumn
-                      title={t.estimate.soleProp}
-                      result={projection.soleProp}
-                      highlighted={!business.isSCorp}
-                      t={t}
-                    />
-                    <ScenarioColumn
-                      title={t.estimate.sCorp}
-                      result={projection.sCorp}
-                      highlighted={business.isSCorp}
-                      t={t}
-                    />
-                  </div>
-                  <div className="mt-4 rounded-lg bg-info-bg p-4 text-sm text-info">
-                    {projection.sCorpSavings != null && projection.sCorpSavings > 0 ? (
-                      <p>
-                        {t.comparison.savingsPositive
-                          .split("{amount}")
-                          .map((part, i) =>
-                            i === 0 ? (
-                              <span key={i}>{part}</span>
-                            ) : (
-                              <span key={i}>
-                                <strong>{formatCurrency(projection.sCorpSavings!)}</strong>
-                                {part}
-                              </span>
-                            )
-                          )}
-                      </p>
-                    ) : projection.sCorpSavings != null && projection.sCorpSavings < 0 ? (
-                      <p>
-                        {t.comparison.savingsNegative
-                          .split("{amount}")
-                          .map((part, i) =>
-                            i === 0 ? (
-                              <span key={i}>{part}</span>
-                            ) : (
-                              <span key={i}>
-                                <strong>{formatCurrency(Math.abs(projection.sCorpSavings!))}</strong>
-                                {part}
-                              </span>
-                            )
-                          )}
-                      </p>
-                    ) : (
-                      <p>{t.comparison.savingsNone}</p>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-muted">
-                  {t.comparison.setSalaryPrompt}{" "}
-                  <Link href={localizedPath(locale, "/settings")} className="text-primary hover:underline">
-                    {t.comparison.settingsLink}
-                  </Link>{" "}
-                  {t.comparison.toSeeComparison}
-                </p>
-              )}
-            </CardContent>
-          </Card>
+          {projection.sCorp ? (
+            <Card className="rounded-2xl">
+              <CardHeader className="px-7 pt-7">
+                <CardTitle className="text-base font-semibold text-foreground">{t.comparison.heading}</CardTitle>
+                <p className="mt-1.5 text-sm text-muted">{t.comparison.subtitle}</p>
+              </CardHeader>
+              <CardContent className="px-7 pb-7 pt-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <ScenarioColumn
+                    title={t.estimate.soleProp}
+                    result={projection.soleProp}
+                    highlighted={!business.isSCorp}
+                    t={t}
+                  />
+                  <ScenarioColumn
+                    title={t.estimate.sCorp}
+                    result={projection.sCorp}
+                    highlighted={business.isSCorp}
+                    t={t}
+                  />
+                </div>
+                <div className="mt-4 rounded-lg bg-info-bg p-4 text-sm text-info">
+                  {projection.sCorpSavings != null && projection.sCorpSavings > 0 ? (
+                    <p>
+                      {t.comparison.savingsPositive
+                        .split("{amount}")
+                        .map((part, i) =>
+                          i === 0 ? (
+                            <span key={i}>{part}</span>
+                          ) : (
+                            <span key={i}>
+                              <strong>{formatCurrency(projection.sCorpSavings!)}</strong>
+                              {part}
+                            </span>
+                          )
+                        )}
+                    </p>
+                  ) : projection.sCorpSavings != null && projection.sCorpSavings < 0 ? (
+                    <p>
+                      {t.comparison.savingsNegative
+                        .split("{amount}")
+                        .map((part, i) =>
+                          i === 0 ? (
+                            <span key={i}>{part}</span>
+                          ) : (
+                            <span key={i}>
+                              <strong>{formatCurrency(Math.abs(projection.sCorpSavings!))}</strong>
+                              {part}
+                            </span>
+                          )
+                        )}
+                    </p>
+                  ) : (
+                    <p>{t.comparison.savingsNone}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="flex flex-wrap items-center justify-between gap-4 rounded-2xl p-6">
+              <div className="flex items-start gap-3.5">
+                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <ArrowLeftRight className="h-4 w-4" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="text-base font-semibold text-foreground">{t.comparison.heading}</p>
+                  <p className="mt-1 max-w-sm text-sm text-muted">{t.comparison.subtitle}</p>
+                </div>
+              </div>
+              <Link href={localizedPath(locale, "/settings")} className={softLinkClass}>
+                {t.comparison.setSalaryPrompt.replace(/[.,]?\s*$/, "")} {t.comparison.settingsLink} →
+              </Link>
+            </Card>
+          )}
 
           {quarterly && (
             <QuarterlyTracker
@@ -178,12 +192,13 @@ export function TaxPlannerClient({
         </>
       )}
 
-      <Card>
-        <CardContent className="py-4 text-xs text-muted">
-          <p className="font-medium text-foreground">{t.disclaimer.heading}</p>
-          <p className="mt-1">{t.disclaimer.body.replace("{taxYear}", String(business.taxYear))}</p>
-        </CardContent>
-      </Card>
+      <div className="flex items-start gap-2.5 border-t border-border pt-4">
+        <Info className="mt-0.5 h-[15px] w-[15px] shrink-0 text-muted-faintest" aria-hidden="true" />
+        <p className="text-xs leading-5 text-muted-faintest">
+          <strong className="font-semibold text-muted-faint">{t.disclaimer.heading}</strong>{" "}
+          {t.disclaimer.body.replace("{taxYear}", String(business.taxYear))}
+        </p>
+      </div>
     </div>
   );
 }
@@ -195,22 +210,53 @@ function EstimateGrid({ result, t }: { result: EntityTaxResult; t: Dictionary["t
       {/* Headline numbers — what you actually owe, set apart from the
           supporting detail below so the two most-asked-about figures don't
           compete visually with the other six. */}
-      <div className="grid grid-cols-2 gap-3 rounded-lg bg-primary/5 p-4 sm:gap-4">
-        <Stat label={e.totalEstimatedTax} value={result.totalTax} tone="primary" big />
-        <Stat label={e.quarterlyPayment} value={result.quarterlyTax} tone="info" big />
+      <div className="flex flex-col overflow-hidden rounded-xl border border-primary/10 bg-primary/[0.06] sm:flex-row">
+        <HeadlineStat icon={DollarSign} label={e.totalEstimatedTax} value={result.totalTax} />
+        <div className="mx-4 hidden w-px self-stretch bg-primary/15 sm:block" />
+        <div className="mx-4 h-px bg-primary/15 sm:hidden" />
+        <HeadlineStat icon={CalendarClock} label={e.quarterlyPayment} value={result.quarterlyTax} />
       </div>
 
       {/* Supporting detail — how that number was arrived at, roughly in
           calculation order (income in, deductions out, tax out). */}
-      <p className="mb-3 mt-5 text-xs font-medium uppercase tracking-wide text-muted">{e.howCalculated}</p>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3">
-        <Stat label={e.agi} value={result.agi} small />
-        <Stat label={e.qbiDeduction} value={result.qbiDeduction} small />
-        <Stat label={e.taxableIncome} value={result.taxableIncome} small />
-        <Stat label={e.incomeTax} value={result.incomeTax} small />
-        <Stat label={e.seTax} value={result.seTax} small />
-        <Stat label={e.additionalMedicareTax} value={result.additionalMedicareTax} small />
-        <Stat label={e.marginalRate} value={`${(result.marginalRate * 100).toFixed(0)}%`} raw small />
+      <p className="mb-3 mt-6 text-xs font-semibold uppercase tracking-wide text-muted-faint">{e.howCalculated}</p>
+      <div className="rounded-lg border border-hairline bg-background p-5">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-4 sm:grid-cols-3">
+          <Stat label={e.agi} value={result.agi} />
+          <Stat label={e.qbiDeduction} value={result.qbiDeduction} />
+          <Stat label={e.taxableIncome} value={result.taxableIncome} />
+          <Stat label={e.incomeTax} value={result.incomeTax} />
+          <Stat label={e.seTax} value={result.seTax} />
+          <Stat label={e.additionalMedicareTax} value={result.additionalMedicareTax} />
+        </div>
+        <div className="mt-4 flex items-center gap-2">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-faint">{e.marginalRate}</span>
+          <Badge tone="primary">{`${(result.marginalRate * 100).toFixed(0)}%`}</Badge>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HeadlineStat({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className="flex flex-1 items-center gap-3.5 p-5">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-primary/10 text-primary">
+        <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+      </span>
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{label}</p>
+        <p className="mt-0.5 text-2xl font-bold tabular-nums text-primary sm:text-[28px]">
+          {formatCurrency(value)}
+        </p>
       </div>
     </div>
   );
@@ -262,35 +308,11 @@ function Row({ label, value, className = "" }: { label: string; value: string; c
   );
 }
 
-function Stat({
-  label,
-  value,
-  tone = "neutral",
-  big = false,
-  small = false,
-  raw = false,
-}: {
-  label: string;
-  value: number | string;
-  tone?: "neutral" | "primary" | "info";
-  big?: boolean;
-  small?: boolean;
-  raw?: boolean;
-}) {
-  const toneClass = {
-    neutral: "text-foreground",
-    primary: "text-primary",
-    info: "text-info",
-  }[tone];
-
-  const sizeClass = big ? "text-xl sm:text-2xl" : small ? "text-base" : "text-lg";
-
+function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
-      <p className={`mt-1 tabular-nums font-semibold ${sizeClass} ${toneClass}`}>
-        {raw ? value : formatCurrency(value as number)}
-      </p>
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-faint">{label}</p>
+      <p className="mt-0.5 text-[15px] font-semibold tabular-nums text-foreground">{formatCurrency(value)}</p>
     </div>
   );
 }

@@ -45,28 +45,28 @@ export function QuarterlyTracker({
   const t = dict.taxPlanner.quarterly;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="rounded-2xl">
+      <CardHeader className="px-7 pt-7">
         <CardTitle className="text-base font-semibold text-foreground">{t.heading}</CardTitle>
-        <p className="mt-1 text-sm text-muted">
-          {t.subtitle} <strong>{t.safeHarborLabels[safeHarborBasis]}</strong>.
+        <p className="mt-1.5 max-w-2xl text-sm text-muted">
+          {t.subtitle} <strong className="font-semibold text-foreground">{t.safeHarborLabels[safeHarborBasis]}</strong>.
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-7 pb-7 pt-5">
         {/* Table layout for tablet/desktop — seven columns don't fit a
             phone screen without horizontal scrolling, so this is hidden
             below sm and replaced with the stacked cards underneath. */}
         <div className="hidden overflow-x-auto sm:block">
           <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
-              <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-muted">
-                <th className="py-2 pr-3">{t.table.quarter}</th>
-                <th className="py-2 pr-3">{t.table.dueDate}</th>
-                <th className="py-2 pr-3">{t.table.recommended}</th>
-                <th className="py-2 pr-3">{t.table.amountPaid}</th>
-                <th className="py-2 pr-3">{t.table.datePaid}</th>
-                <th className="py-2 pr-3">{t.table.overUnderpaid}</th>
-                <th className="py-2" />
+              <tr className="bg-background text-left text-[11px] font-semibold uppercase tracking-wide text-muted">
+                <th className="rounded-l-lg border-b border-border py-2.5 pl-3 pr-3">{t.table.quarter}</th>
+                <th className="border-b border-border py-2.5 pr-3">{t.table.dueDate}</th>
+                <th className="border-b border-border py-2.5 pr-3 text-right">{t.table.recommended}</th>
+                <th className="border-b border-border py-2.5 pr-3 text-right">{t.table.amountPaid}</th>
+                <th className="border-b border-border py-2.5 pr-3">{t.table.datePaid}</th>
+                <th className="border-b border-border py-2.5 pr-3">{t.table.overUnderpaid}</th>
+                <th className="rounded-r-lg border-b border-border py-2.5" />
               </tr>
             </thead>
             <tbody>
@@ -86,16 +86,16 @@ export function QuarterlyTracker({
               ))}
             </tbody>
             <tfoot>
-              <tr className="border-t border-border font-medium">
-                <td className="py-2 pr-3" colSpan={3}>
+              <tr className="border-t border-border font-semibold">
+                <td className="py-3 pl-3 pr-3" colSpan={3}>
                   {t.table.total}
                 </td>
-                <td className="py-2 pr-3 tabular-nums">{formatCurrency(totalPaid)}</td>
-                <td className="py-2 pr-3" />
-                <td className="py-2 pr-3 tabular-nums">
+                <td className="py-3 pr-3 text-right tabular-nums">{formatCurrency(totalPaid)}</td>
+                <td className="py-3 pr-3" />
+                <td className="py-3 pr-3">
                   <OverUnderBadge amount={totalOverUnderpaid} t={t} />
                 </td>
-                <td className="py-2" />
+                <td className="py-3" />
               </tr>
             </tfoot>
           </table>
@@ -197,9 +197,10 @@ function QuarterRow({
     </form>
   );
 
+  const hasPayment = row.amountPaid > 0 || row.datePaid;
   const recordButton = (
-    <Button size="sm" variant="outline" onClick={onStartEdit}>
-      {row.amountPaid > 0 || row.datePaid ? t.edit : t.recordPayment}
+    <Button size="sm" variant={hasPayment ? "outline" : "soft"} onClick={onStartEdit}>
+      {hasPayment ? t.edit : t.recordPayment}
     </Button>
   );
 
@@ -240,11 +241,11 @@ function QuarterRow({
 
   if (editing) {
     return (
-      <tr className="border-b border-border/60">
-        <td className="py-2 pr-3 font-medium">{row.label}</td>
-        <td className="py-2 pr-3 text-muted">{formatDate(row.dueDate, locale)}</td>
-        <td className="py-2 pr-3 tabular-nums text-muted">{formatCurrency(row.recommendedAmount)}</td>
-        <td colSpan={4} className="py-2">
+      <tr className="border-b border-hairline">
+        <td className="py-3.5 pl-3 pr-3 font-semibold">{row.label}</td>
+        <td className="py-3.5 pr-3 text-muted">{formatDate(row.dueDate, locale)}</td>
+        <td className="py-3.5 pr-3 text-right tabular-nums text-muted">{formatCurrency(row.recommendedAmount)}</td>
+        <td colSpan={4} className="py-3.5 pr-3">
           {editForm}
         </td>
       </tr>
@@ -252,16 +253,16 @@ function QuarterRow({
   }
 
   return (
-    <tr className="border-b border-border/60">
-      <td className="py-2 pr-3 font-medium">{row.label}</td>
-      <td className="py-2 pr-3 text-muted">{formatDate(row.dueDate, locale)}</td>
-      <td className="py-2 pr-3 tabular-nums text-muted">{formatCurrency(row.recommendedAmount)}</td>
-      <td className="py-2 pr-3 tabular-nums">{formatCurrency(row.amountPaid)}</td>
-      <td className="py-2 pr-3 text-muted">{row.datePaid ? formatDate(row.datePaid, locale) : "—"}</td>
-      <td className="py-2 pr-3 tabular-nums">
+    <tr className="border-b border-hairline">
+      <td className="py-3.5 pl-3 pr-3 font-semibold">{row.label}</td>
+      <td className="py-3.5 pr-3 text-muted">{formatDate(row.dueDate, locale)}</td>
+      <td className="py-3.5 pr-3 text-right tabular-nums text-muted">{formatCurrency(row.recommendedAmount)}</td>
+      <td className="py-3.5 pr-3 text-right font-semibold tabular-nums">{formatCurrency(row.amountPaid)}</td>
+      <td className="py-3.5 pr-3 text-muted">{row.datePaid ? formatDate(row.datePaid, locale) : "—"}</td>
+      <td className="py-3.5 pr-3">
         <OverUnderBadge amount={row.overUnderpaid} t={t} />
       </td>
-      <td className="py-2 text-right">{recordButton}</td>
+      <td className="py-3.5 pr-3 text-right">{recordButton}</td>
     </tr>
   );
 }

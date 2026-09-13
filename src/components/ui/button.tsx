@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { forwardRef } from "react";
 import type { ButtonHTMLAttributes } from "react";
 
-type Variant = "primary" | "secondary" | "outline" | "ghost" | "danger";
+type Variant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "soft";
 type Size = "sm" | "md" | "lg" | "icon";
 
 const variantClasses: Record<Variant, string> = {
@@ -14,6 +14,11 @@ const variantClasses: Record<Variant, string> = {
     "border border-border bg-surface text-foreground hover:bg-surface-muted",
   ghost: "text-foreground hover:bg-surface-muted",
   danger: "bg-danger text-white hover:opacity-90 shadow-sm",
+  // Tinted CTA for a secondary action that still wants some visual weight
+  // — a link-styled action reads as a dead end, but a solid primary button
+  // is too heavy when it's not the page's main action (e.g. "Edit tax
+  // profile in Settings", "Record Payment" next to plain data).
+  soft: "border border-primary/20 bg-primary/[0.04] text-primary hover:bg-primary/10",
 };
 
 const sizeClasses: Record<Size, string> = {
