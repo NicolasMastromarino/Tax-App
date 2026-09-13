@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { Input, Textarea, Label, FieldError, HelpText } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
+import { ImagePicker } from "@/components/admin/image-picker";
 import type { BlogActionState } from "@/lib/actions/blog-actions";
 
 function slugify(value: string) {
@@ -41,6 +42,7 @@ export function PostForm({
   const [content, setContent] = useState(initial?.content ?? "");
   const [featuredImage, setFeaturedImage] = useState(initial?.featuredImage ?? "");
   const [featuredImageBroken, setFeaturedImageBroken] = useState(false);
+  const [imagePickerOpen, setImagePickerOpen] = useState(false);
 
   return (
     <form action={formAction} className="space-y-5">
@@ -91,24 +93,36 @@ export function PostForm({
 
       <div>
         <Label htmlFor="featuredImage">Featured image</Label>
-        <Input
-          id="featuredImage"
-          name="featuredImage"
-          value={featuredImage}
-          onChange={(e) => {
-            setFeaturedImage(e.target.value);
+        <div className="flex gap-2">
+          <Input
+            id="featuredImage"
+            name="featuredImage"
+            value={featuredImage}
+            onChange={(e) => {
+              setFeaturedImage(e.target.value);
+              setFeaturedImageBroken(false);
+            }}
+            placeholder="/blog/your-image.jpg"
+            className="flex-1"
+          />
+          <Button type="button" variant="outline" onClick={() => setImagePickerOpen(true)}>
+            Browse
+          </Button>
+        </div>
+        <HelpText>
+          Upload a new image or pick one you&apos;ve used before, or paste a path/URL directly.
+          Shown on the blog index card and at the top of the post. Leave blank for none.
+        </HelpText>
+        <ImagePicker
+          open={imagePickerOpen}
+          onClose={() => setImagePickerOpen(false)}
+          onSelect={(url) => {
+            setFeaturedImage(url);
             setFeaturedImageBroken(false);
           }}
-          placeholder="/blog/your-image.jpg"
         />
-        <HelpText>
-          Path to a file you&apos;ve put in the project&apos;s public/blog folder (e.g.
-          /blog/cover.jpg), or a full external image URL. Shown on the blog index card and at the
-          top of the post. Leave blank for none.
-        </HelpText>
         {featuredImage.trim() && !featuredImageBroken && (
-          // eslint-disable-next-line @next/next/no-img-element -- arbitrary
-          // admin-entered path/URL, not one of the app's own optimizable assets
+          // eslint-disable-next-line @next/next/no-img-element -- admin-entered path/URL, not a static app asset
           <img
             src={featuredImage.trim()}
             alt=""
@@ -127,10 +141,10 @@ export function PostForm({
         <RichTextEditor value={content} onChange={setContent} placeholder="Write your post..." />
         <input type="hidden" name="content" value={content} />
         <HelpText>
-          Use the toolbar for headings, bold/italic, lists, quotes, links, images (path to a file
-          you&apos;ve put in the project&apos;s public/blog folder), and tables, the grid icon
-          inserts a 3&times;3 table with a header row; put your cursor in a cell and use Tab to
-          add more rows.
+          Use the toolbar for headings, bold/italic, lists, quotes, links, images (upload, browse
+          images you&apos;ve used before, or paste a URL), and tables, the grid icon inserts a
+          3&times;3 table with a header row; put your cursor in a cell and use Tab to add more
+          rows.
         </HelpText>
         <FieldError>{state.fieldErrors?.content}</FieldError>
       </div>

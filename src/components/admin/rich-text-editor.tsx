@@ -25,6 +25,7 @@ import {
   Table as TableIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ImagePicker } from "@/components/admin/image-picker";
 
 function ToolbarButton({
   onClick,
@@ -102,56 +103,6 @@ function LinkPopover({ editor, onClose }: { editor: Editor; onClose: () => void 
   );
 }
 
-/**
- * There's no file storage wired up for this app (no blob/S3 client
- * anywhere in the codebase), so this can't be a real upload button. It
- * matches the documented workflow instead: drop the file in the project's
- * public/blog folder yourself, then point the editor at that path.
- */
-function ImagePopover({ editor, onClose }: { editor: Editor; onClose: () => void }) {
-  const [url, setUrl] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  function applyImage() {
-    const trimmed = url.trim();
-    if (trimmed) {
-      editor.chain().focus().setImage({ src: trimmed }).run();
-    }
-    onClose();
-  }
-
-  return (
-    <div className="absolute left-0 top-full z-10 mt-1 flex items-center gap-1.5 rounded-lg border border-border bg-surface p-1.5 shadow-md">
-      <input
-        ref={inputRef}
-        type="text"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            applyImage();
-          }
-          if (e.key === "Escape") onClose();
-        }}
-        placeholder="/blog/your-image.jpg"
-        className="h-7 w-56 rounded border border-border bg-surface px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-      />
-      <button
-        type="button"
-        onClick={applyImage}
-        className="h-7 rounded bg-primary px-2 text-xs font-medium text-primary-foreground hover:bg-primary-hover"
-      >
-        Insert
-      </button>
-    </div>
-  );
-}
-
 export function RichTextEditor({
   value,
   onChange,
@@ -162,7 +113,7 @@ export function RichTextEditor({
   placeholder?: string;
 }) {
   const [linkMenuOpen, setLinkMenuOpen] = useState(false);
-  const [imageMenuOpen, setImageMenuOpen] = useState(false);
+  const [imagePickerOpen, setImagePickerOpen] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -318,17 +269,9 @@ export function RichTextEditor({
 
         <div className="mx-1 h-5 w-px bg-border" />
 
-        <div className="relative">
-          <ToolbarButton
-            label="Insert image"
-            onClick={() => setImageMenuOpen((open) => !open)}
-          >
-            <ImagePlus className="h-4 w-4" />
-          </ToolbarButton>
-          {imageMenuOpen && (
-            <ImagePopover editor={editor} onClose={() => setImageMenuOpen(false)} />
-          )}
-        </div>
+        <ToolbarButton label="Insert image" onClick={() => setImagePickerOpen(true)}>
+          <ImagePlus className="h-4 w-4" />
+        </ToolbarButton>
         <div className="relative">
           <ToolbarButton
             label="Link"
@@ -344,6 +287,12 @@ export function RichTextEditor({
       </div>
 
       <EditorContent editor={editor} />
+
+      <ImagePicker
+        open={imagePickerOpen}
+        onClose={() => setImagePickerOpen(false)}
+        onSelect={(url) => editor.chain().focus().setImage({ src: url }).run()}
+      />
     </div>
   );
 }

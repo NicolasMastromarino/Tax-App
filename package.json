@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@paddle/paddle-js": "^1.6.5",
+    "@vercel/blob": "^2.8.0",
     "@tiptap/extension-image": "^3.31.3",
     "@tiptap/extension-placeholder": "^3.31.3",
     "@tiptap/extension-table": "^3.31.3",
