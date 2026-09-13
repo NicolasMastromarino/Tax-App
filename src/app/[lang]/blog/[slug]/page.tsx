@@ -3,14 +3,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/marketing/landing-page";
-import { getAllPosts, getPostBySlug, readingTime } from "@/lib/blog";
+import { getPostBySlug, readingTime } from "@/lib/blog";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
 import { localizedPath, type Locale } from "@/i18n/locales";
 
-export async function generateStaticParams() {
-  const posts = await getAllPosts();
-  return posts.map((post) => ({ slug: post.slug }));
-}
+// No generateStaticParams here: this route is nested under [lang], which has
+// no generateStaticParams of its own (locale is resolved per-request by
+// src/proxy.ts), so a partial { slug } param set without `lang` breaks
+// Next's static-generation bookkeeping for this route and 500s at runtime
+// (regression found in prod after the i18n restructure). Fully dynamic
+// rendering — same as the /blog listing page, which has never had
+// generateStaticParams and works fine — sidesteps the whole problem.
 
 export async function generateMetadata(
   props: PageProps<"/[lang]/blog/[slug]">
