@@ -15,7 +15,12 @@
  *   4. Wraps the trailing tax-disclaimer paragraph in the editor's new
  *      Disclaimer block (divider + small info icon) instead of a plain
  *      paragraph.
- *   5. Sets the post's category to "Taxes" (see src/lib/blog-categories.ts).
+ *   5. Italicizes the two "this is only a planning estimate" / "these are
+ *      planning examples" caveat sentences as their own full paragraphs (no
+ *      partial bold), so they pick up the fine-print caption style (smaller,
+ *      lighter gray, extra top space) that blog/[slug]/page.tsx now applies
+ *      to any paragraph that's entirely wrapped in <em>.
+ *   6. Sets the post's category to "Taxes" (see src/lib/blog-categories.ts).
  *
  * The content in fix-freelancer-tax-post.content.html uses the real
  * `data-type="callout"` / `data-type="disclaimer"` markup the rich-text

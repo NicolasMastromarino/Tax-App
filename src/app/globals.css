@@ -8,6 +8,16 @@
   --muted: #6b7280;
   --border: #e5e7eb;
 
+  /* A quieter step below --muted, used only for a handful of blog-post
+     "fine print" treatments (see the PostSlugPolish design pass in
+     claude/blog-content-guidelines.md): italicized caveat asides, the
+     closing tax disclaimer + its icon, and table body text. Not meant for
+     general UI copy, which should keep using --muted. */
+  --muted-faint: #8b8fa3;
+  --muted-faintest: #a8abbb;
+  --muted-table: #4b4f5b;
+  --border-hairline: #eef0f5;
+
   --primary: #4f46e5;
   --primary-hover: #4338ca;
   --primary-foreground: #ffffff;
@@ -45,6 +55,10 @@
   --color-danger-bg: var(--danger-bg);
   --color-info: var(--info);
   --color-info-bg: var(--info-bg);
+  --color-muted-faint: var(--muted-faint);
+  --color-muted-faintest: var(--muted-faintest);
+  --color-muted-table: var(--muted-table);
+  --color-hairline: var(--border-hairline);
   --color-marketing-accent: var(--marketing-accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

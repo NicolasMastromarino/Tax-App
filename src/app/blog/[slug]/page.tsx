@@ -56,7 +56,7 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
               backgroundSize: "26px 26px",
             }}
           />
-          <div className="relative mx-auto max-w-3xl px-4 sm:px-6">
+          <div className="relative mx-auto max-w-[720px] px-4 sm:px-6">
             <Link
               href="/blog"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-white/85 hover:text-white"
@@ -88,7 +88,7 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
         </section>
 
         {post.featuredImage && (
-          <div className="relative mx-auto -mt-8 w-full max-w-3xl px-4 sm:-mt-10 sm:px-6">
+          <div className="relative mx-auto -mt-8 w-full max-w-[720px] px-4 sm:-mt-10 sm:px-6">
             {/* eslint-disable-next-line @next/next/no-img-element -- admin-entered path/URL, not a static app asset */}
             <img
               src={post.featuredImage}
@@ -98,17 +98,17 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
           </div>
         )}
 
-        <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
+        <article className="mx-auto max-w-[720px] px-4 pt-12 pb-12 sm:px-6 sm:pb-16">
           <div
             className="prose-content text-base leading-7 text-muted sm:text-lg sm:leading-8
               [&_h2]:mt-10 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:text-foreground sm:[&_h2]:text-2xl
               [&_h3]:mt-8 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground sm:[&_h3]:text-xl
               [&_h4]:mt-6 [&_h4]:text-base [&_h4]:font-semibold [&_h4]:text-foreground sm:[&_h4]:text-lg
               [&_h1]:mt-10 [&_h1]:text-xl [&_h1]:font-semibold [&_h1]:tracking-tight [&_h1]:text-foreground sm:[&_h1]:text-2xl
-              [&_p]:mt-5 [&_p]:text-muted
+              [&_p]:mt-5 [&_p]:text-muted [&>p:first-child]:mt-0
               [&_ul]:mt-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6
               [&_ol]:mt-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6
-              [&_li]:leading-relaxed [&_li]:text-muted
+              [&_li]:leading-7 [&_li]:text-muted sm:[&_li]:leading-8
               [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-primary-hover
               [&_strong]:font-semibold [&_strong]:text-foreground
               [&_em]:italic
@@ -120,20 +120,22 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
               [&_hr]:my-10 [&_hr]:border-border
               [&_img]:mt-8 [&_img]:w-full [&_img]:rounded-2xl [&_img]:border [&_img]:border-border [&_img]:shadow-sm
               [&_figcaption]:mt-2 [&_figcaption]:text-center [&_figcaption]:text-xs [&_figcaption]:text-muted
-              [&_table]:mt-8 [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_table]:text-sm
+              [&_table]:mt-5 [&_table]:block [&_table]:w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_table]:text-[15px]
               [&_thead]:bg-surface-muted
               [&_th]:border [&_th]:border-border [&_th]:px-4 [&_th]:py-2.5 [&_th]:text-left [&_th]:font-semibold [&_th]:text-foreground
-              [&_td]:border [&_td]:border-border [&_td]:px-4 [&_td]:py-2.5 [&_td]:text-muted
+              [&_td]:border [&_td]:border-border [&_td]:px-4 [&_td]:py-2.5 [&_td]:text-muted-table [&_td]:[font-variant-numeric:tabular-nums]
               [&_tbody_tr:nth-child(even)]:bg-surface-muted/40
               [&_.blog-callout]:mt-5 [&_.blog-callout]:flex [&_.blog-callout]:flex-col [&_.blog-callout]:gap-2 [&_.blog-callout]:rounded-xl [&_.blog-callout]:border [&_.blog-callout]:border-border [&_.blog-callout]:bg-background [&_.blog-callout]:px-5 [&_.blog-callout]:py-4
-              [&_.blog-callout_p]:mt-0 [&_.blog-callout_p]:font-semibold [&_.blog-callout_p]:text-foreground [&_.blog-callout_p]:[font-variant-numeric:tabular-nums]
-              [&_.blog-disclaimer]:mt-10 [&_.blog-disclaimer]:flex [&_.blog-disclaimer]:items-start [&_.blog-disclaimer]:gap-2.5 [&_.blog-disclaimer]:border-t [&_.blog-disclaimer]:border-border [&_.blog-disclaimer]:pt-5
-              [&_.blog-disclaimer_svg]:mt-0.5 [&_.blog-disclaimer_svg]:shrink-0 [&_.blog-disclaimer_svg]:text-muted
-              [&_.blog-disclaimer_p]:mt-0 [&_.blog-disclaimer_p]:text-xs [&_.blog-disclaimer_p]:italic [&_.blog-disclaimer_p]:text-muted"
+              [&_.blog-callout_p]:mt-0 [&_.blog-callout_p]:text-base [&_.blog-callout_p]:font-semibold [&_.blog-callout_p]:text-foreground [&_.blog-callout_p]:[font-variant-numeric:tabular-nums]
+              [&_.blog-callout_p:last-child]:text-primary
+              [&_.blog-disclaimer]:mt-10 [&_.blog-disclaimer]:flex [&_.blog-disclaimer]:items-start [&_.blog-disclaimer]:gap-2.5 [&_.blog-disclaimer]:border-t [&_.blog-disclaimer]:border-hairline [&_.blog-disclaimer]:pt-5
+              [&_.blog-disclaimer_svg]:mt-0.5 [&_.blog-disclaimer_svg]:shrink-0 [&_.blog-disclaimer_svg]:text-muted-faintest
+              [&_.blog-disclaimer_p]:mt-0 [&_.blog-disclaimer_p]:text-[13px] [&_.blog-disclaimer_p]:leading-[22px] [&_.blog-disclaimer_p]:italic [&_.blog-disclaimer_p]:text-muted-faintest
+              [&_p:has(>em:only-child)]:mt-4 [&_p:has(>em:only-child)]:text-[15px] [&_p:has(>em:only-child)]:leading-[26px] [&_p:has(>em:only-child)]:text-muted-faint"
             dangerouslySetInnerHTML={{ __html: post.html }}
           />
 
-          <div className="relative mt-16 overflow-hidden rounded-2xl">
+          <div className="relative mt-10 overflow-hidden rounded-2xl">
             <div
               aria-hidden="true"
               className="absolute inset-0"
