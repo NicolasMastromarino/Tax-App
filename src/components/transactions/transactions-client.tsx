@@ -11,6 +11,11 @@ import { TransactionModal } from "@/components/transactions/transaction-modal";
 import type { CategoryRow } from "@/lib/data/categories";
 import type { TransactionRow } from "@/lib/data/transactions";
 import type { PeriodSummary } from "@/lib/calculations/ledger";
+import { useLocale } from "@/i18n/use-locale";
+import { en as en_ } from "@/i18n/dictionaries/en";
+import { es as es_ } from "@/i18n/dictionaries/es";
+
+const DICTIONARIES = { en: en_, es: es_ };
 
 export function TransactionsClient({
   categories,
@@ -35,6 +40,9 @@ export function TransactionsClient({
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<TransactionRow | null>(null);
+  const locale = useLocale();
+  const dict = DICTIONARIES[locale];
+  const t = dict.transactions;
 
   function openCreate() {
     setEditing(null);
@@ -50,24 +58,24 @@ export function TransactionsClient({
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Transactions</h1>
+          <h1 className="text-2xl font-semibold">{t.title}</h1>
           <p className="mt-1 text-sm text-muted">{monthLabel}</p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="h-4 w-4" />
-          Add Transaction
+          {t.addTransaction}
         </Button>
       </div>
 
       {monthSummary && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          <MiniStat label="Revenue" value={monthSummary.revenue} />
-          <MiniStat label="Expenses" value={monthSummary.expenses} />
-          <MiniStat label="Net Income" value={monthSummary.netIncome} />
-          <MiniStat label="Beginning Balance" value={monthSummary.beginningBalance} />
-          <MiniStat label="Ending Balance" value={monthSummary.endingBalance} />
+          <MiniStat label={t.stats.revenue} value={monthSummary.revenue} />
+          <MiniStat label={t.stats.expenses} value={monthSummary.expenses} />
+          <MiniStat label={t.stats.netIncome} value={monthSummary.netIncome} />
+          <MiniStat label={t.stats.beginningBalance} value={monthSummary.beginningBalance} />
+          <MiniStat label={t.stats.endingBalance} value={monthSummary.endingBalance} />
           <MiniStat
-            label="Contributions / Distributions"
+            label={t.stats.contributionsDistributions}
             value={monthSummary.ownerContributions - monthSummary.ownerDistributions}
           />
         </div>

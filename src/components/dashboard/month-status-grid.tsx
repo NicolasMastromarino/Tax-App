@@ -3,18 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle, MinusCircle } from "lucide-react";
 import type { MonthChartPoint, MonthStatus } from "@/lib/data/dashboard";
+import { getDictionary, getLocale } from "@/i18n/dictionaries";
+import { localizedPath } from "@/i18n/locales";
 
-const STATUS_META: Record<MonthStatus, { label: string; tone: "success" | "warning" | "neutral"; icon: React.ElementType }> = {
-  complete: { label: "Complete", tone: "success", icon: CheckCircle2 },
-  in_progress: { label: "In Progress", tone: "warning", icon: Circle },
-  not_started: { label: "Not Started", tone: "neutral", icon: MinusCircle },
-};
+export async function MonthStatusGrid({ months, taxYear }: { months: MonthChartPoint[]; taxYear: number }) {
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const t = dict.dashboard.monthlyStatus;
 
-export function MonthStatusGrid({ months, taxYear }: { months: MonthChartPoint[]; taxYear: number }) {
+  const STATUS_META: Record<MonthStatus, { label: string; tone: "success" | "warning" | "neutral"; icon: React.ElementType }> = {
+    complete: { label: t.complete, tone: "success", icon: CheckCircle2 },
+    in_progress: { label: t.inProgress, tone: "warning", icon: Circle },
+    not_started: { label: t.notStarted, tone: "neutral", icon: MinusCircle },
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Monthly Bookkeeping Status</CardTitle>
+        <CardTitle>{t.heading}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -24,7 +29,7 @@ export function MonthStatusGrid({ months, taxYear }: { months: MonthChartPoint[]
             return (
               <Link
                 key={m.month}
-                href={`/transactions?year=${taxYear}&month=${m.month}`}
+                href={localizedPath(locale, `/transactions?year=${taxYear}&month=${m.month}`)}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5 hover:bg-surface-muted"
               >
                 <span className="text-sm font-medium">{m.monthName}</span>
@@ -37,8 +42,7 @@ export function MonthStatusGrid({ months, taxYear }: { months: MonthChartPoint[]
           })}
         </div>
         <p className="mt-3 text-xs text-muted">
-          A month is <strong>Complete</strong> once it&apos;s been reconciled against your bank
-          statement.
+          {t.footnotePrefix} <strong>{t.footnoteComplete}</strong> {t.footnoteSuffix}
         </p>
       </CardContent>
     </Card>

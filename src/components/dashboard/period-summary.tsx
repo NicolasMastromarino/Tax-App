@@ -4,17 +4,27 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { DashboardData } from "@/lib/data/dashboard";
+import { useLocale } from "@/i18n/use-locale";
+import { en as en_ } from "@/i18n/dictionaries/en";
+import { es as es_ } from "@/i18n/dictionaries/es";
 
 type Period = "month" | "ytd" | "year";
+const DICTIONARIES = { en: en_, es: es_ };
 
 export function PeriodSummary({ data }: { data: DashboardData }) {
   const [period, setPeriod] = useState<Period>("ytd");
+  const locale = useLocale();
+  const t = DICTIONARIES[locale].dashboard;
 
   const summary =
     period === "month" ? data.currentMonth : period === "ytd" ? data.yearToDate : data.fullYear;
 
   const periodLabel =
-    period === "month" ? data.currentMonth.label : period === "ytd" ? `${data.taxYear} Year-to-Date` : `${data.taxYear} Full Year`;
+    period === "month"
+      ? data.currentMonth.label
+      : period === "ytd"
+        ? `${data.taxYear} ${t.yearToDate}`
+        : `${data.taxYear} ${t.fullYear}`;
 
   return (
     <div>
@@ -22,9 +32,9 @@ export function PeriodSummary({ data }: { data: DashboardData }) {
         <div className="inline-flex rounded-lg border border-border bg-surface p-1">
           {(
             [
-              ["month", "Current Month"],
-              ["ytd", "Year to Date"],
-              ["year", "Full Year"],
+              ["month", t.periods.month],
+              ["ytd", t.periods.ytd],
+              ["year", t.periods.year],
             ] as [Period, string][]
           ).map(([key, label]) => (
             <button
@@ -43,12 +53,12 @@ export function PeriodSummary({ data }: { data: DashboardData }) {
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-        <SummaryCard label="Total Revenue" value={summary.revenue} tone="success" />
-        <SummaryCard label="Total Expenses" value={summary.expenses} tone="danger" />
-        <SummaryCard label="Net Income" value={summary.netIncome} tone={summary.netIncome >= 0 ? "success" : "danger"} />
-        <SummaryCard label="Current Bank Balance" value={data.currentBankBalance} tone="info" />
-        <SummaryCard label="Owner Contributions" value={summary.ownerContributions} tone="neutral" />
-        <SummaryCard label="Owner Distributions" value={summary.ownerDistributions} tone="neutral" />
+        <SummaryCard label={t.cards.totalRevenue} value={summary.revenue} tone="success" />
+        <SummaryCard label={t.cards.totalExpenses} value={summary.expenses} tone="danger" />
+        <SummaryCard label={t.cards.netIncome} value={summary.netIncome} tone={summary.netIncome >= 0 ? "success" : "danger"} />
+        <SummaryCard label={t.cards.currentBankBalance} value={data.currentBankBalance} tone="info" />
+        <SummaryCard label={t.cards.ownerContributions} value={summary.ownerContributions} tone="neutral" />
+        <SummaryCard label={t.cards.ownerDistributions} value={summary.ownerDistributions} tone="neutral" />
       </div>
     </div>
   );

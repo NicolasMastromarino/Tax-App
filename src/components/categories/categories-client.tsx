@@ -6,16 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { CategoryRow } from "@/lib/data/categories";
+import { useLocale } from "@/i18n/use-locale";
+import { en as en_ } from "@/i18n/dictionaries/en";
+import { es as es_ } from "@/i18n/dictionaries/es";
 
-const TYPE_LABEL: Record<string, string> = {
-  income: "Income",
-  expense: "Expense",
-  owner_contribution: "Owner Contribution",
-  owner_distribution: "Owner Distribution",
-};
+const DICTIONARIES = { en: en_, es: es_ };
 
 export function CategoriesClient({ categories }: { categories: CategoryRow[] }) {
   const [query, setQuery] = useState("");
+  const locale = useLocale();
+  const t = DICTIONARIES[locale].categories;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -32,11 +32,8 @@ export function CategoriesClient({ categories }: { categories: CategoryRow[] }) 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Expense Category Guide</h1>
-        <p className="mt-1 text-sm text-muted">
-          Not sure which category to use? Search by what you bought: try &quot;Adobe&quot; or
-          &quot;mileage&quot;.
-        </p>
+        <h1 className="text-2xl font-semibold">{t.title}</h1>
+        <p className="mt-1 text-sm text-muted">{t.subtitle}</p>
       </div>
 
       <div className="relative max-w-md">
@@ -44,13 +41,13 @@ export function CategoriesClient({ categories }: { categories: CategoryRow[] }) 
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="What category should I use for..."
+          placeholder={t.searchPlaceholder}
           className="pl-9"
         />
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-muted">No categories match &quot;{query}&quot;.</p>
+        <p className="text-sm text-muted">{t.noMatches.replace("{query}", query)}</p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {filtered.map((c) => (
@@ -59,7 +56,7 @@ export function CategoriesClient({ categories }: { categories: CategoryRow[] }) 
                 <div className="mb-1 flex items-center justify-between gap-2">
                   <h3 className="font-semibold">{c.name}</h3>
                   <Badge tone={c.type === "income" ? "success" : "neutral"}>
-                    {TYPE_LABEL[c.type]}
+                    {t.types[c.type as keyof typeof t.types]}
                   </Badge>
                 </div>
                 {c.description && <p className="text-sm text-muted">{c.description}</p>}

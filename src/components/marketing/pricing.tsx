@@ -3,46 +3,36 @@
 import { useState } from "react";
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
+import { useLocale } from "@/i18n/use-locale";
+import { localizedPath } from "@/i18n/locales";
+import { en as fallback } from "@/i18n/dictionaries/en";
+import { es } from "@/i18n/dictionaries/es";
 
 type Cycle = "monthly" | "annual";
 
-const INCLUDED = [
-  "Unlimited transactions & categories",
-  "Tax Planner with quarterly estimates",
-  "Contractors & 1099 tracking",
-  "Bank reconciliation & reports",
-];
-
-const PLAN: Record<Cycle, { label: string; price: string; period: string; note: string }> = {
-  monthly: {
-    label: "Monthly",
-    price: "$9.95",
-    period: "/month",
-    note: "Billed monthly, cancel anytime",
-  },
-  annual: {
-    label: "Annual",
-    price: "$100",
-    period: "/year",
-    note: "That's about $8.33/mo, billed once a year",
-  },
-};
+// Client Component (needs useState for the monthly/annual toggle), so it
+// can't read the dictionary via next/root-params like the rest of the
+// marketing page — pick the matching dictionary from the URL instead.
+const DICTIONARIES = { en: fallback, es };
 
 export function Pricing() {
   const [cycle, setCycle] = useState<Cycle>("annual");
-  const plan = PLAN[cycle];
+  const locale = useLocale();
+  const t = DICTIONARIES[locale].marketing.pricing;
+
+  const plan =
+    cycle === "monthly"
+      ? { label: t.monthly, price: t.monthlyPrice, period: t.monthlyPeriod, note: t.monthlyNote }
+      : { label: t.annual, price: t.annualPrice, period: t.annualPeriod, note: t.annualNote };
 
   return (
     <section id="pricing" className="border-y border-border bg-surface-muted/60">
       <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Simple, honest pricing
+            {t.heading}
           </h2>
-          <p className="mt-4 text-pretty text-lg text-muted">
-            Free to start right now, no credit card required. This is the plan we&apos;re
-            launching soon. Start today and we&apos;ll let you know before anything changes.
-          </p>
+          <p className="mt-4 text-pretty text-lg text-muted">{t.subheading}</p>
         </div>
 
         <div className="mx-auto mt-10 flex w-fit items-center gap-1 rounded-full border border-border bg-surface p-1">
@@ -56,7 +46,7 @@ export function Pricing() {
                 : "text-muted hover:text-foreground"
             }`}
           >
-            Monthly
+            {t.monthly}
           </button>
           <button
             type="button"
@@ -68,7 +58,7 @@ export function Pricing() {
                 : "text-muted hover:text-foreground"
             }`}
           >
-            Annual
+            {t.annual}
             <span
               className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                 cycle === "annual"
@@ -76,7 +66,7 @@ export function Pricing() {
                   : "bg-success/15 text-success"
               }`}
             >
-              Save 16%
+              {t.saveBadge}
             </span>
           </button>
         </div>
@@ -85,7 +75,7 @@ export function Pricing() {
           <div className="relative rounded-2xl border border-primary bg-surface p-8 shadow-sm ring-2 ring-primary/20">
             {cycle === "annual" && (
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                Best value
+                {t.bestValue}
               </span>
             )}
             <h3 className="text-sm font-semibold text-muted">{plan.label}</h3>
@@ -95,7 +85,7 @@ export function Pricing() {
             </p>
             <p className="mt-1 text-sm text-muted">{plan.note}</p>
             <ul className="mt-6 space-y-2.5">
-              {INCLUDED.map((item) => (
+              {t.included.map((item) => (
                 <li key={item} className="flex items-start gap-2.5 text-sm text-foreground">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
                   {item}
@@ -103,17 +93,15 @@ export function Pricing() {
               ))}
             </ul>
             <Link
-              href="/register"
+              href={localizedPath(locale, "/register")}
               className="mt-8 flex h-11 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
             >
-              Start Free
+              {t.cta}
             </Link>
           </div>
         </div>
 
-        <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-muted">
-          Free during early access. You won&apos;t be charged unless we tell you first.
-        </p>
+        <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-muted">{t.footnote}</p>
       </div>
     </section>
   );

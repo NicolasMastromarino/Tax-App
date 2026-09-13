@@ -7,13 +7,13 @@ import { formatCurrency } from "@/lib/utils";
 import type { TaxProjection, QuarterlyPaymentRow } from "@/lib/data/tax";
 import type { EntityTaxResult, FilingStatus } from "@/lib/calculations/tax";
 import { QuarterlyTracker } from "./quarterly-tracker";
+import { useLocale } from "@/i18n/use-locale";
+import { localizedPath } from "@/i18n/locales";
+import { en as en_ } from "@/i18n/dictionaries/en";
+import { es as es_ } from "@/i18n/dictionaries/es";
+import type { Dictionary } from "@/i18n/dictionaries/en";
 
-const FILING_STATUS_LABELS: Record<FilingStatus, string> = {
-  single: "Single",
-  married_filing_jointly: "Married Filing Jointly",
-  married_filing_separately: "Married Filing Separately",
-  head_of_household: "Head of Household",
-};
+const DICTIONARIES = { en: en_, es: es_ };
 
 interface BusinessTaxProfile {
   businessName: string;
@@ -32,32 +32,32 @@ export function TaxPlannerClient({
   projection: TaxProjection | null;
   quarterly: { rows: QuarterlyPaymentRow[]; totalPaid: number; totalOverUnderpaid: number } | null;
 }) {
+  const locale = useLocale();
+  const dict = DICTIONARIES[locale];
+  const t = dict.taxPlanner;
+
   return (
     <div className="max-w-5xl space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Tax Planner</h1>
+          <h1 className="text-2xl font-semibold">{t.title}</h1>
           <p className="mt-1 text-sm text-muted">
-            {business.businessName} &middot; Tax Year {business.taxYear} &middot;{" "}
-            {FILING_STATUS_LABELS[business.filingStatus]}
+            {business.businessName} &middot; {dict.dashboard.subtitleTaxYear} {business.taxYear} &middot;{" "}
+            {t.filingStatus[business.filingStatus]}
           </p>
         </div>
         <Link
-          href="/settings"
+          href={localizedPath(locale, "/settings")}
           className="text-sm font-medium text-primary hover:underline"
         >
-          Edit tax profile in Settings →
+          {t.editProfileLink}
         </Link>
       </div>
 
       {!projection && (
         <Card>
           <CardContent className="py-8 text-center">
-            <p className="text-sm text-muted">
-              Tax figures for {business.taxYear} aren&apos;t available yet. This app currently ships
-              with {business.taxYear === 2025 ? "2025" : "2025 (not " + business.taxYear + ")"}{" "}
-              rates. Bracket and QBI data for other years hasn&apos;t been loaded.
-            </p>
+            <p className="text-sm text-muted">{t.noDataForYear.replace("{taxYear}", String(business.taxYear))}</p>
           </CardContent>
         </Card>
       )}
@@ -66,14 +66,13 @@ export function TaxPlannerClient({
         <Card>
           <CardContent className="py-8 text-center">
             <p className="text-sm text-muted">
-              Add some income and expense transactions for {business.taxYear} to see your tax
-              estimate: this needs at least one month of bookkeeping data to annualize from.
+              {t.noBookkeepingData.replace("{taxYear}", String(business.taxYear))}
             </p>
             <Link
-              href="/transactions"
+              href={localizedPath(locale, "/transactions")}
               className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
             >
-              Go to Transactions →
+              {t.goToTransactions}
             </Link>
           </CardContent>
         </Card>
@@ -83,71 +82,85 @@ export function TaxPlannerClient({
         <>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-semibold text-foreground">
-                Your Tax Estimate
-              </CardTitle>
+              <CardTitle className="text-base font-semibold text-foreground">{t.estimate.heading}</CardTitle>
               <p className="mt-1 text-sm text-muted">
-                Based on {projection.activeMonths} month{projection.activeMonths === 1 ? "" : "s"} of
-                bookkeeping data ({formatCurrency(projection.ytdNetIncome)} net income so far),
-                annualized to {formatCurrency(projection.annualizedIncome)} for the full year.
-                Currently estimating as a{" "}
-                <strong>{business.isSCorp ? "S Corporation" : "Sole Proprietor"}</strong>.
+                {(projection.activeMonths === 1 ? t.estimate.subtitleOne : t.estimate.subtitleMany)
+                  .replace("{months}", String(projection.activeMonths))
+                  .replace("{netIncome}", formatCurrency(projection.ytdNetIncome))
+                  .replace("{annualized}", formatCurrency(projection.annualizedIncome))}{" "}
+                <strong>{business.isSCorp ? t.estimate.sCorp : t.estimate.soleProp}</strong>.
               </p>
             </CardHeader>
             <CardContent className="pt-4">
-              <EstimateGrid result={projection.currentScenario} />
+              <EstimateGrid result={projection.currentScenario} t={t} />
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-semibold text-foreground">
-                Sole Proprietor vs. S-Corp
-              </CardTitle>
-              <p className="mt-1 text-sm text-muted">
-                Same projected income, compared under each entity election.
-              </p>
+              <CardTitle className="text-base font-semibold text-foreground">{t.comparison.heading}</CardTitle>
+              <p className="mt-1 text-sm text-muted">{t.comparison.subtitle}</p>
             </CardHeader>
             <CardContent>
               {projection.sCorp ? (
                 <>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <ScenarioColumn
-                      title="Sole Proprietor"
+                      title={t.estimate.soleProp}
                       result={projection.soleProp}
                       highlighted={!business.isSCorp}
+                      t={t}
                     />
                     <ScenarioColumn
-                      title="S Corporation"
+                      title={t.estimate.sCorp}
                       result={projection.sCorp}
                       highlighted={business.isSCorp}
+                      t={t}
                     />
                   </div>
                   <div className="mt-4 rounded-lg bg-info-bg p-4 text-sm text-info">
                     {projection.sCorpSavings != null && projection.sCorpSavings > 0 ? (
                       <p>
-                        Electing S-Corp status could save approximately{" "}
-                        <strong>{formatCurrency(projection.sCorpSavings)}</strong> per year at this
-                        income level and salary.
+                        {t.comparison.savingsPositive
+                          .split("{amount}")
+                          .map((part, i) =>
+                            i === 0 ? (
+                              <span key={i}>{part}</span>
+                            ) : (
+                              <span key={i}>
+                                <strong>{formatCurrency(projection.sCorpSavings!)}</strong>
+                                {part}
+                              </span>
+                            )
+                          )}
                       </p>
                     ) : projection.sCorpSavings != null && projection.sCorpSavings < 0 ? (
                       <p>
-                        At this income level and salary, Sole Proprietor status looks like it costs{" "}
-                        <strong>{formatCurrency(Math.abs(projection.sCorpSavings))}</strong> less per
-                        year than the S-Corp election.
+                        {t.comparison.savingsNegative
+                          .split("{amount}")
+                          .map((part, i) =>
+                            i === 0 ? (
+                              <span key={i}>{part}</span>
+                            ) : (
+                              <span key={i}>
+                                <strong>{formatCurrency(Math.abs(projection.sCorpSavings!))}</strong>
+                                {part}
+                              </span>
+                            )
+                          )}
                       </p>
                     ) : (
-                      <p>Both elections project to about the same total tax at this income level.</p>
+                      <p>{t.comparison.savingsNone}</p>
                     )}
                   </div>
                 </>
               ) : (
                 <p className="text-sm text-muted">
-                  Set an S-Corp reasonable salary in{" "}
-                  <Link href="/settings" className="text-primary hover:underline">
-                    Settings
+                  {t.comparison.setSalaryPrompt}{" "}
+                  <Link href={localizedPath(locale, "/settings")} className="text-primary hover:underline">
+                    {t.comparison.settingsLink}
                   </Link>{" "}
-                  to see a side-by-side comparison.
+                  {t.comparison.toSeeComparison}
                 </p>
               )}
             </CardContent>
@@ -167,47 +180,37 @@ export function TaxPlannerClient({
 
       <Card>
         <CardContent className="py-4 text-xs text-muted">
-          <p className="font-medium text-foreground">Not tax advice.</p>
-          <p className="mt-1">
-            This is an estimate for planning purposes only, based on the {business.taxYear} federal
-            brackets. It does not account for the standard deduction or state taxes. Talk to a tax
-            professional before making decisions based on these numbers.
-          </p>
+          <p className="font-medium text-foreground">{t.disclaimer.heading}</p>
+          <p className="mt-1">{t.disclaimer.body.replace("{taxYear}", String(business.taxYear))}</p>
         </CardContent>
       </Card>
     </div>
   );
 }
 
-function EstimateGrid({ result }: { result: EntityTaxResult }) {
+function EstimateGrid({ result, t }: { result: EntityTaxResult; t: Dictionary["taxPlanner"] }) {
+  const e = t.estimate;
   return (
     <div>
       {/* Headline numbers — what you actually owe, set apart from the
           supporting detail below so the two most-asked-about figures don't
           compete visually with the other six. */}
       <div className="grid grid-cols-2 gap-3 rounded-lg bg-primary/5 p-4 sm:gap-4">
-        <Stat label="Total Estimated Tax" value={result.totalTax} tone="primary" big />
-        <Stat label="Quarterly Payment" value={result.quarterlyTax} tone="info" big />
+        <Stat label={e.totalEstimatedTax} value={result.totalTax} tone="primary" big />
+        <Stat label={e.quarterlyPayment} value={result.quarterlyTax} tone="info" big />
       </div>
 
       {/* Supporting detail — how that number was arrived at, roughly in
           calculation order (income in, deductions out, tax out). */}
-      <p className="mb-3 mt-5 text-xs font-medium uppercase tracking-wide text-muted">
-        How this was calculated
-      </p>
+      <p className="mb-3 mt-5 text-xs font-medium uppercase tracking-wide text-muted">{e.howCalculated}</p>
       <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3">
-        <Stat label="Adjusted Gross Income" value={result.agi} small />
-        <Stat label="QBI Deduction" value={result.qbiDeduction} small />
-        <Stat label="Taxable Income" value={result.taxableIncome} small />
-        <Stat label="Income Tax" value={result.incomeTax} small />
-        <Stat label="Self-Employment / Payroll Tax" value={result.seTax} small />
-        <Stat label="Additional Medicare Tax" value={result.additionalMedicareTax} small />
-        <Stat
-          label="Marginal Rate"
-          value={`${(result.marginalRate * 100).toFixed(0)}%`}
-          raw
-          small
-        />
+        <Stat label={e.agi} value={result.agi} small />
+        <Stat label={e.qbiDeduction} value={result.qbiDeduction} small />
+        <Stat label={e.taxableIncome} value={result.taxableIncome} small />
+        <Stat label={e.incomeTax} value={result.incomeTax} small />
+        <Stat label={e.seTax} value={result.seTax} small />
+        <Stat label={e.additionalMedicareTax} value={result.additionalMedicareTax} small />
+        <Stat label={e.marginalRate} value={`${(result.marginalRate * 100).toFixed(0)}%`} raw small />
       </div>
     </div>
   );
@@ -217,31 +220,34 @@ function ScenarioColumn({
   title,
   result,
   highlighted,
+  t,
 }: {
   title: string;
   result: EntityTaxResult;
   highlighted?: boolean;
+  t: Dictionary["taxPlanner"];
 }) {
+  const c = t.comparison;
   return (
     <div
       className={`rounded-lg border p-4 ${highlighted ? "border-primary bg-primary/5" : "border-border"}`}
     >
       <div className="mb-3 flex items-center justify-between">
         <h4 className="text-sm font-semibold">{title}</h4>
-        {highlighted && <Badge tone="primary">Current</Badge>}
+        {highlighted && <Badge tone="primary">{c.current}</Badge>}
       </div>
       <dl className="space-y-1.5 text-sm">
-        <Row label="SE / Payroll Tax" value={formatCurrency(result.seTax)} />
-        <Row label="QBI Deduction" value={formatCurrency(result.qbiDeduction)} />
-        <Row label="Taxable Income" value={formatCurrency(result.taxableIncome)} />
-        <Row label="Income Tax" value={formatCurrency(result.incomeTax)} />
-        <Row label="Additional Medicare Tax" value={formatCurrency(result.additionalMedicareTax)} />
+        <Row label={c.seOrPayrollTax} value={formatCurrency(result.seTax)} />
+        <Row label={t.estimate.qbiDeduction} value={formatCurrency(result.qbiDeduction)} />
+        <Row label={t.estimate.taxableIncome} value={formatCurrency(result.taxableIncome)} />
+        <Row label={t.estimate.incomeTax} value={formatCurrency(result.incomeTax)} />
+        <Row label={t.estimate.additionalMedicareTax} value={formatCurrency(result.additionalMedicareTax)} />
         <Row
-          label="Total Tax"
+          label={c.totalTax}
           value={formatCurrency(result.totalTax)}
           className="border-t border-border pt-1.5 font-semibold"
         />
-        <Row label="Per Quarter" value={formatCurrency(result.quarterlyTax)} />
+        <Row label={c.perQuarter} value={formatCurrency(result.quarterlyTax)} />
       </dl>
     </div>
   );

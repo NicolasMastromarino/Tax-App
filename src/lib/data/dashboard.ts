@@ -7,7 +7,8 @@ import {
   balanceThrough,
   type LedgerTransaction,
 } from "@/lib/calculations/ledger";
-import { MONTH_NAMES, firstOfMonthISO, todayISO, nextDayISO } from "@/lib/utils";
+import { getMonthNames, firstOfMonthISO, todayISO, nextDayISO } from "@/lib/utils";
+import type { Locale } from "@/i18n/locales";
 
 export type MonthStatus = "not_started" | "in_progress" | "complete";
 
@@ -68,8 +69,10 @@ export async function getCurrentBankBalance(businessId: string, businessBeginnin
 export async function getDashboardData(
   businessId: string,
   taxYear: number,
-  businessBeginningBalance: number
+  businessBeginningBalance: number,
+  locale: Locale = "en"
 ): Promise<DashboardData> {
+  const monthNames = getMonthNames(locale);
   const now = new Date();
   const realYear = now.getFullYear();
   const realMonth = now.getMonth() + 1;
@@ -125,7 +128,7 @@ export async function getDashboardData(
 
     months.push({
       month: m,
-      monthName: MONTH_NAMES[m - 1],
+      monthName: monthNames[m - 1],
       revenue: Math.round(revenue * 100) / 100,
       expenses: Math.round(expenses * 100) / 100,
       netIncome: Math.round((revenue - expenses) * 100) / 100,
@@ -176,7 +179,7 @@ export async function getDashboardData(
     currentMonth: {
       year: taxYear,
       month: currentMonthNum,
-      label: MONTH_NAMES[currentMonthNum - 1] + " " + taxYear,
+      label: monthNames[currentMonthNum - 1] + " " + taxYear,
       ...currentMonthSummary,
     },
     yearToDate,

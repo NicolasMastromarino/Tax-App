@@ -9,10 +9,16 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { saveReconciliationAction } from "@/lib/actions/reconciliation-actions";
 import type { ActionState } from "@/lib/actions/auth-actions";
-import { cn, formatCurrency, formatDate, MONTH_NAMES } from "@/lib/utils";
+import { cn, formatCurrency, formatDate, getMonthNames } from "@/lib/utils";
 import type { PeriodSummary } from "@/lib/calculations/ledger";
+import { useLocale } from "@/i18n/use-locale";
+import { localizedPath } from "@/i18n/locales";
+import { translateMessage } from "@/i18n/translate-message";
+import { en as en_ } from "@/i18n/dictionaries/en";
+import { es as es_ } from "@/i18n/dictionaries/es";
 
 const initialState: ActionState = {};
+const DICTIONARIES = { en: en_, es: es_ };
 
 export function ReconciliationClient({
   year,
@@ -41,6 +47,10 @@ export function ReconciliationClient({
 }) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(saveReconciliationAction, initialState);
+  const locale = useLocale();
+  const dict = DICTIONARIES[locale];
+  const t = dict.reconciliation;
+  const monthNames = getMonthNames(locale);
 
   const difference =
     existingStatementBalance != null
@@ -49,7 +59,7 @@ export function ReconciliationClient({
   const isReconciled = existingStatus === "reconciled" && difference === 0;
 
   function changeMonth(y: number, m: number) {
-    router.push(`/reconciliation?year=${y}&month=${m}`);
+    router.push(localizedPath(locale, `/reconciliation?year=${y}&month=${m}`));
   }
 
   return (
@@ -57,8 +67,8 @@ export function ReconciliationClient({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-semibold">
-            Bank Reconciliation
-            {isReconciled && <Badge tone="success">Reconciled</Badge>}
+            {t.title}
+            {isReconciled && <Badge tone="success">{t.reconciledBadge}</Badge>}
           </h1>
           <p className="mt-1 text-sm text-muted">{monthLabel}</p>
         </div>
@@ -71,7 +81,7 @@ export function ReconciliationClient({
             ))}
           </Select>
           <Select value={String(month)} onChange={(e) => changeMonth(year, Number(e.target.value))} className="w-36">
-            {MONTH_NAMES.map((name, i) => (
+            {monthNames.map((name, i) => (
               <option key={name} value={i + 1}>
                 {name}
               </option>
@@ -83,16 +93,16 @@ export function ReconciliationClient({
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Calculated From Your Books</CardTitle>
+            <CardTitle>{t.calculatedFromBooks}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Row label="Beginning Bank Balance" value={summary.beginningBalance} />
-            <Row label="+ Income" value={summary.revenue} positive />
-            <Row label="- Expenses" value={-summary.expenses} />
-            <Row label="+ Owner Contributions" value={summary.ownerContributions} positive />
-            <Row label="- Owner Distributions" value={-summary.ownerDistributions} />
+            <Row label={t.beginningBalance} value={summary.beginningBalance} />
+            <Row label={t.income} value={summary.revenue} positive />
+            <Row label={t.expenses} value={-summary.expenses} />
+            <Row label={t.ownerContributions} value={summary.ownerContributions} positive />
+            <Row label={t.ownerDistributions} value={-summary.ownerDistributions} />
             <div className="mt-2 flex items-center justify-between border-t border-border pt-3">
-              <span className="font-semibold">Calculated Ending Balance</span>
+              <span className="font-semibold">{t.calculatedEndingBalance}</span>
               <span className="text-lg font-semibold tabular-nums">
                 {formatCurrency(summary.endingBalance)}
               </span>
@@ -102,13 +112,13 @@ export function ReconciliationClient({
 
         <Card>
           <CardHeader>
-            <CardTitle>Compare to Your Bank Statement</CardTitle>
+            <CardTitle>{t.compareToStatement}</CardTitle>
           </CardHeader>
           <CardContent>
             <form action={formAction} className="space-y-4">
               <input type="hidden" name="month" value={monthISO} />
               <div>
-                <Label htmlFor="statementEndingBalance">Bank Statement Ending Balance</Label>
+                <Label htmlFor="statementEndingBalance">{t.statementEndingBalance}</Label>
                 <Input
                   id="statementEndingBalance"
                   name="statementEndingBalance"
@@ -130,22 +140,24 @@ export function ReconciliationClient({
                   {difference === 0 ? (
                     <>
                       <CheckCircle2 className="h-4 w-4 shrink-0" />
-                      Reconciled: your books match your bank statement.
+                      {t.matchMessage}
                     </>
                   ) : (
                     <>
                       <AlertTriangle className="h-4 w-4 shrink-0" />
-                      Your books are {formatCurrency(Math.abs(difference))}{" "}
-                      {difference > 0 ? "higher than" : "lower than"} your bank statement.
+                      {(difference > 0 ? t.higherThan : t.lowerThan).replace(
+                        "{amount}",
+                        formatCurrency(Math.abs(difference))
+                      )}
                     </>
                   )}
                 </div>
               )}
 
-              {state.error && <p className="text-sm text-danger">{state.error}</p>}
+              {state.error && <p className="text-sm text-danger">{translateMessage(dict, state.error)}</p>}
 
               <Button type="submit" disabled={pending} className="w-full">
-                {pending ? "Saving..." : "Save & Check Reconciliation"}
+                {pending ? t.saving : t.save}
               </Button>
             </form>
           </CardContent>
@@ -154,27 +166,27 @@ export function ReconciliationClient({
 
       <Card>
         <CardHeader>
-          <CardTitle>Reconciliation History</CardTitle>
+          <CardTitle>{t.history.heading}</CardTitle>
         </CardHeader>
         <CardContent>
           {history.length === 0 ? (
-            <p className="text-sm text-muted">No reconciliations recorded yet.</p>
+            <p className="text-sm text-muted">{t.history.emptyState}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
-                    <th className="py-2 pr-4">Month</th>
-                    <th className="py-2 pr-4 text-right">Calculated</th>
-                    <th className="py-2 pr-4 text-right">Statement</th>
-                    <th className="py-2 pr-4 text-right">Difference</th>
-                    <th className="py-2">Status</th>
+                    <th className="py-2 pr-4">{t.history.month}</th>
+                    <th className="py-2 pr-4 text-right">{t.history.calculated}</th>
+                    <th className="py-2 pr-4 text-right">{t.history.statement}</th>
+                    <th className="py-2 pr-4 text-right">{t.history.difference}</th>
+                    <th className="py-2">{t.history.status}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {history.map((h) => (
                     <tr key={h.month} className="border-b border-border last:border-0">
-                      <td className="py-2 pr-4">{formatDate(h.month)}</td>
+                      <td className="py-2 pr-4">{formatDate(h.month, locale)}</td>
                       <td className="py-2 pr-4 text-right tabular-nums">
                         {formatCurrency(h.calculatedEndingBalance)}
                       </td>
@@ -186,7 +198,7 @@ export function ReconciliationClient({
                       </td>
                       <td className="py-2">
                         <Badge tone={h.status === "reconciled" ? "success" : "warning"}>
-                          {h.status === "reconciled" ? "Reconciled" : "Unreconciled"}
+                          {h.status === "reconciled" ? t.reconciledBadge : t.unreconciledBadge}
                         </Badge>
                       </td>
                     </tr>

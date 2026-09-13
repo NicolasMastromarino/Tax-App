@@ -2,6 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Pricing } from "./pricing";
 import { BrandMark } from "@/components/brand-mark";
+import { LanguageSwitcher } from "@/components/nav/language-switcher";
+import { getDictionary, getLocale } from "@/i18n/dictionaries";
+import { localizedPath } from "@/i18n/locales";
 import {
   Calculator,
   Scale,
@@ -19,75 +22,22 @@ import {
 
 /**
  * Logged-out marketing homepage, shown at "/" for anyone who isn't signed
- * in (see src/app/page.tsx — signed-in visitors are redirected straight to
- * /dashboard instead). Built to be the landing page for Facebook ads, so
- * everything above the fold is optimized for a fast first paint and a
- * clear, single primary action (start a free account).
+ * in (see src/app/[lang]/page.tsx — signed-in visitors are redirected
+ * straight to /dashboard instead). Built to be the landing page for
+ * Facebook ads, so everything above the fold is optimized for a fast first
+ * paint and a clear, single primary action (start a free account).
  *
  * Product screenshots below are from a throwaway demo account with
  * invented numbers/names (Rivera Design Co), not the founder's real
  * business data — see scripts/demo-data-for-marketing.mjs.
+ *
+ * Copy comes from the i18n dictionary (src/i18n/dictionaries) rather than
+ * being hardcoded, since this page renders in both English and Spanish —
+ * see src/proxy.ts for how the locale is resolved.
  */
 
-const FEATURES = [
-  {
-    icon: ReceiptText,
-    title: "Simple bookkeeping",
-    body: "One clean ledger for income and expenses: searchable categories, vendor tracking, and a home office calculator built right into the form.",
-  },
-  {
-    icon: Calculator,
-    title: "Real tax estimates",
-    body: "Self-employment tax, the QBI deduction, and your income tax, annualized from your actual bookkeeping data, not a guess.",
-  },
-  {
-    icon: Scale,
-    title: "Sole Prop vs. S-Corp",
-    body: "See both scenarios side by side at your real numbers, with a plain-English callout for how much an S-Corp election could save you.",
-  },
-  {
-    icon: CalendarClock,
-    title: "Quarterly payments, done right",
-    body: "True IRS safe-harbor calculations, not just an even split, so you know exactly what to send in and when.",
-  },
-  {
-    icon: Users,
-    title: "Contractors & 1099s",
-    body: "Every contractor payment tracked by vendor, with a live 1099-NEC threshold that's always correct for the current tax year.",
-  },
-  {
-    icon: BarChart3,
-    title: "Reports that make sense",
-    body: "Profit & Loss by month, quarter, or custom range, plus bank reconciliation so your books actually match your bank account.",
-  },
-] as const;
-
-const FAQS = [
-  {
-    q: "Is this tax advice?",
-    a: "No. Bookkeeply gives you planning estimates based on the numbers you enter and current IRS figures; it's not a substitute for a licensed CPA or tax advisor, especially for anything beyond a straightforward sole proprietorship or single-owner S-Corp.",
-  },
-  {
-    q: "Do I need to know anything about accounting to use it?",
-    a: "No. You categorize each transaction from a plain-English list (\"Advertising,\" \"Contract Labor,\" \"Meals\"), and the app handles the bookkeeping and tax math behind it.",
-  },
-  {
-    q: "How do you keep the tax figures accurate?",
-    a: "Tax brackets, self-employment tax, and the QBI deduction are sourced directly from IRS Revenue Procedures and updated as the rules change, including the One Big Beautiful Bill Act changes that took effect for 2026.",
-  },
-  {
-    q: "What kind of business is this built for?",
-    a: "Service-based freelancers and solopreneurs: consultants, designers, coaches, photographers, contractors, and similar one-person or small service businesses filing as a sole proprietor or S-Corp.",
-  },
-  {
-    q: "Is my financial data secure?",
-    a: "Your data is stored in a private account behind your own login and is never shared or sold. See our Privacy Policy for the full details.",
-  },
-  {
-    q: "What does it cost?",
-    a: "Bookkeeply is free to start right now, with no credit card required. Paid plans are on the way. See Pricing below for what's coming.",
-  },
-] as const;
+const FEATURE_ICONS = [ReceiptText, Calculator, Scale, CalendarClock, Users, BarChart3] as const;
+const TRUST_ICONS = [Landmark, ShieldCheck, CheckCircle2] as const;
 
 export function LandingPage() {
   return (
@@ -108,16 +58,21 @@ export function LandingPage() {
   );
 }
 
-export function Logo({ className = "" }: { className?: string }) {
+export async function Logo({ className = "" }: { className?: string }) {
+  const locale = await getLocale();
   return (
-    <Link href="/" className={`flex items-center gap-2 ${className}`}>
+    <Link href={localizedPath(locale, "/")} className={`flex items-center gap-2 ${className}`}>
       <BrandMark />
       <span className="text-base font-semibold text-foreground">Bookkeeply</span>
     </Link>
   );
 }
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const t = dict.marketing.nav;
+  const href = (path: string) => localizedPath(locale, path);
+
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/80 backdrop-blur-md supports-[backdrop-filter]:bg-surface/70">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -125,28 +80,29 @@ export function SiteHeader() {
 
         <nav aria-label="Primary" className="hidden items-center gap-8 md:flex">
           <a href="#features" className="text-sm font-medium text-muted hover:text-foreground">
-            Features
+            {t.features}
           </a>
           <a href="#pricing" className="text-sm font-medium text-muted hover:text-foreground">
-            Pricing
+            {t.pricing}
           </a>
           <a href="#faq" className="text-sm font-medium text-muted hover:text-foreground">
-            FAQ
+            {t.faq}
           </a>
-          <Link href="/blog" className="text-sm font-medium text-muted hover:text-foreground">
-            Blog
+          <Link href={href("/blog")} className="text-sm font-medium text-muted hover:text-foreground">
+            {t.blog}
           </Link>
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link href="/login" className="text-sm font-medium text-muted hover:text-foreground">
-            Log in
+          <LanguageSwitcher />
+          <Link href={href("/login")} className="text-sm font-medium text-muted hover:text-foreground">
+            {t.login}
           </Link>
           <Link
-            href="/register"
+            href={href("/register")}
             className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary-hover"
           >
-            Get Started Free
+            {t.getStarted}
           </Link>
         </div>
 
@@ -154,32 +110,35 @@ export function SiteHeader() {
         <details className="relative md:hidden">
           <summary
             className="flex h-9 w-9 list-none items-center justify-center rounded-lg text-foreground hover:bg-surface-muted [&::-webkit-details-marker]:hidden"
-            aria-label="Open menu"
+            aria-label={t.openMenu}
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
           </summary>
           <div className="absolute right-0 top-11 w-56 rounded-xl border border-border bg-surface p-2 shadow-lg">
             <a href="#features" className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
-              Features
+              {t.features}
             </a>
             <a href="#pricing" className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
-              Pricing
+              {t.pricing}
             </a>
             <a href="#faq" className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
-              FAQ
+              {t.faq}
             </a>
-            <Link href="/blog" className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
-              Blog
+            <Link href={href("/blog")} className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
+              {t.blog}
             </Link>
             <div className="my-2 border-t border-border" />
-            <Link href="/login" className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
-              Log in
+            <div className="px-3 py-2">
+              <LanguageSwitcher />
+            </div>
+            <Link href={href("/login")} className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface-muted">
+              {t.login}
             </Link>
             <Link
-              href="/register"
+              href={href("/register")}
               className="mt-1 block rounded-lg bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground hover:bg-primary-hover"
             >
-              Get Started Free
+              {t.getStarted}
             </Link>
           </div>
         </details>
@@ -188,7 +147,10 @@ export function SiteHeader() {
   );
 }
 
-function Hero() {
+async function Hero() {
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const t = dict.marketing.hero;
+
   return (
     <section className="marketing-dot-grid relative overflow-hidden">
       {/* Soft gradient blobs for depth — purely decorative. */}
@@ -213,11 +175,11 @@ function Hero() {
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/80 px-3 py-1 text-xs font-medium text-muted shadow-sm backdrop-blur">
             <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-            Built for freelancers &amp; service businesses
+            {t.badge}
           </div>
 
           <h1 className="mt-5 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            Bookkeeping and taxes,{" "}
+            {t.titleLine1}{" "}
             <span
               className="bg-clip-text text-transparent"
               style={{
@@ -225,35 +187,29 @@ function Hero() {
                   "linear-gradient(to right in oklch, var(--primary), var(--marketing-accent))",
               }}
             >
-              without the dread.
+              {t.titleLine2}
             </span>
           </h1>
 
-          <p className="mx-auto mt-5 max-w-xl text-pretty text-lg text-muted">
-            Track your income and expenses in minutes a day, then see exactly what you&apos;ll owe:
-            self-employment tax, the QBI deduction, and quarterly payments, sourced straight from
-            the IRS, not guesswork.
-          </p>
+          <p className="mx-auto mt-5 max-w-xl text-pretty text-lg text-muted">{t.subtitle}</p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="/register"
+              href={localizedPath(locale, "/register")}
               className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 text-base font-semibold text-primary-foreground shadow-md transition-colors hover:bg-primary-hover sm:w-auto"
             >
-              Get Started Free
+              {t.ctaPrimary}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
             <a
               href="#how-it-works"
               className="inline-flex h-12 w-full items-center justify-center rounded-xl border border-border bg-surface px-6 text-base font-medium text-foreground transition-colors hover:bg-surface-muted sm:w-auto"
             >
-              See how it works
+              {t.ctaSecondary}
             </a>
           </div>
 
-          <p className="mt-4 text-sm text-muted">
-            No credit card required &middot; Free to start &middot; Set up in under 10 minutes
-          </p>
+          <p className="mt-4 text-sm text-muted">{t.note}</p>
         </div>
 
         {/* Product screenshot, floating in a browser-style frame. */}
@@ -266,7 +222,7 @@ function Hero() {
             </div>
             <Image
               src="/marketing/hero-dashboard.png"
-              alt="Bookkeeply dashboard showing year-to-date revenue, expenses, net income, and a monthly revenue chart"
+              alt={t.dashboardImageAlt}
               width={1170}
               height={745}
               priority
@@ -278,9 +234,9 @@ function Hero() {
 
           {/* Floating stat callout for visual interest. */}
           <div className="absolute -bottom-6 -left-4 hidden w-56 rounded-xl border border-border bg-surface p-4 shadow-xl sm:block lg:-left-10">
-            <p className="text-xs font-medium text-muted">Est. Quarterly Tax</p>
+            <p className="text-xs font-medium text-muted">{t.statLabel}</p>
             <p className="mt-1 text-2xl font-semibold text-primary">$3,629.10</p>
-            <p className="mt-1 text-xs text-success">✓ IRS safe-harbor amount</p>
+            <p className="mt-1 text-xs text-success">✓ {t.statNote}</p>
           </div>
         </div>
       </div>
@@ -288,12 +244,9 @@ function Hero() {
   );
 }
 
-function TrustStrip() {
-  const items = [
-    { icon: Landmark, text: "IRS-sourced tax figures, updated for 2026" },
-    { icon: ShieldCheck, text: "Your data stays private, never sold" },
-    { icon: CheckCircle2, text: "No spreadsheets, no dread" },
-  ];
+async function TrustStrip() {
+  const dict = await getDictionary();
+  const items = dict.marketing.trust.map((text, i) => ({ icon: TRUST_ICONS[i], text }));
   return (
     <section className="border-y border-border bg-surface-muted/60">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 py-6 sm:grid-cols-3 sm:px-6">
@@ -308,21 +261,22 @@ function TrustStrip() {
   );
 }
 
-function Features() {
+async function Features() {
+  const dict = await getDictionary();
+  const t = dict.marketing.features;
+  const items = t.items.map((item, i) => ({ ...item, icon: FEATURE_ICONS[i] }));
+
   return (
     <section id="features" className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          Everything your service business needs, nothing it doesn&apos;t
+          {t.heading}
         </h2>
-        <p className="mt-4 text-pretty text-lg text-muted">
-          Built from the ground up for one-person and small service businesses, not a stripped-down
-          version of accounting software made for someone else.
-        </p>
+        <p className="mt-4 text-pretty text-lg text-muted">{t.subheading}</p>
       </div>
 
       <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {FEATURES.map(({ icon: Icon, title, body }) => (
+        {items.map(({ icon: Icon, title, body }) => (
           <div
             key={title}
             className="group rounded-2xl border border-border bg-surface p-6 shadow-sm transition-shadow hover:shadow-md"
@@ -339,7 +293,10 @@ function Features() {
   );
 }
 
-function ScreenshotSpotlight() {
+async function ScreenshotSpotlight() {
+  const dict = await getDictionary();
+  const { taxPlanner, contractors } = dict.marketing.screenshotSpotlight;
+
   return (
     <section className="border-y border-border bg-surface-muted/60">
       <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
@@ -347,22 +304,14 @@ function ScreenshotSpotlight() {
           <div className="order-2 lg:order-1">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
               <Calculator className="h-3.5 w-3.5" aria-hidden="true" />
-              Tax Planner
+              {taxPlanner.eyebrow}
             </span>
             <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground">
-              Know your tax bill before you file, not after.
+              {taxPlanner.heading}
             </h2>
-            <p className="mt-4 text-pretty text-lg text-muted">
-              Your Tax Estimate updates automatically as you add income and expenses: self-employment
-              tax, the QBI deduction, your marginal rate, and a true IRS safe-harbor quarterly
-              payment schedule, all in one place.
-            </p>
+            <p className="mt-4 text-pretty text-lg text-muted">{taxPlanner.body}</p>
             <ul className="mt-6 space-y-3">
-              {[
-                "Sole Proprietor vs. S-Corp compared side by side",
-                "Quarterly estimated payments with over/underpaid tracking",
-                "Updated for the 2026 One Big Beautiful Bill Act changes",
-              ].map((item) => (
+              {taxPlanner.bullets.map((item) => (
                 <li key={item} className="flex items-start gap-2.5 text-sm text-foreground">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
                   {item}
@@ -373,7 +322,7 @@ function ScreenshotSpotlight() {
           <div className="order-1 overflow-hidden rounded-2xl border border-border bg-surface shadow-xl lg:order-2">
             <Image
               src="/marketing/feature-tax-planner.png"
-              alt="Tax Planner screen showing total estimated tax, quarterly payment amount, QBI deduction, and other tax figures"
+              alt={taxPlanner.imageAlt}
               width={1170}
               height={500}
               loading="lazy"
@@ -387,7 +336,7 @@ function ScreenshotSpotlight() {
           <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-xl">
             <Image
               src="/marketing/feature-contractors.png"
-              alt="Contractors and 1099s screen showing a vendor payment total and whether a 1099-NEC is needed"
+              alt={contractors.imageAlt}
               width={1170}
               height={330}
               loading="lazy"
@@ -398,16 +347,12 @@ function ScreenshotSpotlight() {
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
               <Users className="h-3.5 w-3.5" aria-hidden="true" />
-              Contractors &amp; 1099s
+              {contractors.eyebrow}
             </span>
             <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground">
-              Never miss a 1099 again.
+              {contractors.heading}
             </h2>
-            <p className="mt-4 text-pretty text-lg text-muted">
-              Every Contract Labor payment is tracked by vendor automatically, with the current-year
-              1099-NEC filing threshold applied for you, so you know exactly who needs one by
-              January 31.
-            </p>
+            <p className="mt-4 text-pretty text-lg text-muted">{contractors.body}</p>
           </div>
         </div>
       </div>
@@ -415,36 +360,22 @@ function ScreenshotSpotlight() {
   );
 }
 
-function HowItWorks() {
-  const steps = [
-    {
-      n: "1",
-      title: "Add your income & expenses",
-      body: "Enter transactions as they happen, or catch up in one sitting; a searchable category list makes it fast either way.",
-    },
-    {
-      n: "2",
-      title: "We do the math",
-      body: "Self-employment tax, the QBI deduction, and your progressive tax brackets are calculated automatically from your real numbers.",
-    },
-    {
-      n: "3",
-      title: "See what you owe",
-      body: "Your Tax Estimate and quarterly payment schedule update instantly. No more surprises in April.",
-    },
-  ];
+async function HowItWorks() {
+  const dict = await getDictionary();
+  const t = dict.marketing.howItWorks;
+
   return (
     <section id="how-it-works" className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          Ten minutes a week is all it takes
+          {t.heading}
         </h2>
       </div>
       <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-3">
-        {steps.map((step) => (
-          <div key={step.n} className="text-center sm:text-left">
+        {t.steps.map((step, i) => (
+          <div key={step.title} className="text-center sm:text-left">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-base font-semibold text-primary-foreground">
-              {step.n}
+              {i + 1}
             </span>
             <h3 className="mt-4 text-base font-semibold text-foreground">{step.title}</h3>
             <p className="mt-2 text-pretty text-sm text-muted">{step.body}</p>
@@ -455,16 +386,19 @@ function HowItWorks() {
   );
 }
 
-function Faq() {
+async function Faq() {
+  const dict = await getDictionary();
+  const t = dict.marketing.faq;
+
   return (
     <section id="faq" className="mx-auto max-w-3xl px-4 py-20 sm:px-6 sm:py-28">
       <div className="text-center">
         <h2 className="text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          Frequently asked questions
+          {t.heading}
         </h2>
       </div>
       <div className="mt-10 divide-y divide-border rounded-2xl border border-border bg-surface">
-        {FAQS.map(({ q, a }) => (
+        {t.items.map(({ q, a }) => (
           <details key={q} className="group p-5">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-foreground marker:content-none [&::-webkit-details-marker]:hidden">
               {q}
@@ -480,7 +414,10 @@ function Faq() {
   );
 }
 
-function FinalCta() {
+async function FinalCta() {
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const t = dict.marketing.finalCta;
+
   return (
     <section className="relative overflow-hidden">
       <div
@@ -493,17 +430,14 @@ function FinalCta() {
       />
       <div className="relative mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 sm:py-24">
         <h2 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Stop guessing what you&apos;ll owe.
+          {t.heading}
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-pretty text-lg text-white/90">
-          Set up your first month of bookkeeping in under 10 minutes, free, no credit card
-          required.
-        </p>
+        <p className="mx-auto mt-4 max-w-xl text-pretty text-lg text-white/90">{t.body}</p>
         <Link
-          href="/register"
+          href={localizedPath(locale, "/register")}
           className="mt-8 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-base font-semibold text-primary shadow-md transition-transform hover:scale-[1.02]"
         >
-          Get Started Free
+          {t.cta}
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       </div>
@@ -511,49 +445,47 @@ function FinalCta() {
   );
 }
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const t = dict.marketing.footer;
+  const href = (path: string) => localizedPath(locale, path);
+
   return (
     <footer className="border-t border-border bg-surface">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <div className="flex flex-col gap-8 sm:flex-row sm:justify-between">
           <div className="max-w-xs">
             <Logo />
-            <p className="mt-3 text-sm text-muted">
-              Simple bookkeeping and tax planning for service-based businesses.
-            </p>
+            <p className="mt-3 text-sm text-muted">{t.tagline}</p>
           </div>
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">Product</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">{t.product}</h3>
               <ul className="mt-3 space-y-2 text-sm">
-                <li><a href="#features" className="text-muted hover:text-foreground">Features</a></li>
-                <li><a href="#pricing" className="text-muted hover:text-foreground">Pricing</a></li>
-                <li><a href="#faq" className="text-muted hover:text-foreground">FAQ</a></li>
-                <li><Link href="/blog" className="text-muted hover:text-foreground">Blog</Link></li>
+                <li><a href="#features" className="text-muted hover:text-foreground">{dict.marketing.nav.features}</a></li>
+                <li><a href="#pricing" className="text-muted hover:text-foreground">{dict.marketing.nav.pricing}</a></li>
+                <li><a href="#faq" className="text-muted hover:text-foreground">{dict.marketing.nav.faq}</a></li>
+                <li><Link href={href("/blog")} className="text-muted hover:text-foreground">{dict.marketing.nav.blog}</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">Account</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">{t.account}</h3>
               <ul className="mt-3 space-y-2 text-sm">
-                <li><Link href="/login" className="text-muted hover:text-foreground">Log in</Link></li>
-                <li><Link href="/register" className="text-muted hover:text-foreground">Sign up</Link></li>
+                <li><Link href={href("/login")} className="text-muted hover:text-foreground">{dict.marketing.nav.login}</Link></li>
+                <li><Link href={href("/register")} className="text-muted hover:text-foreground">{dict.marketing.nav.signup}</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">Legal</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">{t.legal}</h3>
               <ul className="mt-3 space-y-2 text-sm">
-                <li><Link href="/privacy" className="text-muted hover:text-foreground">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="text-muted hover:text-foreground">Terms of Service</Link></li>
+                <li><Link href={href("/privacy")} className="text-muted hover:text-foreground">{t.privacy}</Link></li>
+                <li><Link href={href("/terms")} className="text-muted hover:text-foreground">{t.terms}</Link></li>
               </ul>
             </div>
           </div>
         </div>
         <div className="mt-10 border-t border-border pt-6">
-          <p className="text-xs text-muted">
-            © {new Date().getFullYear()} Bookkeeply. Not affiliated with the IRS. Tax
-            estimates are for planning purposes only and are not tax, legal, or financial advice.
-            Talk to a licensed professional about your specific situation.
-          </p>
+          <p className="text-xs text-muted">{t.disclaimer.replace("{year}", String(new Date().getFullYear()))}</p>
         </div>
       </div>
     </footer>

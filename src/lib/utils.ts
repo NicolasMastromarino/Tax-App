@@ -39,14 +39,34 @@ export const MONTH_NAMES = [
   "December",
 ];
 
-export function formatMonthYear(year: number, month: number): string {
-  return `${MONTH_NAMES[month - 1]} ${year}`;
+const MONTH_NAMES_ES = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
+
+/** Locale-aware month names, for UI that renders in Spanish under /es. */
+export function getMonthNames(locale: "en" | "es" = "en"): string[] {
+  return locale === "es" ? MONTH_NAMES_ES : MONTH_NAMES;
 }
 
-export function formatDate(dateStr: string): string {
+export function formatMonthYear(year: number, month: number, locale: "en" | "es" = "en"): string {
+  return `${getMonthNames(locale)[month - 1]} ${year}`;
+}
+
+export function formatDate(dateStr: string, locale: "en" | "es" = "en"): string {
   const [y, m, d] = dateStr.split("-").map(Number);
   const date = new Date(y, m - 1, d);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(locale === "es" ? "es" : "en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",

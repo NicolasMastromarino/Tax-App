@@ -14,19 +14,27 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, formatCurrencyCompact } from "@/lib/utils";
 import type { MonthChartPoint } from "@/lib/data/dashboard";
+import { useLocale } from "@/i18n/use-locale";
+import { en as en_ } from "@/i18n/dictionaries/en";
+import { es as es_ } from "@/i18n/dictionaries/es";
+
+const DICTIONARIES = { en: en_, es: es_ };
 
 export function RevenueChart({ months }: { months: MonthChartPoint[] }) {
+  const locale = useLocale();
+  const t = DICTIONARIES[locale].dashboard.chart;
+
   const data = months.map((m) => ({
     name: m.monthName.slice(0, 3),
-    Revenue: m.revenue,
-    Expenses: m.expenses,
-    "Net Income": m.netIncome,
+    [t.revenue]: m.revenue,
+    [t.expenses]: m.expenses,
+    [t.netIncome]: m.netIncome,
   }));
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Revenue, Expenses &amp; Net Income by Month</CardTitle>
+        <CardTitle>{t.heading}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-72 w-full">
@@ -50,11 +58,11 @@ export function RevenueChart({ months }: { months: MonthChartPoint[] }) {
                 }}
               />
               <Legend wrapperStyle={{ fontSize: 13 }} />
-              <Bar dataKey="Revenue" fill="#059669" radius={[4, 4, 0, 0]} maxBarSize={28} />
-              <Bar dataKey="Expenses" fill="#dc2626" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <Bar dataKey={t.revenue} fill="#059669" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <Bar dataKey={t.expenses} fill="#dc2626" radius={[4, 4, 0, 0]} maxBarSize={28} />
               <Line
                 type="monotone"
-                dataKey="Net Income"
+                dataKey={t.netIncome}
                 stroke="#4f46e5"
                 strokeWidth={2.5}
                 dot={{ r: 3 }}

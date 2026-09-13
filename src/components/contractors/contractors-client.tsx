@@ -10,8 +10,14 @@ import { saveVendorAction } from "@/lib/actions/contractor-actions";
 import type { ActionState } from "@/lib/actions/auth-actions";
 import { formatCurrency } from "@/lib/utils";
 import type { ContractorRow } from "@/lib/data/contractors";
+import { useLocale } from "@/i18n/use-locale";
+import { translateMessage } from "@/i18n/translate-message";
+import { en as en_ } from "@/i18n/dictionaries/en";
+import { es as es_ } from "@/i18n/dictionaries/es";
+import type { Dictionary } from "@/i18n/dictionaries/en";
 
 const initialState: ActionState = {};
+const DICTIONARIES = { en: en_, es: es_ };
 
 export function ContractorsClient({
   taxYear,
@@ -24,34 +30,38 @@ export function ContractorsClient({
 }) {
   const [editingVendor, setEditingVendor] = useState<string | null>(null);
   const needing1099 = rows.filter((r) => r.needs1099);
+  const locale = useLocale();
+  const dict = DICTIONARIES[locale];
+  const t = dict.contractors;
+  const thresholdFmt = formatCurrency(threshold);
 
   return (
     <div className="max-w-5xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Contractors &amp; 1099s</h1>
+        <h1 className="text-2xl font-semibold">{t.title}</h1>
         <p className="mt-1 text-sm text-muted">
-          Contract Labor payments for Tax Year {taxYear}, grouped by vendor. Anyone paid{" "}
-          {formatCurrency(threshold)} or more this year generally needs a Form 1099-NEC by
-          January 31 of the following year.
+          {t.subtitle.replace("{taxYear}", String(taxYear)).replace("{threshold}", thresholdFmt)}
         </p>
       </div>
 
       {needing1099.length > 0 && (
         <div className="rounded-lg border border-warning/40 bg-warning-bg p-4 text-sm text-warning">
-          <strong>{needing1099.length}</strong> vendor{needing1099.length === 1 ? "" : "s"} crossed
-          the {formatCurrency(threshold)} threshold this year and likely need{needing1099.length === 1 ? "s" : ""} a 1099-NEC.
+          <strong>{needing1099.length}</strong>{" "}
+          {(needing1099.length === 1 ? t.thresholdWarningOne : t.thresholdWarningMany).replace(
+            "{threshold}",
+            thresholdFmt
+          )}
         </div>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>Vendors</CardTitle>
+          <CardTitle>{t.vendors}</CardTitle>
         </CardHeader>
         <CardContent>
           {rows.length === 0 ? (
             <p className="text-sm text-muted">
-              No Contract Labor payments recorded for {taxYear} yet. Categorize a transaction as
-              &quot;Contract Labor&quot; with a vendor name on the Transactions page to see it here.
+              {t.emptyState.replace("{taxYear}", String(taxYear))}
             </p>
           ) : (
             <>
@@ -62,11 +72,11 @@ export function ContractorsClient({
                 <table className="w-full min-w-[680px] border-collapse text-sm">
                   <thead>
                     <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-muted">
-                      <th className="py-2 pr-3">Vendor</th>
-                      <th className="py-2 pr-3">Payments</th>
-                      <th className="py-2 pr-3">Total Paid</th>
-                      <th className="py-2 pr-3">Needs 1099?</th>
-                      <th className="py-2 pr-3">W-9 on File</th>
+                      <th className="py-2 pr-3">{t.table.vendor}</th>
+                      <th className="py-2 pr-3">{t.table.payments}</th>
+                      <th className="py-2 pr-3">{t.table.totalPaid}</th>
+                      <th className="py-2 pr-3">{t.table.needs1099}</th>
+                      <th className="py-2 pr-3">{t.table.w9OnFile}</th>
                       <th className="py-2" />
                     </tr>
                   </thead>
@@ -80,6 +90,7 @@ export function ContractorsClient({
                         onStartEdit={() => setEditingVendor(row.vendorName)}
                         onSaved={() => setEditingVendor(null)}
                         onCancel={() => setEditingVendor(null)}
+                        dict={dict}
                       />
                     ))}
                   </tbody>
@@ -96,6 +107,7 @@ export function ContractorsClient({
                     onStartEdit={() => setEditingVendor(row.vendorName)}
                     onSaved={() => setEditingVendor(null)}
                     onCancel={() => setEditingVendor(null)}
+                    dict={dict}
                   />
                 ))}
               </div>
@@ -106,13 +118,8 @@ export function ContractorsClient({
 
       <Card>
         <CardContent className="py-4 text-xs text-muted">
-          <p className="font-medium text-foreground">Not tax advice.</p>
-          <p className="mt-1">
-            The {formatCurrency(threshold)} threshold and the totals above are computed from your
-            transactions tagged &quot;Contract Labor&quot;. This doesn&apos;t generate or file the
-            actual Form 1099-NEC. Talk to a tax professional or use a payroll/1099 filing service
-            once you know who needs one.
-          </p>
+          <p className="font-medium text-foreground">{t.disclaimer.heading}</p>
+          <p className="mt-1">{t.disclaimer.body.replace("{threshold}", thresholdFmt)}</p>
         </CardContent>
       </Card>
     </div>
@@ -126,6 +133,7 @@ function VendorRow({
   onStartEdit,
   onSaved,
   onCancel,
+  dict,
 }: {
   variant: "table" | "card";
   row: ContractorRow;
@@ -133,7 +141,9 @@ function VendorRow({
   onStartEdit: () => void;
   onSaved: () => void;
   onCancel: () => void;
+  dict: Dictionary;
 }) {
+  const t = dict.contractors;
   const [state, formAction, pending] = useActionState(saveVendorAction, initialState);
   const [email, setEmail] = useState(row.vendor?.email ?? "");
   const [phone, setPhone] = useState(row.vendor?.phone ?? "");
@@ -143,27 +153,28 @@ function VendorRow({
 
   useEffect(() => {
     if (state.success) {
-      toast.success(`${row.vendorName} saved`);
+      toast.success(t.savedToast.replace("{vendorName}", row.vendorName));
       onSaved();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.success, row.vendorName, onSaved]);
 
   const needsBadge = row.needs1099 ? (
-    <Badge tone="warning">Yes</Badge>
+    <Badge tone="warning">{t.yes}</Badge>
   ) : (
-    <Badge tone="neutral">No</Badge>
+    <Badge tone="neutral">{t.no}</Badge>
   );
   const w9Badge = row.vendor?.w9Received ? (
-    <Badge tone="success">On file</Badge>
+    <Badge tone="success">{t.onFile}</Badge>
   ) : (
-    <Badge tone="neutral">Not on file</Badge>
+    <Badge tone="neutral">{t.notOnFile}</Badge>
   );
 
   const editForm = (
     <form action={formAction} className="grid gap-3 sm:grid-cols-2">
       <input type="hidden" name="name" value={row.vendorName} />
       <div>
-        <Label htmlFor={`email-${row.vendorName}`}>Email</Label>
+        <Label htmlFor={`email-${row.vendorName}`}>{t.email}</Label>
         <Input
           id={`email-${row.vendorName}`}
           name="email"
@@ -173,7 +184,7 @@ function VendorRow({
         />
       </div>
       <div>
-        <Label htmlFor={`phone-${row.vendorName}`}>Phone</Label>
+        <Label htmlFor={`phone-${row.vendorName}`}>{t.phone}</Label>
         <Input
           id={`phone-${row.vendorName}`}
           name="phone"
@@ -182,7 +193,7 @@ function VendorRow({
         />
       </div>
       <div className="sm:col-span-2">
-        <Label htmlFor={`address-${row.vendorName}`}>Address</Label>
+        <Label htmlFor={`address-${row.vendorName}`}>{t.address}</Label>
         <Input
           id={`address-${row.vendorName}`}
           name="address"
@@ -191,14 +202,14 @@ function VendorRow({
         />
       </div>
       <div>
-        <Label htmlFor={`taxId-${row.vendorName}`}>Tax ID (EIN or SSN)</Label>
+        <Label htmlFor={`taxId-${row.vendorName}`}>{t.taxId}</Label>
         <Input
           id={`taxId-${row.vendorName}`}
           name="taxId"
           value={taxId}
           onChange={(e) => setTaxId(e.target.value)}
         />
-        <HelpText>From their completed Form W-9.</HelpText>
+        <HelpText>{t.taxIdHelp}</HelpText>
       </div>
       <div className="flex items-center gap-2">
         <input
@@ -210,24 +221,24 @@ function VendorRow({
           className="h-4 w-4 rounded border-border"
         />
         <Label htmlFor={`w9-${row.vendorName}`} className="mb-0">
-          W-9 received
+          {t.w9Received}
         </Label>
       </div>
       <div className="flex items-center gap-2 sm:col-span-2">
         <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Saving..." : "Save"}
+          {pending ? t.saving : t.save}
         </Button>
         <Button type="button" size="sm" variant="ghost" onClick={onCancel}>
-          Cancel
+          {t.cancel}
         </Button>
-        {state.error && <p className="text-xs text-danger">{state.error}</p>}
+        {state.error && <p className="text-xs text-danger">{translateMessage(dict, state.error)}</p>}
       </div>
     </form>
   );
 
   const editButton = (
     <Button size="sm" variant="outline" onClick={onStartEdit}>
-      {row.vendor ? "Edit" : "Add Contact Info"}
+      {row.vendor ? t.edit : t.addContactInfo}
     </Button>
   );
 
@@ -240,11 +251,11 @@ function VendorRow({
         </div>
         <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
           <div>
-            <dt className="text-xs text-muted">Total Paid</dt>
+            <dt className="text-xs text-muted">{t.table.totalPaid}</dt>
             <dd className="tabular-nums">{formatCurrency(row.totalPaid)}</dd>
           </div>
           <div>
-            <dt className="text-xs text-muted">Payments</dt>
+            <dt className="text-xs text-muted">{t.table.payments}</dt>
             <dd className="tabular-nums">{row.paymentCount}</dd>
           </div>
           <div className="col-span-2">

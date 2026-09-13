@@ -1,15 +1,9 @@
 import { Lock, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckoutButton } from "@/components/billing/checkout-button";
+import { getDictionary } from "@/i18n/dictionaries";
 
-const INCLUDED = [
-  "Unlimited transactions & categories",
-  "Tax Planner with quarterly estimates",
-  "Contractors & 1099 tracking",
-  "Bank reconciliation & reports",
-];
-
-export function UpgradeGate({
+export async function UpgradeGate({
   feature,
   businessId,
   email,
@@ -18,21 +12,23 @@ export function UpgradeGate({
   businessId: string;
   email: string;
 }) {
+  const dict = await getDictionary();
+  const t = dict.upgradeGate;
+
   return (
     <div className="mx-auto max-w-lg py-16 text-center">
       <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
         <Lock className="h-5 w-5" aria-hidden="true" />
       </span>
-      <h1 className="mt-4 text-xl font-semibold text-foreground">{feature} is a paid feature</h1>
-      <p className="mt-2 text-sm text-muted">
-        Core bookkeeping (transactions, reconciliation, and reports) stays free. {feature} is
-        part of the paid plan.
-      </p>
+      <h1 className="mt-4 text-xl font-semibold text-foreground">
+        {feature} {t.titleSuffix}
+      </h1>
+      <p className="mt-2 text-sm text-muted">{t.body.replace("{feature}", feature)}</p>
 
       <Card className="mt-6 text-left">
         <CardContent className="p-6">
           <ul className="space-y-2.5">
-            {INCLUDED.map((item) => (
+            {t.included.map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-sm text-foreground">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
                 {item}
@@ -47,7 +43,7 @@ export function UpgradeGate({
               variant="outline"
               size="lg"
             >
-              $9.95/month
+              {t.monthly}
             </CheckoutButton>
             <CheckoutButton
               priceId={process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_ANNUAL}
@@ -55,10 +51,10 @@ export function UpgradeGate({
               email={email}
               size="lg"
             >
-              $100/year
+              {t.annual}
             </CheckoutButton>
           </div>
-          <p className="mt-3 text-center text-xs text-muted">Cancel anytime from Settings.</p>
+          <p className="mt-3 text-center text-xs text-muted">{t.cancelAnytime}</p>
         </CardContent>
       </Card>
     </div>

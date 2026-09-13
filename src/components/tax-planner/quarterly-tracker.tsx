@@ -17,15 +17,14 @@ import type { ActionState } from "@/lib/actions/auth-actions";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { QuarterlyPaymentRow } from "@/lib/data/tax";
 import type { SafeHarborResult } from "@/lib/calculations/tax";
+import { useLocale } from "@/i18n/use-locale";
+import { translateMessage } from "@/i18n/translate-message";
+import { en as en_ } from "@/i18n/dictionaries/en";
+import { es as es_ } from "@/i18n/dictionaries/es";
+import type { Dictionary } from "@/i18n/dictionaries/en";
 
 const initialState: ActionState = {};
-
-const SAFE_HARBOR_LABELS: Record<SafeHarborResult["basis"], string> = {
-  "current-year-90pct": "90% of this year's projected tax",
-  "prior-year-100pct": "100% of last year's total tax",
-  "prior-year-110pct":
-    "110% of last year's total tax (last year's income was above the high-income threshold)",
-};
+const DICTIONARIES = { en: en_, es: es_ };
 
 export function QuarterlyTracker({
   taxYear,
@@ -41,17 +40,16 @@ export function QuarterlyTracker({
   safeHarborBasis: SafeHarborResult["basis"];
 }) {
   const [editingQuarter, setEditingQuarter] = useState<number | null>(null);
+  const locale = useLocale();
+  const dict = DICTIONARIES[locale];
+  const t = dict.taxPlanner.quarterly;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base font-semibold text-foreground">
-          Quarterly Estimated Payments
-        </CardTitle>
+        <CardTitle className="text-base font-semibold text-foreground">{t.heading}</CardTitle>
         <p className="mt-1 text-sm text-muted">
-          Recommended amount uses the IRS safe-harbor rule: the smaller of 90% of this
-          year&apos;s projected tax or 100%/110% of last year&apos;s, split evenly across 4
-          quarters. Currently based on: <strong>{SAFE_HARBOR_LABELS[safeHarborBasis]}</strong>.
+          {t.subtitle} <strong>{t.safeHarborLabels[safeHarborBasis]}</strong>.
         </p>
       </CardHeader>
       <CardContent>
@@ -62,12 +60,12 @@ export function QuarterlyTracker({
           <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-muted">
-                <th className="py-2 pr-3">Quarter</th>
-                <th className="py-2 pr-3">Due Date</th>
-                <th className="py-2 pr-3">Recommended</th>
-                <th className="py-2 pr-3">Amount Paid</th>
-                <th className="py-2 pr-3">Date Paid</th>
-                <th className="py-2 pr-3">Over / Underpaid</th>
+                <th className="py-2 pr-3">{t.table.quarter}</th>
+                <th className="py-2 pr-3">{t.table.dueDate}</th>
+                <th className="py-2 pr-3">{t.table.recommended}</th>
+                <th className="py-2 pr-3">{t.table.amountPaid}</th>
+                <th className="py-2 pr-3">{t.table.datePaid}</th>
+                <th className="py-2 pr-3">{t.table.overUnderpaid}</th>
                 <th className="py-2" />
               </tr>
             </thead>
@@ -82,18 +80,20 @@ export function QuarterlyTracker({
                   onStartEdit={() => setEditingQuarter(row.quarter)}
                   onSaved={() => setEditingQuarter(null)}
                   onCancel={() => setEditingQuarter(null)}
+                  dict={dict}
+                  locale={locale}
                 />
               ))}
             </tbody>
             <tfoot>
               <tr className="border-t border-border font-medium">
                 <td className="py-2 pr-3" colSpan={3}>
-                  Total
+                  {t.table.total}
                 </td>
                 <td className="py-2 pr-3 tabular-nums">{formatCurrency(totalPaid)}</td>
                 <td className="py-2 pr-3" />
                 <td className="py-2 pr-3 tabular-nums">
-                  <OverUnderBadge amount={totalOverUnderpaid} />
+                  <OverUnderBadge amount={totalOverUnderpaid} t={t} />
                 </td>
                 <td className="py-2" />
               </tr>
@@ -114,14 +114,16 @@ export function QuarterlyTracker({
               onStartEdit={() => setEditingQuarter(row.quarter)}
               onSaved={() => setEditingQuarter(null)}
               onCancel={() => setEditingQuarter(null)}
+              dict={dict}
+              locale={locale}
             />
           ))}
           <div className="flex items-center justify-between rounded-lg border border-border p-3">
-            <span className="text-sm font-medium">Total</span>
+            <span className="text-sm font-medium">{t.table.total}</span>
             <div className="text-right">
               <p className="text-sm font-semibold tabular-nums">{formatCurrency(totalPaid)}</p>
               <div className="mt-1">
-                <OverUnderBadge amount={totalOverUnderpaid} />
+                <OverUnderBadge amount={totalOverUnderpaid} t={t} />
               </div>
             </div>
           </div>
@@ -139,6 +141,8 @@ function QuarterRow({
   onStartEdit,
   onSaved,
   onCancel,
+  dict,
+  locale,
 }: {
   variant: "table" | "card";
   taxYear: number;
@@ -147,16 +151,20 @@ function QuarterRow({
   onStartEdit: () => void;
   onSaved: () => void;
   onCancel: () => void;
+  dict: Dictionary;
+  locale: "en" | "es";
 }) {
+  const t = dict.taxPlanner.quarterly;
   const [state, formAction, pending] = useActionState(saveTaxPaymentAction, initialState);
   const [amountPaid, setAmountPaid] = useState(String(row.amountPaid || ""));
   const [datePaid, setDatePaid] = useState(row.datePaid ?? "");
 
   useEffect(() => {
     if (state.success) {
-      toast.success(`${row.label} payment saved`);
+      toast.success(t.savedToast.replace("{label}", row.label));
       onSaved();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.success, row.label, onSaved]);
 
   const editForm = (
@@ -180,18 +188,18 @@ function QuarterRow({
         className="h-8 w-40"
       />
       <Button type="submit" size="sm" disabled={pending}>
-        {pending ? "Saving..." : "Save"}
+        {pending ? t.saving : t.save}
       </Button>
       <Button type="button" size="sm" variant="ghost" onClick={onCancel}>
-        Cancel
+        {t.cancel}
       </Button>
-      {state.error && <p className="w-full text-xs text-danger">{state.error}</p>}
+      {state.error && <p className="w-full text-xs text-danger">{translateMessage(dict, state.error)}</p>}
     </form>
   );
 
   const recordButton = (
     <Button size="sm" variant="outline" onClick={onStartEdit}>
-      {row.amountPaid > 0 || row.datePaid ? "Edit" : "Record Payment"}
+      {row.amountPaid > 0 || row.datePaid ? t.edit : t.recordPayment}
     </Button>
   );
 
@@ -201,9 +209,9 @@ function QuarterRow({
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium">{row.label}</p>
-            <p className="text-xs text-muted">Due {formatDate(row.dueDate)}</p>
+            <p className="text-xs text-muted">{t.due.replace("{date}", formatDate(row.dueDate, locale))}</p>
           </div>
-          <OverUnderBadge amount={row.overUnderpaid} />
+          <OverUnderBadge amount={row.overUnderpaid} t={t} />
         </div>
         {editing ? (
           <div className="mt-3">{editForm}</div>
@@ -211,16 +219,16 @@ function QuarterRow({
           <>
             <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
               <div>
-                <dt className="text-xs text-muted">Recommended</dt>
+                <dt className="text-xs text-muted">{t.table.recommended}</dt>
                 <dd className="tabular-nums">{formatCurrency(row.recommendedAmount)}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted">Amount Paid</dt>
+                <dt className="text-xs text-muted">{t.table.amountPaid}</dt>
                 <dd className="tabular-nums">{formatCurrency(row.amountPaid)}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted">Date Paid</dt>
-                <dd>{row.datePaid ? formatDate(row.datePaid) : "—"}</dd>
+                <dt className="text-xs text-muted">{t.table.datePaid}</dt>
+                <dd>{row.datePaid ? formatDate(row.datePaid, locale) : "—"}</dd>
               </div>
             </dl>
             <div className="mt-3">{recordButton}</div>
@@ -234,7 +242,7 @@ function QuarterRow({
     return (
       <tr className="border-b border-border/60">
         <td className="py-2 pr-3 font-medium">{row.label}</td>
-        <td className="py-2 pr-3 text-muted">{formatDate(row.dueDate)}</td>
+        <td className="py-2 pr-3 text-muted">{formatDate(row.dueDate, locale)}</td>
         <td className="py-2 pr-3 tabular-nums text-muted">{formatCurrency(row.recommendedAmount)}</td>
         <td colSpan={4} className="py-2">
           {editForm}
@@ -246,20 +254,20 @@ function QuarterRow({
   return (
     <tr className="border-b border-border/60">
       <td className="py-2 pr-3 font-medium">{row.label}</td>
-      <td className="py-2 pr-3 text-muted">{formatDate(row.dueDate)}</td>
+      <td className="py-2 pr-3 text-muted">{formatDate(row.dueDate, locale)}</td>
       <td className="py-2 pr-3 tabular-nums text-muted">{formatCurrency(row.recommendedAmount)}</td>
       <td className="py-2 pr-3 tabular-nums">{formatCurrency(row.amountPaid)}</td>
-      <td className="py-2 pr-3 text-muted">{row.datePaid ? formatDate(row.datePaid) : "—"}</td>
+      <td className="py-2 pr-3 text-muted">{row.datePaid ? formatDate(row.datePaid, locale) : "—"}</td>
       <td className="py-2 pr-3 tabular-nums">
-        <OverUnderBadge amount={row.overUnderpaid} />
+        <OverUnderBadge amount={row.overUnderpaid} t={t} />
       </td>
       <td className="py-2 text-right">{recordButton}</td>
     </tr>
   );
 }
 
-function OverUnderBadge({ amount }: { amount: number }) {
-  if (Math.abs(amount) < 0.005) return <Badge tone="neutral">On track</Badge>;
-  if (amount > 0) return <Badge tone="success">{formatCurrency(amount)} overpaid</Badge>;
-  return <Badge tone="warning">{formatCurrency(Math.abs(amount))} underpaid</Badge>;
+function OverUnderBadge({ amount, t }: { amount: number; t: Dictionary["taxPlanner"]["quarterly"] }) {
+  if (Math.abs(amount) < 0.005) return <Badge tone="neutral">{t.onTrack}</Badge>;
+  if (amount > 0) return <Badge tone="success">{t.overpaid.replace("{amount}", formatCurrency(amount))}</Badge>;
+  return <Badge tone="warning">{t.underpaid.replace("{amount}", formatCurrency(Math.abs(amount)))}</Badge>;
 }

@@ -14,10 +14,15 @@ import type { SubscriptionSummary } from "@/lib/data/subscription";
 import { homeOfficeDeduction, simplifiedHomeOfficeDeduction } from "@/lib/calculations/ledger";
 import { formatCurrency } from "@/lib/utils";
 import type { businesses } from "@/db/schema";
+import { useLocale } from "@/i18n/use-locale";
+import { translateMessage } from "@/i18n/translate-message";
+import { en as en_ } from "@/i18n/dictionaries/en";
+import { es as es_ } from "@/i18n/dictionaries/es";
 
 type Business = typeof businesses.$inferSelect;
 
 const initialState: ActionState = {};
+const DICTIONARIES = { en: en_, es: es_ };
 
 export function SettingsClient({
   business,
@@ -36,14 +41,18 @@ export function SettingsClient({
   const [filingStatus, setFilingStatus] = useState(business.filingStatus);
   const [isSstb, setIsSstb] = useState(business.isSstb);
   const searchParams = useSearchParams();
+  const locale = useLocale();
+  const dict = DICTIONARIES[locale];
+  const t = dict.settings;
 
   useEffect(() => {
-    if (state.success) toast.success("Settings saved");
+    if (state.success) toast.success(t.savedToast);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.success]);
 
   useEffect(() => {
     if (searchParams.get("upgraded") === "1") {
-      toast.success("You're subscribed! It may take a few seconds for access to unlock.");
+      toast.success(t.upgradedToast);
     }
     // Only fire once on mount for whatever query string loaded the page.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,28 +69,28 @@ export function SettingsClient({
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Settings</h1>
-        <p className="mt-1 text-sm text-muted">Business, tax, and home office information.</p>
+        <h1 className="text-2xl font-semibold">{t.title}</h1>
+        <p className="mt-1 text-sm text-muted">{t.subtitle}</p>
       </div>
 
       <form action={formAction} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Business</CardTitle>
+            <CardTitle>{t.business.heading}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label htmlFor="businessName">Business Name</Label>
+              <Label htmlFor="businessName">{t.business.businessName}</Label>
               <Input id="businessName" name="businessName" defaultValue={business.businessName} required />
-              <FieldError>{fieldErrors.businessName}</FieldError>
+              <FieldError>{translateMessage(dict, fieldErrors.businessName)}</FieldError>
             </div>
             <div>
-              <Label htmlFor="taxYear">Tax Year</Label>
+              <Label htmlFor="taxYear">{t.business.taxYear}</Label>
               <Input id="taxYear" name="taxYear" type="number" defaultValue={business.taxYear} required />
-              <FieldError>{fieldErrors.taxYear}</FieldError>
+              <FieldError>{translateMessage(dict, fieldErrors.taxYear)}</FieldError>
             </div>
             <div>
-              <Label htmlFor="beginningBankBalance">Beginning Bank Balance</Label>
+              <Label htmlFor="beginningBankBalance">{t.business.beginningBankBalance}</Label>
               <Input
                 id="beginningBankBalance"
                 name="beginningBankBalance"
@@ -90,35 +99,35 @@ export function SettingsClient({
                 defaultValue={business.beginningBankBalance}
                 required
               />
-              <HelpText>Your bank balance before your first recorded transaction.</HelpText>
+              <HelpText>{t.business.beginningBankBalanceHelp}</HelpText>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Tax Profile</CardTitle>
+            <CardTitle>{t.taxProfile.heading}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label htmlFor="businessType">Business Structure</Label>
+              <Label htmlFor="businessType">{t.taxProfile.businessStructure}</Label>
               <Select id="businessType" name="businessType" defaultValue={business.businessType}>
-                <option value="sole_prop">Sole Proprietor</option>
-                <option value="s_corp">S Corporation</option>
+                <option value="sole_prop">{t.taxProfile.soleProp}</option>
+                <option value="s_corp">{t.taxProfile.sCorp}</option>
               </Select>
             </div>
             <div>
-              <Label htmlFor="filingStatus">Filing Status</Label>
+              <Label htmlFor="filingStatus">{t.taxProfile.filingStatus}</Label>
               <Select
                 id="filingStatus"
                 name="filingStatus"
                 defaultValue={business.filingStatus}
                 onChange={(e) => setFilingStatus(e.target.value as typeof filingStatus)}
               >
-                <option value="single">Single</option>
-                <option value="married_filing_jointly">Married Filing Jointly</option>
-                <option value="married_filing_separately">Married Filing Separately</option>
-                <option value="head_of_household">Head of Household</option>
+                <option value="single">{t.taxProfile.single}</option>
+                <option value="married_filing_jointly">{t.taxProfile.marriedJointly}</option>
+                <option value="married_filing_separately">{t.taxProfile.marriedSeparately}</option>
+                <option value="head_of_household">{t.taxProfile.headOfHousehold}</option>
               </Select>
             </div>
             <div className="flex items-center gap-2 sm:col-span-2">
@@ -131,12 +140,12 @@ export function SettingsClient({
                 className="h-4 w-4 rounded border-border"
               />
               <Label htmlFor="isSCorp" className="mb-0">
-                Taxed as an S Corporation
+                {t.taxProfile.taxedAsSCorp}
               </Label>
             </div>
             {isSCorp && (
               <div>
-                <Label htmlFor="sCorpSalary">S-Corp Reasonable Salary</Label>
+                <Label htmlFor="sCorpSalary">{t.taxProfile.sCorpSalary}</Label>
                 <Input
                   id="sCorpSalary"
                   name="sCorpSalary"
@@ -144,12 +153,12 @@ export function SettingsClient({
                   step="0.01"
                   defaultValue={business.sCorpSalary ?? ""}
                 />
-                <FieldError>{fieldErrors.sCorpSalary}</FieldError>
+                <FieldError>{translateMessage(dict, fieldErrors.sCorpSalary)}</FieldError>
               </div>
             )}
             {filingStatus === "married_filing_jointly" && (
               <div>
-                <Label htmlFor="spouseIncome">Spouse&apos;s Income</Label>
+                <Label htmlFor="spouseIncome">{t.taxProfile.spouseIncome}</Label>
                 <Input
                   id="spouseIncome"
                   name="spouseIncome"
@@ -157,12 +166,8 @@ export function SettingsClient({
                   step="0.01"
                   defaultValue={business.spouseIncome ?? ""}
                 />
-                <HelpText>
-                  Blended into your household AGI, QBI phaseout position, and the Additional
-                  Medicare Tax threshold on a joint return, not into this business&apos;s own
-                  self-employment tax.
-                </HelpText>
-                <FieldError>{fieldErrors.spouseIncome}</FieldError>
+                <HelpText>{t.taxProfile.spouseIncomeHelp}</HelpText>
+                <FieldError>{translateMessage(dict, fieldErrors.spouseIncome)}</FieldError>
               </div>
             )}
           </CardContent>
@@ -170,7 +175,7 @@ export function SettingsClient({
 
         <Card>
           <CardHeader>
-            <CardTitle>QBI Deduction (§199A)</CardTitle>
+            <CardTitle>{t.qbi.heading}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
@@ -183,20 +188,14 @@ export function SettingsClient({
                 className="h-4 w-4 rounded border-border"
               />
               <Label htmlFor="isSstb" className="mb-0">
-                My business is a Specified Service Trade or Business (SSTB)
+                {t.qbi.sstbLabel}
               </Label>
             </div>
-            <HelpText>
-              Law, health, consulting, financial services, and similar personal-service
-              businesses (including most real estate agents) are typically SSTBs: their QBI
-              deduction tapers straight to $0 once income clears the phaseout range. A non-SSTB
-              instead keeps a wage/property-limited floor. Leave this checked if you&apos;re not
-              sure.
-            </HelpText>
+            <HelpText>{t.qbi.sstbHelp}</HelpText>
             {!isSstb && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <Label htmlFor="w2WagesPaid">W-2 Wages Paid by the Business</Label>
+                  <Label htmlFor="w2WagesPaid">{t.qbi.w2Wages}</Label>
                   <Input
                     id="w2WagesPaid"
                     name="w2WagesPaid"
@@ -204,10 +203,10 @@ export function SettingsClient({
                     step="0.01"
                     defaultValue={business.w2WagesPaid}
                   />
-                  <HelpText>Not counting an S-Corp owner&apos;s own salary. That&apos;s added automatically.</HelpText>
+                  <HelpText>{t.qbi.w2WagesHelp}</HelpText>
                 </div>
                 <div>
-                  <Label htmlFor="ubiaQualifiedProperty">UBIA of Qualified Property</Label>
+                  <Label htmlFor="ubiaQualifiedProperty">{t.qbi.ubia}</Label>
                   <Input
                     id="ubiaQualifiedProperty"
                     name="ubiaQualifiedProperty"
@@ -215,7 +214,7 @@ export function SettingsClient({
                     step="0.01"
                     defaultValue={business.ubiaQualifiedProperty}
                   />
-                  <HelpText>Unadjusted basis immediately after acquisition of depreciable business property.</HelpText>
+                  <HelpText>{t.qbi.ubiaHelp}</HelpText>
                 </div>
               </div>
             )}
@@ -224,7 +223,7 @@ export function SettingsClient({
 
         <Card>
           <CardHeader>
-            <CardTitle>Home Office</CardTitle>
+            <CardTitle>{t.homeOffice.heading}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
@@ -237,14 +236,14 @@ export function SettingsClient({
                 className="h-4 w-4 rounded border-border"
               />
               <Label htmlFor="homeOfficeUsed" className="mb-0">
-                Do you use a home office?
+                {t.homeOffice.usesHomeOffice}
               </Label>
             </div>
             {homeOfficeUsed && (
               <>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <Label htmlFor="homeOfficeSqFt">Home Office Square Footage</Label>
+                    <Label htmlFor="homeOfficeSqFt">{t.homeOffice.officeSqFt}</Label>
                     <Input
                       id="homeOfficeSqFt"
                       name="homeOfficeSqFt"
@@ -253,10 +252,10 @@ export function SettingsClient({
                       value={officeSqFt}
                       onChange={(e) => setOfficeSqFt(e.target.value)}
                     />
-                    <FieldError>{fieldErrors.homeOfficeSqFt}</FieldError>
+                    <FieldError>{translateMessage(dict, fieldErrors.homeOfficeSqFt)}</FieldError>
                   </div>
                   <div>
-                    <Label htmlFor="totalHomeSqFt">Total Home Square Footage</Label>
+                    <Label htmlFor="totalHomeSqFt">{t.homeOffice.totalSqFt}</Label>
                     <Input
                       id="totalHomeSqFt"
                       name="totalHomeSqFt"
@@ -268,12 +267,11 @@ export function SettingsClient({
                   </div>
                 </div>
                 <div className="rounded-lg bg-info-bg p-3 text-sm text-info">
-                  <p>Business-use percentage: <strong>{(pct * 100).toFixed(1)}%</strong></p>
+                  <p>
+                    {t.homeOffice.businessUsePercentage} <strong>{(pct * 100).toFixed(1)}%</strong>
+                  </p>
                   <p className="mt-1 text-xs">
-                    This applies automatically when you record home-related bills (utilities,
-                    insurance, mortgage interest, property tax) on the Transactions page.
-                    Simplified-method alternative (a flat IRS rate): {formatCurrency(simplified)}
-                    /year flat (capped at 300 sq ft).
+                    {t.homeOffice.applyNote.replace("{amount}", formatCurrency(simplified))}
                   </p>
                 </div>
               </>
@@ -281,10 +279,10 @@ export function SettingsClient({
           </CardContent>
         </Card>
 
-        {state.error && <p className="text-sm text-danger">{state.error}</p>}
+        {state.error && <p className="text-sm text-danger">{translateMessage(dict, state.error)}</p>}
 
         <Button type="submit" disabled={pending}>
-          {pending ? "Saving..." : "Save Settings"}
+          {pending ? t.saving : t.save}
         </Button>
       </form>
 

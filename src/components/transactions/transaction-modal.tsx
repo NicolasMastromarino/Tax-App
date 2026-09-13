@@ -14,15 +14,14 @@ import { homeOfficeDeduction } from "@/lib/calculations/ledger";
 import { formatCurrency, todayISO } from "@/lib/utils";
 import type { CategoryRow } from "@/lib/data/categories";
 import type { TransactionRow } from "@/lib/data/transactions";
-
-const TYPE_OPTIONS = [
-  { value: "income", label: "Income" },
-  { value: "expense", label: "Expense" },
-  { value: "owner_contribution", label: "Owner Contribution" },
-  { value: "owner_distribution", label: "Owner Distribution" },
-] as const;
+import { useLocale } from "@/i18n/use-locale";
+import { translateMessage } from "@/i18n/translate-message";
+import { en as en_ } from "@/i18n/dictionaries/en";
+import { es as es_ } from "@/i18n/dictionaries/es";
+import type { Dictionary } from "@/i18n/dictionaries/en";
 
 const initialState: TxActionState = {};
+const DICTIONARIES = { en: en_, es: es_ };
 
 export function TransactionModal({
   open,
@@ -43,6 +42,16 @@ export function TransactionModal({
     ? updateTransactionAction.bind(null, editing.id)
     : createTransactionAction;
   const [state, formAction, pending] = useActionState(action, initialState);
+  const locale = useLocale();
+  const dict = DICTIONARIES[locale];
+  const t = dict.transactions.modal;
+
+  const TYPE_OPTIONS = [
+    { value: "income", label: dict.transactions.types.income },
+    { value: "expense", label: dict.transactions.types.expense },
+    { value: "owner_contribution", label: dict.transactions.types.owner_contribution },
+    { value: "owner_distribution", label: dict.transactions.types.owner_distribution },
+  ] as const;
 
   // Local state initializes from `editing` on mount. The parent remounts
   // this component (via a `key` derived from editing/open) whenever a
@@ -77,12 +86,12 @@ export function TransactionModal({
     <Dialog
       open={open}
       onClose={onClose}
-      title={editing ? "Edit Transaction" : "Add Transaction"}
-      description={editing ? undefined : "Record income, an expense, or an owner contribution/distribution."}
+      title={editing ? t.editTitle : t.addTitle}
+      description={editing ? undefined : t.addDescription}
     >
       <form action={formAction} className="space-y-4">
         <div>
-          <Label htmlFor="type">Transaction Type</Label>
+          <Label htmlFor="type">{t.transactionType}</Label>
           <Select
             id="type"
             name="type"
@@ -98,43 +107,43 @@ export function TransactionModal({
         </div>
 
         <div>
-          <Label htmlFor="categoryId">Category</Label>
+          <Label htmlFor="categoryId">{t.category}</Label>
           <Combobox
             name="categoryId"
             value={effectiveCategoryId}
             onChange={setCategoryId}
             options={categoryOptions}
-            placeholder="Search categories..."
+            placeholder={t.searchCategories}
           />
-          <FieldError>{state.fieldErrors?.categoryId}</FieldError>
+          <FieldError>{translateMessage(dict, state.fieldErrors?.categoryId)}</FieldError>
         </div>
 
         {isOtherExpense && (
           <div>
-            <Label htmlFor="otherExpenseDescription">What was this expense for?</Label>
+            <Label htmlFor="otherExpenseDescription">{t.otherExpenseLabel}</Label>
             <Input
               id="otherExpenseDescription"
               name="otherExpenseDescription"
               defaultValue={editing?.otherExpenseDescription ?? ""}
-              placeholder="e.g. Conference registration fee"
+              placeholder={t.otherExpensePlaceholder}
               required
             />
-            <FieldError>{state.fieldErrors?.otherExpenseDescription}</FieldError>
+            <FieldError>{translateMessage(dict, state.fieldErrors?.otherExpenseDescription)}</FieldError>
           </div>
         )}
 
         {isHomeOfficeEligible && (
-          <HomeOfficeHelper homeOffice={homeOffice} onUseAmount={(amt) => setAmount(String(amt))} />
+          <HomeOfficeHelper homeOffice={homeOffice} onUseAmount={(amt) => setAmount(String(amt))} t={t} />
         )}
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="date">Date</Label>
+            <Label htmlFor="date">{t.date}</Label>
             <Input id="date" name="date" type="date" defaultValue={editing?.date ?? todayISO()} required />
-            <FieldError>{state.fieldErrors?.date}</FieldError>
+            <FieldError>{translateMessage(dict, state.fieldErrors?.date)}</FieldError>
           </div>
           <div>
-            <Label htmlFor="amount">Amount</Label>
+            <Label htmlFor="amount">{t.amount}</Label>
             <Input
               id="amount"
               name="amount"
@@ -146,30 +155,30 @@ export function TransactionModal({
               placeholder="0.00"
               required
             />
-            <FieldError>{state.fieldErrors?.amount}</FieldError>
+            <FieldError>{translateMessage(dict, state.fieldErrors?.amount)}</FieldError>
           </div>
         </div>
 
         <div>
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">{t.description}</Label>
           <Input
             id="description"
             name="description"
             defaultValue={editing?.description ?? ""}
-            placeholder="e.g. Client photography session"
+            placeholder={t.descriptionPlaceholder}
             required
           />
-          <FieldError>{state.fieldErrors?.description}</FieldError>
+          <FieldError>{translateMessage(dict, state.fieldErrors?.description)}</FieldError>
         </div>
 
         <div>
-          <Label htmlFor="vendorName">Vendor / Contractor (optional)</Label>
+          <Label htmlFor="vendorName">{t.vendor}</Label>
           <Input
             id="vendorName"
             name="vendorName"
             list="vendor-suggestions"
             defaultValue={editing?.vendorName ?? ""}
-            placeholder="e.g. John Smith"
+            placeholder={t.vendorPlaceholder}
           />
           <datalist id="vendor-suggestions">
             {vendorNames.map((v) => (
@@ -179,18 +188,18 @@ export function TransactionModal({
         </div>
 
         <div>
-          <Label htmlFor="notes">Notes (optional)</Label>
+          <Label htmlFor="notes">{t.notes}</Label>
           <Textarea id="notes" name="notes" rows={2} defaultValue={editing?.notes ?? ""} />
         </div>
 
-        {state.error && <FieldError>{state.error}</FieldError>}
+        {state.error && <FieldError>{translateMessage(dict, state.error)}</FieldError>}
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {t.cancel}
           </Button>
           <Button type="submit" disabled={pending}>
-            {pending ? "Saving..." : editing ? "Save Changes" : "Add Transaction"}
+            {pending ? t.saving : editing ? t.saveChanges : t.addTitle}
           </Button>
         </div>
       </form>
@@ -201,9 +210,11 @@ export function TransactionModal({
 function HomeOfficeHelper({
   homeOffice,
   onUseAmount,
+  t,
 }: {
   homeOffice: { officeSqFt: number; totalSqFt: number };
   onUseAmount: (amount: number) => void;
+  t: Dictionary["transactions"]["modal"];
 }) {
   const [bill, setBill] = useState("");
   const billNum = parseFloat(bill) || 0;
@@ -215,15 +226,14 @@ function HomeOfficeHelper({
 
   return (
     <div className="rounded-lg border border-info/30 bg-info-bg p-3">
-      <p className="text-sm font-medium text-info">Home Office Calculator</p>
+      <p className="text-sm font-medium text-info">{t.homeOffice.heading}</p>
       <p className="mt-0.5 text-xs text-muted">
-        Business use: {(businessUsePercentage * 100).toFixed(1)}%. Enter the full bill amount to
-        calculate the deductible portion.
+        {t.homeOffice.body.replace("{percentage}", (businessUsePercentage * 100).toFixed(1))}
       </p>
       <div className="mt-2 flex items-end gap-2">
         <div className="flex-1">
           <Label htmlFor="homeOfficeBill" className="text-xs">
-            Full bill amount
+            {t.homeOffice.billLabel}
           </Label>
           <Input
             id="homeOfficeBill"
@@ -242,7 +252,7 @@ function HomeOfficeHelper({
           onClick={() => onUseAmount(deductibleAmount)}
           disabled={!billNum}
         >
-          Use {formatCurrency(deductibleAmount)}
+          {t.homeOffice.useAmount.replace("{amount}", formatCurrency(deductibleAmount))}
         </Button>
       </div>
     </div>
