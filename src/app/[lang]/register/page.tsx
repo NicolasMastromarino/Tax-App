@@ -32,6 +32,7 @@ export default function RegisterPage() {
         </div>
 
         <form action={formAction} className="space-y-4 rounded-2xl border border-border bg-surface p-6 shadow-sm">
+          <input type="hidden" name="locale" value={locale} />
           <div>
             <Label htmlFor="name">{t.yourName}</Label>
             <Input id="name" name="name" autoComplete="name" required />

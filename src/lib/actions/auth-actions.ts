@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { registerSchema } from "@/lib/validations";
 import { signIn } from "@/lib/auth";
+import { isLocale, localizedPath } from "@/i18n/locales";
 
 export interface ActionState {
   error?: string;
@@ -24,6 +25,8 @@ export async function registerAction(
     confirmPassword: formData.get("confirmPassword"),
     businessName: formData.get("businessName"),
   };
+  const rawLocale = formData.get("locale");
+  const locale = typeof rawLocale === "string" && isLocale(rawLocale) ? rawLocale : "en";
 
   const parsed = registerSchema.safeParse(raw);
   if (!parsed.success) {
@@ -71,7 +74,9 @@ export async function registerAction(
   await signIn("credentials", {
     email: normalizedEmail,
     password,
-    redirectTo: "/dashboard",
+    // See login-action.ts for why this must be explicitly locale-prefixed
+    // rather than a plain "/dashboard".
+    redirectTo: localizedPath(locale, "/dashboard"),
   });
 
   return {};

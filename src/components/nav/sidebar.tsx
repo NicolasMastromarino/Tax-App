@@ -105,7 +105,7 @@ export function Sidebar({ businessName, subscribed }: { businessName: string; su
           <LanguageSwitcher />
         </div>
         <div className="border-t border-border p-3">
-          <form action={signOutAction}>
+          <form action={signOutAction.bind(null, locale)}>
             <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-surface-muted">
               <LogOut className="h-4 w-4" />
               {t.signOut}
@@ -124,7 +124,7 @@ export function Sidebar({ businessName, subscribed }: { businessName: string; su
               <LanguageSwitcher />
             </div>
             <div className="border-t border-border p-3">
-              <form action={signOutAction}>
+              <form action={signOutAction.bind(null, locale)}>
                 <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-surface-muted">
                   <LogOut className="h-4 w-4" />
                   {t.signOut}

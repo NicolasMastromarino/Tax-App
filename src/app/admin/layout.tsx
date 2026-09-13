@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireFounder } from "@/lib/current-business";
 import { signOutAction } from "@/lib/actions/session-actions";
-import { Logo } from "@/components/marketing/landing-page";
+import { BrandMark } from "@/components/brand-mark";
+import { defaultLocale } from "@/i18n/locales";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -17,7 +18,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <header className="border-b border-border bg-surface">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <Logo />
+            {/* Not the shared marketing <Logo/> — that reads the current
+                locale via next/root-params, which only exists under the
+                [lang] segment. /admin is deliberately outside it (internal
+                tool, English-only), so this stays a plain, unprefixed link. */}
+            <Link href="/" className="flex items-center gap-2">
+              <BrandMark />
+              <span className="text-base font-semibold text-foreground">Bookkeeply</span>
+            </Link>
             <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
               Admin
             </span>
@@ -29,7 +37,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link href="/dashboard" className="text-sm font-medium text-muted hover:text-foreground">
               Back to app
             </Link>
-            <form action={signOutAction}>
+            <form action={signOutAction.bind(null, defaultLocale)}>
               <button
                 type="submit"
                 className="text-sm font-medium text-muted hover:text-foreground"

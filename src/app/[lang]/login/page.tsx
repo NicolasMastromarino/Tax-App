@@ -70,6 +70,7 @@ export default function LoginPage() {
           </div>
 
           <form action={formAction} className="space-y-4">
+            <input type="hidden" name="locale" value={locale} />
             <div>
               <Label htmlFor="email">{t.email}</Label>
               <Input id="email" name="email" type="email" autoComplete="email" required />
