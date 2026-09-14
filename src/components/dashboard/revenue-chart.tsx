@@ -58,14 +58,14 @@ export function RevenueChart({ months }: { months: MonthChartPoint[] }) {
                 }}
               />
               <Legend wrapperStyle={{ fontSize: 13 }} />
-              <Bar dataKey={t.revenue} fill="#059669" radius={[4, 4, 0, 0]} maxBarSize={28} />
-              <Bar dataKey={t.expenses} fill="#dc2626" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <Bar dataKey={t.revenue} fill="#86d3a6" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <Bar dataKey={t.expenses} fill="#f3aeae" radius={[4, 4, 0, 0]} maxBarSize={28} />
               <Line
                 type="monotone"
                 dataKey={t.netIncome}
                 stroke="#4f46e5"
                 strokeWidth={2.5}
-                dot={{ r: 3 }}
+                dot={{ r: 3, fill: "#fff", stroke: "#4f46e5", strokeWidth: 2 }}
               />
             </ComposedChart>
           </ResponsiveContainer>

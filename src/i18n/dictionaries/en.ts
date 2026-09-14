@@ -221,6 +221,10 @@ export const en = {
     },
     yearToDate: "Year-to-Date",
     fullYear: "Full Year",
+    sections: {
+      performance: "Performance",
+      cashAndEquity: "Cash & Equity",
+    },
     cards: {
       totalRevenue: "Total Revenue",
       totalExpenses: "Total Expenses",
@@ -231,6 +235,7 @@ export const en = {
     },
     monthlyStatus: {
       heading: "Monthly Bookkeeping Status",
+      monthsComplete: "of 12 months complete",
       complete: "Complete",
       inProgress: "In Progress",
       notStarted: "Not Started",

@@ -27,7 +27,7 @@ export default async function DashboardPage() {
 
       <PeriodSummary data={data} />
       <RevenueChart months={data.months} />
-      <MonthStatusGrid months={data.months} taxYear={data.taxYear} />
+      <MonthStatusGrid months={data.months} taxYear={data.taxYear} currentMonth={data.currentMonth.month} />
     </div>
   );
 }

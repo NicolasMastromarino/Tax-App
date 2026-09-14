@@ -223,6 +223,10 @@ export const es: Dictionary = {
     },
     yearToDate: "Año hasta la fecha",
     fullYear: "Año completo",
+    sections: {
+      performance: "Desempeño",
+      cashAndEquity: "Efectivo y capital",
+    },
     cards: {
       totalRevenue: "Ingresos totales",
       totalExpenses: "Gastos totales",
@@ -233,6 +237,7 @@ export const es: Dictionary = {
     },
     monthlyStatus: {
       heading: "Estado mensual de contabilidad",
+      monthsComplete: "de 12 meses completos",
       complete: "Completo",
       inProgress: "En progreso",
       notStarted: "No iniciado",
