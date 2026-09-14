@@ -30,7 +30,7 @@ export interface ContractorRow {
     phone: string | null;
     address: string | null;
     taxId: string | null;
-    w9Received: boolean;
+    w9DocumentUrl: string | null;
     notes: string | null;
   } | null;
 }
@@ -73,7 +73,7 @@ export async function getContractorRows(
             phone: match.phone,
             address: match.address,
             taxId: match.taxId,
-            w9Received: match.w9Received,
+            w9DocumentUrl: match.w9DocumentUrl,
             notes: match.notes,
           }
         : null,

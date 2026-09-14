@@ -100,7 +100,7 @@ export const vendorSchema = z.object({
   phone: z.string().trim().max(50).optional().or(z.literal("")),
   address: z.string().trim().max(500).optional().or(z.literal("")),
   taxId: z.string().trim().max(50).optional().or(z.literal("")),
-  w9Received: z.coerce.boolean().optional().default(false),
+  w9DocumentUrl: z.string().trim().url().optional().or(z.literal("")),
   notes: z.string().trim().max(2000).optional().or(z.literal("")),
 });
 

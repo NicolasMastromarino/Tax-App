@@ -1,15 +1,18 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { upload } from "@vercel/blob/client";
+import { Camera, FileText, Loader2, Upload as UploadIcon, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input, Label, HelpText } from "@/components/ui/input";
+import { Input, Label, HelpText, FieldError } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { saveVendorAction } from "@/lib/actions/contractor-actions";
+import { saveVendorAction, deleteW9DocumentAction } from "@/lib/actions/contractor-actions";
 import { noResetSubmit } from "@/lib/no-reset-form-action";
 import type { ActionState } from "@/lib/actions/auth-actions";
 import { formatCurrency } from "@/lib/utils";
+import { W9_DOCUMENT_CONTENT_TYPES, MAX_W9_DOCUMENT_BYTES } from "@/lib/media";
 import type { ContractorRow } from "@/lib/data/contractors";
 import { useLocale } from "@/i18n/use-locale";
 import { translateMessage } from "@/i18n/translate-message";
@@ -71,16 +74,22 @@ export function ContractorsClient({
                   cards so nothing gets clipped on a phone screen. */}
               <div className="hidden overflow-x-auto sm:block">
                 <table className="w-full min-w-[680px] border-collapse text-sm">
-                  <thead>
-                    <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-muted">
-                      <th className="py-2 pr-3">{t.table.vendor}</th>
-                      <th className="py-2 pr-3">{t.table.payments}</th>
-                      <th className="py-2 pr-3">{t.table.totalPaid}</th>
-                      <th className="py-2 pr-3">{t.table.needs1099}</th>
-                      <th className="py-2 pr-3">{t.table.w9OnFile}</th>
-                      <th className="py-2" />
-                    </tr>
-                  </thead>
+                  {/* The edit row's fields don't line up with these columns
+                      at all, so showing column headers above an open edit
+                      form is actively misleading -- hide them while any row
+                      is being edited. */}
+                  {editingVendor === null && (
+                    <thead>
+                      <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-muted">
+                        <th className="py-2 pr-3">{t.table.vendor}</th>
+                        <th className="py-2 pr-3">{t.table.payments}</th>
+                        <th className="py-2 pr-3">{t.table.totalPaid}</th>
+                        <th className="py-2 pr-3">{t.table.needs1099}</th>
+                        <th className="py-2 pr-3">{t.table.w9OnFile}</th>
+                        <th className="py-2" />
+                      </tr>
+                    </thead>
+                  )}
                   <tbody>
                     {rows.map((row) => (
                       <VendorRow
@@ -150,7 +159,7 @@ function VendorRow({
   const [phone, setPhone] = useState(row.vendor?.phone ?? "");
   const [address, setAddress] = useState(row.vendor?.address ?? "");
   const [taxId, setTaxId] = useState(row.vendor?.taxId ?? "");
-  const [w9Received, setW9Received] = useState(row.vendor?.w9Received ?? false);
+  const [w9DocumentUrl, setW9DocumentUrl] = useState(row.vendor?.w9DocumentUrl ?? "");
 
   useEffect(() => {
     if (state.success) {
@@ -165,8 +174,12 @@ function VendorRow({
   ) : (
     <Badge tone="neutral">{t.no}</Badge>
   );
-  const w9Badge = row.vendor?.w9Received ? (
-    <Badge tone="success">{t.onFile}</Badge>
+  const w9Badge = row.vendor?.w9DocumentUrl ? (
+    <a href={row.vendor.w9DocumentUrl} target="_blank" rel="noreferrer" title={t.w9Document.view}>
+      <Badge tone="success" className="cursor-pointer hover:opacity-80">
+        {t.onFile}
+      </Badge>
+    </a>
   ) : (
     <Badge tone="neutral">{t.notOnFile}</Badge>
   );
@@ -212,18 +225,9 @@ function VendorRow({
         />
         <HelpText>{t.taxIdHelp}</HelpText>
       </div>
-      <div className="flex items-center gap-2">
-        <input
-          id={`w9-${row.vendorName}`}
-          name="w9Received"
-          type="checkbox"
-          checked={w9Received}
-          onChange={(e) => setW9Received(e.target.checked)}
-          className="h-4 w-4 rounded border-border"
-        />
-        <Label htmlFor={`w9-${row.vendorName}`} className="mb-0">
-          {t.w9Received}
-        </Label>
+      <div className="sm:col-span-2">
+        <Label>{t.w9Document.label}</Label>
+        <W9Field url={w9DocumentUrl} onChange={setW9DocumentUrl} t={t.w9Document} />
       </div>
       <div className="flex items-center gap-2 sm:col-span-2">
         <Button type="submit" size="sm" disabled={pending}>
@@ -289,5 +293,151 @@ function VendorRow({
       <td className="py-2 pr-3">{w9Badge}</td>
       <td className="py-2 text-right">{editButton}</td>
     </tr>
+  );
+}
+
+function W9Field({
+  url,
+  onChange,
+  t,
+}: {
+  url: string;
+  onChange: (url: string) => void;
+  t: Dictionary["contractors"]["w9Document"];
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Two separate inputs so mobile browsers always offer both a camera (for
+  // a photo of a signed paper form) and a file picker (for a W-9 emailed
+  // as a PDF) -- see the same reasoning on the transaction receipt field.
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const libraryInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFile(file: File) {
+    setError(null);
+    if (file.type && !W9_DOCUMENT_CONTENT_TYPES.includes(file.type as (typeof W9_DOCUMENT_CONTENT_TYPES)[number])) {
+      setError(t.invalidType);
+      return;
+    }
+    if (file.size > MAX_W9_DOCUMENT_BYTES) {
+      setError(t.tooLarge.replace("{maxMb}", String(Math.round(MAX_W9_DOCUMENT_BYTES / (1024 * 1024)))));
+      return;
+    }
+
+    const previousUrl = url;
+    setUploading(true);
+    try {
+      const blob = await upload(`w9s/${Date.now()}-${file.name}`, file, {
+        access: "public",
+        handleUploadUrl: "/api/contractors/w9-upload",
+      });
+      onChange(blob.url);
+      if (previousUrl) void deleteW9DocumentAction(previousUrl).catch(() => {});
+    } catch {
+      setError(t.uploadFailed);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function handleRemove() {
+    if (url) void deleteW9DocumentAction(url).catch(() => {});
+    onChange("");
+    setError(null);
+  }
+
+  function fileChangeHandler(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) void handleFile(file);
+    e.target.value = "";
+  }
+
+  return (
+    <div>
+      <input type="hidden" name="w9DocumentUrl" value={url} />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={fileChangeHandler}
+      />
+      <input
+        ref={libraryInputRef}
+        type="file"
+        accept="image/*,application/pdf"
+        className="hidden"
+        onChange={fileChangeHandler}
+      />
+
+      {url ? (
+        <div className="flex items-center gap-3 rounded-lg border border-border p-2">
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border bg-surface-muted text-muted"
+            title={t.view}
+          >
+            <FileText className="h-5 w-5" />
+          </a>
+          <div className="flex flex-1 flex-wrap gap-2">
+            <a href={url} target="_blank" rel="noreferrer" className="self-center text-sm font-medium text-primary hover:underline">
+              {t.view}
+            </a>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => cameraInputRef.current?.click()}
+              disabled={uploading}
+              title={t.takePhoto}
+            >
+              <Camera className="h-3.5 w-3.5" />
+              {t.takePhoto}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => libraryInputRef.current?.click()}
+              disabled={uploading}
+              title={t.upload}
+            >
+              {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UploadIcon className="h-3.5 w-3.5" />}
+              {uploading ? t.uploading : t.upload}
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={handleRemove} disabled={uploading}>
+              <X className="h-3.5 w-3.5" />
+              {t.remove}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => cameraInputRef.current?.click()}
+            disabled={uploading}
+          >
+            <Camera className="h-4 w-4" />
+            {t.takePhoto}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => libraryInputRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadIcon className="h-4 w-4" />}
+            {uploading ? t.uploading : t.upload}
+          </Button>
+        </div>
+      )}
+
+      {error && <FieldError>{error}</FieldError>}
+    </div>
   );
 }

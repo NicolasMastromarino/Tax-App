@@ -78,6 +78,20 @@
       "when": 1789349877055,
       "tag": "0010_sparkling_microbe",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789398268444,
+      "tag": "0011_bitter_centennial",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1789398279788,
+      "tag": "0012_empty_boomerang",
+      "breakpoints": true
     }
   ]
 }

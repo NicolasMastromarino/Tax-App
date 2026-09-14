@@ -1,0 +1,1 @@
+ALTER TABLE "vendors" ADD COLUMN "w9_document_url" text;

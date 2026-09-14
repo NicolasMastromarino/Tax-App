@@ -432,7 +432,7 @@ export const vendors = pgTable(
     phone: text("phone"),
     address: text("address"),
     taxId: text("tax_id"), // EIN or SSN, as provided on the vendor's W-9
-    w9Received: boolean("w9_received").notNull().default(false),
+    w9DocumentUrl: text("w9_document_url"), // uploaded W-9 (image or PDF); presence IS "on file", not a separate flag
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

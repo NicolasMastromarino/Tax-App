@@ -34,3 +34,13 @@ export const RECEIPT_IMAGE_CONTENT_TYPES = [
 
 /** Same rationale as MAX_BLOG_IMAGE_BYTES -- a sanity ceiling, not a real constraint. */
 export const MAX_RECEIPT_IMAGE_BYTES = 15 * 1024 * 1024;
+
+/**
+ * W-9s commonly arrive as a PDF (emailed by the contractor) as often as a
+ * photo of a signed paper form, so this allow-list adds application/pdf on
+ * top of the receipt image types.
+ */
+export const W9_DOCUMENT_CONTENT_TYPES = [...RECEIPT_IMAGE_CONTENT_TYPES, "application/pdf"] as const;
+
+/** Same rationale as MAX_BLOG_IMAGE_BYTES -- a sanity ceiling, not a real constraint. */
+export const MAX_W9_DOCUMENT_BYTES = 15 * 1024 * 1024;

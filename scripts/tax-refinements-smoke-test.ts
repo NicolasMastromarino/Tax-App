@@ -283,7 +283,7 @@ async function main() {
     businessId: contractorBusiness.id,
     name: "Jane Designer",
     email: "jane@example.com",
-    w9Received: true,
+    w9DocumentUrl: "https://example.com/w9-jane.pdf",
   });
 
   const contractorRows = await getContractorRows(contractorBusiness.id, contractorBusiness.taxYear);
@@ -298,7 +298,7 @@ async function main() {
     `expected needs1099 at $750 >= $${get1099Threshold(contractorBusiness.taxYear)} (2025 threshold)`
   );
   assert.equal(jane!.vendor?.email, "jane@example.com", "expected the vendor record to merge in by name");
-  assert.equal(jane!.vendor?.w9Received, true);
+  assert.equal(jane!.vendor?.w9DocumentUrl, "https://example.com/w9-jane.pdf");
   assert.equal(bob!.totalPaid, 200);
   assert.equal(bob!.needs1099, false, "expected no 1099 flag under the $600 threshold");
   assert.equal(bob!.vendor, null, "expected no vendor record for Bob (never saved one)");

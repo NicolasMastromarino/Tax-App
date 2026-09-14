@@ -1,6 +1,7 @@
 import { requireBusiness } from "@/lib/current-business";
 import { getProfitAndLoss } from "@/lib/data/reports";
 import { otherExpensesReport } from "@/lib/data/transactions";
+import { hasActiveSubscription } from "@/lib/data/subscription";
 import { firstOfMonthISO, nextDayISO, getMonthNames } from "@/lib/utils";
 import { ReportsClient } from "@/components/reports/reports-client";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
@@ -10,7 +11,7 @@ export default async function ReportsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { business } = await requireBusiness();
+  const { session, business } = await requireBusiness();
   const [sp, dict, locale] = await Promise.all([searchParams, getDictionary(), getLocale()]);
   const t = dict.reports;
 
@@ -64,6 +65,8 @@ export default async function ReportsPage({
       label={label}
       pl={pl}
       otherExpenses={otherExpenses}
+      taxYear={business.taxYear}
+      isSubscribed={hasActiveSubscription(business, session.user?.email)}
     />
   );
 }

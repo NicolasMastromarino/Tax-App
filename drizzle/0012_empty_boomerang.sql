@@ -1,0 +1,1 @@
+ALTER TABLE "vendors" DROP COLUMN "w9_received";

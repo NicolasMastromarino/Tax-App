@@ -295,7 +295,9 @@ export function SettingsClient({
         </Button>
       </form>
 
-      <BillingCard summary={subscription} businessId={business.id} email={email} />
+      <div id="billing">
+        <BillingCard summary={subscription} businessId={business.id} email={email} />
+      </div>
 
       <Card className="border-danger/30">
         <CardHeader>

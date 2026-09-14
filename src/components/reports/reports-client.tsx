@@ -1,7 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useState } from "react";
+import { Download, Lock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, Input } from "@/components/ui/input";
 import { cn, formatCurrency, formatDate, getMonthNames } from "@/lib/utils";
@@ -24,6 +26,8 @@ export function ReportsClient({
   label,
   pl,
   otherExpenses,
+  taxYear,
+  isSubscribed,
 }: {
   mode: string;
   year: number;
@@ -35,6 +39,8 @@ export function ReportsClient({
   label: string;
   pl: ProfitAndLoss;
   otherExpenses: OtherExpenseLine[];
+  taxYear: number;
+  isSubscribed: boolean;
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<"pl" | "other">("pl");
@@ -59,9 +65,29 @@ export function ReportsClient({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">{t.title}</h1>
-        <p className="mt-1 text-sm text-muted">{label}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">{t.title}</h1>
+          <p className="mt-1 text-sm text-muted">{label}</p>
+        </div>
+        {isSubscribed ? (
+          <a
+            href={`/api/reports/export?year=${taxYear}`}
+            className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary-hover"
+          >
+            <Download className="h-4 w-4" />
+            {t.export.button}
+          </a>
+        ) : (
+          <Link
+            href={localizedPath(locale, "/settings#billing")}
+            title={t.export.lockedHint}
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-surface px-4 text-sm font-medium text-muted hover:text-foreground"
+          >
+            <Lock className="h-4 w-4" />
+            {t.export.locked}
+          </Link>
+        )}
       </div>
 
       <div className="flex gap-2 border-b border-border">

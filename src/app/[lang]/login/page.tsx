@@ -90,6 +90,7 @@ export default function LoginPage() {
                 <Label htmlFor="password">{t.password}</Label>
                 <Link
                   href={localizedPath(locale, "/forgot-password")}
+                  tabIndex={-1}
                   className="mb-1.5 text-xs font-medium text-primary hover:underline"
                 >
                   {t.forgotPassword}

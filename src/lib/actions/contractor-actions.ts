@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { vendors } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { del } from "@vercel/blob";
 import { requireBusiness } from "@/lib/current-business";
 import { vendorSchema } from "@/lib/validations";
 import type { ActionState } from "./auth-actions";
@@ -26,7 +27,7 @@ export async function saveVendorAction(
     phone: formData.get("phone") || "",
     address: formData.get("address") || "",
     taxId: formData.get("taxId") || "",
-    w9Received: formData.get("w9Received") === "on",
+    w9DocumentUrl: formData.get("w9DocumentUrl") || "",
     notes: formData.get("notes") || "",
   });
 
@@ -45,7 +46,7 @@ export async function saveVendorAction(
     phone: d.phone || null,
     address: d.address || null,
     taxId: d.taxId || null,
-    w9Received: d.w9Received ?? false,
+    w9DocumentUrl: d.w9DocumentUrl || null,
     notes: d.notes || null,
     updatedAt: new Date(),
   };
@@ -64,4 +65,14 @@ export async function saveVendorAction(
 
   revalidatePath("/contractors");
   return { success: true };
+}
+
+/**
+ * Called by the vendor form's W-9 field when the user removes or replaces
+ * an uploaded W-9, same reasoning as deleteReceiptAction: best-effort, the
+ * vendor row is the source of truth either way.
+ */
+export async function deleteW9DocumentAction(url: string): Promise<void> {
+  await requireBusiness();
+  await del(url);
 }
