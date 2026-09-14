@@ -1,5 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
+// Bump this whenever a marketing screenshot under public/marketing/ is
+// regenerated -- it's appended to each image URL so browsers that cached
+// the old file (same path, different bytes) are forced to re-fetch.
+const SCREENSHOT_VERSION = "20260913f";
 import { Pricing } from "./pricing";
 import { BrandMark } from "@/components/brand-mark";
 import { LanguageSwitcher } from "@/components/nav/language-switcher";
@@ -232,10 +236,10 @@ async function Hero() {
               <span className="h-2.5 w-2.5 rounded-full bg-success/60" aria-hidden="true" />
             </div>
             <Image
-              src="/marketing/hero-dashboard.png"
+              src={`${locale === "es" ? "/marketing/hero-dashboard-es.png" : "/marketing/hero-dashboard.png"}?v=${SCREENSHOT_VERSION}`}
               alt={t.dashboardImageAlt}
-              width={1170}
-              height={745}
+              width={1152}
+              height={1098}
               priority
               fetchPriority="high"
               sizes="(max-width: 896px) 100vw, 896px"
@@ -305,8 +309,9 @@ async function Features() {
 }
 
 async function ScreenshotSpotlight() {
-  const dict = await getDictionary();
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
   const { taxPlanner, contractors } = dict.marketing.screenshotSpotlight;
+  const suffix = locale === "es" ? "-es" : "";
 
   return (
     <section className="border-y border-border bg-surface-muted/60">
@@ -332,10 +337,10 @@ async function ScreenshotSpotlight() {
           </div>
           <div className="order-1 overflow-hidden rounded-2xl border border-border bg-surface shadow-xl lg:order-2">
             <Image
-              src="/marketing/feature-tax-planner.png"
+              src={`/marketing/feature-tax-planner${suffix}.png?v=${SCREENSHOT_VERSION}`}
               alt={taxPlanner.imageAlt}
-              width={1170}
-              height={500}
+              width={1152}
+              height={603}
               loading="lazy"
               sizes="(max-width: 1024px) 100vw, 560px"
               className="w-full"
@@ -346,10 +351,10 @@ async function ScreenshotSpotlight() {
         <div className="mt-20 grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-xl">
             <Image
-              src="/marketing/feature-contractors.png"
+              src={`/marketing/feature-contractors${suffix}.png?v=${SCREENSHOT_VERSION}`}
               alt={contractors.imageAlt}
-              width={1170}
-              height={330}
+              width={1152}
+              height={480}
               loading="lazy"
               sizes="(max-width: 1024px) 100vw, 560px"
               className="w-full"
