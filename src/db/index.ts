@@ -31,7 +31,7 @@ const pool =
   global.__pgPool ??
   new Pool({
     connectionString: process.env.DATABASE_URL,
-    max: 3,
+    max: 1,
   });
 
 global.__pgPool = pool;
