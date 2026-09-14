@@ -69,6 +69,7 @@ export async function GET(request: Request) {
       vendor: t.vendorName ?? "",
       amount: SIGN[t.type] * parseFloat(t.amount),
       notes: t.notes ?? "",
+      receiptLink: t.receiptUrl ?? "",
     })),
     [
       { key: "date", header: "Date" },
@@ -78,6 +79,7 @@ export async function GET(request: Request) {
       { key: "vendor", header: "Vendor" },
       { key: "amount", header: "Amount" },
       { key: "notes", header: "Notes" },
+      { key: "receiptLink", header: "Receipt Link" },
     ]
   );
 
@@ -108,6 +110,7 @@ export async function GET(request: Request) {
       address: c.vendor?.address ?? "",
       taxId: c.vendor?.taxId ?? "",
       w9OnFile: c.vendor?.w9DocumentUrl ? "Yes" : "No",
+      w9Link: c.vendor?.w9DocumentUrl ?? "",
     })),
     [
       { key: "vendor", header: "Vendor" },
@@ -119,6 +122,7 @@ export async function GET(request: Request) {
       { key: "address", header: "Address" },
       { key: "taxId", header: "Tax ID" },
       { key: "w9OnFile", header: "W-9 On File" },
+      { key: "w9Link", header: "W-9 Link" },
     ]
   );
 
