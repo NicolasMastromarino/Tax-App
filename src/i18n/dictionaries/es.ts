@@ -654,9 +654,9 @@ export const es: Dictionary = {
       notes: "Notas (opcional)",
       receipt: {
         label: "Recibo (opcional)",
-        addPhoto: "Agregar foto",
+        takePhoto: "Tomar foto",
+        upload: "Subir",
         uploading: "Subiendo...",
-        replace: "Reemplazar",
         remove: "Quitar",
         viewFull: "Ver tamaño completo",
         invalidType: "Elige una foto JPEG, PNG, WebP o HEIC.",

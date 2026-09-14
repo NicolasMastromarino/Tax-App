@@ -652,9 +652,9 @@ export const en = {
       notes: "Notes (optional)",
       receipt: {
         label: "Receipt (optional)",
-        addPhoto: "Add photo",
+        takePhoto: "Take photo",
+        upload: "Upload",
         uploading: "Uploading...",
-        replace: "Replace",
         remove: "Remove",
         viewFull: "View full size",
         invalidType: "Please choose a JPEG, PNG, WebP, or HEIC photo.",

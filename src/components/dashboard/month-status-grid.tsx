@@ -67,7 +67,12 @@ export async function MonthStatusGrid({
                   PANEL_TONE_CLASSES[tone]
                 )}
               >
-                <span className="text-sm font-semibold text-foreground">{m.monthName}</span>
+                <span className="text-sm font-semibold text-foreground">
+                  {/* Abbreviated below `sm` so the status label/icon still fits
+                      in a narrow 2-col mobile cell without wrapping or truncating. */}
+                  <span className="sm:hidden">{m.monthName.slice(0, 3)}</span>
+                  <span className="hidden sm:inline">{m.monthName}</span>
+                </span>
                 <span className={cn("inline-flex items-center gap-1 text-xs font-semibold", LABEL_TONE_CLASSES[tone])}>
                   <Icon className="h-3.5 w-3.5" />
                   {meta.label}

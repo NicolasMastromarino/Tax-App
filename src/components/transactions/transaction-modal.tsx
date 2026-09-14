@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
-import { Camera, Loader2, X } from "lucide-react";
+import { Camera, Loader2, Upload, X } from "lucide-react";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea, FieldError } from "@/components/ui/input";
@@ -282,7 +282,13 @@ function ReceiptField({
   const [url, setUrl] = useState(initialUrl ?? "");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Two separate inputs, not one: a single input with `capture` set often
+  // makes mobile browsers jump straight to the camera and skip the photo
+  // library entirely (iOS Safari in particular), so relying on the OS
+  // picker to offer both isn't reliable. Two explicit buttons guarantee
+  // both paths are always reachable.
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const libraryInputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(file: File) {
     setError(null);
@@ -320,21 +326,30 @@ function ReceiptField({
     setError(null);
   }
 
+  function fileChangeHandler(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) void handleFile(file);
+    e.target.value = "";
+  }
+
   return (
     <div>
       <Label>{t.label}</Label>
       <input type="hidden" name="receiptUrl" value={url} />
       <input
-        ref={fileInputRef}
+        ref={cameraInputRef}
         type="file"
         accept="image/*"
         capture="environment"
         className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) void handleFile(file);
-          e.target.value = "";
-        }}
+        onChange={fileChangeHandler}
+      />
+      <input
+        ref={libraryInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={fileChangeHandler}
       />
 
       {url ? (
@@ -348,11 +363,23 @@ function ReceiptField({
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => cameraInputRef.current?.click()}
               disabled={uploading}
+              title={t.takePhoto}
             >
-              {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-              {uploading ? t.uploading : t.replace}
+              <Camera className="h-3.5 w-3.5" />
+              {t.takePhoto}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => libraryInputRef.current?.click()}
+              disabled={uploading}
+              title={t.upload}
+            >
+              {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+              {uploading ? t.uploading : t.upload}
             </Button>
             <Button type="button" size="sm" variant="outline" onClick={handleRemove} disabled={uploading}>
               <X className="h-3.5 w-3.5" />
@@ -361,15 +388,26 @@ function ReceiptField({
           </div>
         </div>
       ) : (
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-        >
-          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
-          {uploading ? t.uploading : t.addPhoto}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => cameraInputRef.current?.click()}
+            disabled={uploading}
+          >
+            <Camera className="h-4 w-4" />
+            {t.takePhoto}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => libraryInputRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            {uploading ? t.uploading : t.upload}
+          </Button>
+        </div>
       )}
 
       {error && <FieldError>{error}</FieldError>}
