@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { transactions, categories } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { del } from "@vercel/blob";
 import { requireBusiness } from "@/lib/current-business";
 import { transactionSchema, type TransactionInput } from "@/lib/validations";
 import type { ZodError } from "zod";
@@ -24,6 +25,7 @@ function parseForm(formData: FormData) {
     vendorName: formData.get("vendorName") ?? "",
     notes: formData.get("notes") ?? "",
     otherExpenseDescription: formData.get("otherExpenseDescription") ?? "",
+    receiptUrl: formData.get("receiptUrl") ?? "",
   });
 }
 
@@ -94,6 +96,7 @@ export async function createTransactionAction(
     vendorName: parsed.data.vendorName || null,
     notes: parsed.data.notes || null,
     otherExpenseDescription: parsed.data.otherExpenseDescription || null,
+    receiptUrl: parsed.data.receiptUrl || null,
   });
 
   revalidatePath("/transactions");
@@ -130,6 +133,7 @@ export async function updateTransactionAction(
       vendorName: parsed.data.vendorName || null,
       notes: parsed.data.notes || null,
       otherExpenseDescription: parsed.data.otherExpenseDescription || null,
+      receiptUrl: parsed.data.receiptUrl || null,
       updatedAt: new Date(),
     })
     .where(and(eq(transactions.id, id), eq(transactions.businessId, business.id)));
@@ -143,13 +147,30 @@ export async function updateTransactionAction(
 
 export async function deleteTransactionAction(id: string): Promise<TxActionState> {
   const { business } = await requireBusiness();
-  await db
+  const [deleted] = await db
     .delete(transactions)
-    .where(and(eq(transactions.id, id), eq(transactions.businessId, business.id)));
+    .where(and(eq(transactions.id, id), eq(transactions.businessId, business.id)))
+    .returning({ receiptUrl: transactions.receiptUrl });
+
+  if (deleted?.receiptUrl) {
+    await del(deleted.receiptUrl).catch(() => {});
+  }
 
   revalidatePath("/transactions");
   revalidatePath("/dashboard");
   revalidatePath("/reconciliation");
   revalidatePath("/reports");
   return { success: true };
+}
+
+/**
+ * Called by the transaction modal's receipt field when the user removes an
+ * attached receipt or replaces it with a new photo, so a blob never lingers
+ * un-referenced just because the form was saved (or the modal closed)
+ * before the delete could run. Best-effort: the modal doesn't block on this
+ * succeeding, since the transaction row is the source of truth either way.
+ */
+export async function deleteReceiptAction(url: string): Promise<void> {
+  await requireBusiness();
+  await del(url);
 }

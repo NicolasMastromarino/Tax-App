@@ -1,6 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import { upload } from "@vercel/blob/client";
+import { Camera, Loader2, X } from "lucide-react";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea, FieldError } from "@/components/ui/input";
@@ -8,11 +10,13 @@ import { Combobox } from "@/components/ui/combobox";
 import {
   createTransactionAction,
   updateTransactionAction,
+  deleteReceiptAction,
   type TxActionState,
 } from "@/lib/actions/transaction-actions";
 import { homeOfficeDeduction } from "@/lib/calculations/ledger";
 import { formatCurrency, todayISO } from "@/lib/utils";
 import { noResetSubmit } from "@/lib/no-reset-form-action";
+import { RECEIPT_IMAGE_CONTENT_TYPES, MAX_RECEIPT_IMAGE_BYTES } from "@/lib/media";
 import type { CategoryRow } from "@/lib/data/categories";
 import type { TransactionRow } from "@/lib/data/transactions";
 import { useLocale } from "@/i18n/use-locale";
@@ -199,6 +203,8 @@ export function TransactionModal({
           <Textarea id="notes" name="notes" rows={2} defaultValue={editing?.notes ?? ""} />
         </div>
 
+        <ReceiptField initialUrl={editing?.receiptUrl ?? null} t={t.receipt} />
+
         {state.error && <FieldError>{translateMessage(dict, state.error)}</FieldError>}
 
         <div className="flex justify-end gap-2 pt-2">
@@ -262,6 +268,111 @@ function HomeOfficeHelper({
           {t.homeOffice.useAmount.replace("{amount}", formatCurrency(deductibleAmount))}
         </Button>
       </div>
+    </div>
+  );
+}
+
+function ReceiptField({
+  initialUrl,
+  t,
+}: {
+  initialUrl: string | null;
+  t: Dictionary["transactions"]["modal"]["receipt"];
+}) {
+  const [url, setUrl] = useState(initialUrl ?? "");
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFile(file: File) {
+    setError(null);
+    // Some mobile browsers (notably iOS Safari on HEIC captures) leave
+    // file.type empty -- only reject a *known* mismatch, since the upload
+    // route's own allowedContentTypes still enforces the real allow-list.
+    if (file.type && !RECEIPT_IMAGE_CONTENT_TYPES.includes(file.type as (typeof RECEIPT_IMAGE_CONTENT_TYPES)[number])) {
+      setError(t.invalidType);
+      return;
+    }
+    if (file.size > MAX_RECEIPT_IMAGE_BYTES) {
+      setError(t.tooLarge.replace("{maxMb}", String(Math.round(MAX_RECEIPT_IMAGE_BYTES / (1024 * 1024)))));
+      return;
+    }
+
+    const previousUrl = url;
+    setUploading(true);
+    try {
+      const blob = await upload(`receipts/${Date.now()}-${file.name}`, file, {
+        access: "public",
+        handleUploadUrl: "/api/transactions/receipt-upload",
+      });
+      setUrl(blob.url);
+      if (previousUrl) void deleteReceiptAction(previousUrl).catch(() => {});
+    } catch {
+      setError(t.uploadFailed);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function handleRemove() {
+    if (url) void deleteReceiptAction(url).catch(() => {});
+    setUrl("");
+    setError(null);
+  }
+
+  return (
+    <div>
+      <Label>{t.label}</Label>
+      <input type="hidden" name="receiptUrl" value={url} />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void handleFile(file);
+          e.target.value = "";
+        }}
+      />
+
+      {url ? (
+        <div className="flex items-center gap-3 rounded-lg border border-border p-2">
+          <a href={url} target="_blank" rel="noreferrer" title={t.viewFull} className="shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element -- thumbnail of an arbitrary Blob-stored URL, not a static app asset */}
+            <img src={url} alt="" className="h-14 w-14 rounded-md border border-border object-cover" />
+          </a>
+          <div className="flex flex-1 flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+              {uploading ? t.uploading : t.replace}
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={handleRemove} disabled={uploading}>
+              <X className="h-3.5 w-3.5" />
+              {t.remove}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+        >
+          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+          {uploading ? t.uploading : t.addPhoto}
+        </Button>
+      )}
+
+      {error && <FieldError>{error}</FieldError>}
     </div>
   );
 }

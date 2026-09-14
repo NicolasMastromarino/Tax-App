@@ -21,6 +21,7 @@ export const transactionSchema = z
     vendorName: z.string().trim().max(255).optional().or(z.literal("")),
     notes: z.string().trim().max(2000).optional().or(z.literal("")),
     otherExpenseDescription: z.string().trim().max(255).optional().or(z.literal("")),
+    receiptUrl: z.string().trim().url().optional().or(z.literal("")),
   })
   .refine((val) => Number.isFinite(val.amount) && val.amount > 0, {
     message: "Amount must be a positive number",

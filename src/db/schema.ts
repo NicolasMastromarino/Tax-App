@@ -225,6 +225,7 @@ export const transactions = pgTable(
     vendorName: text("vendor_name"), // free-text for MVP; formalized Contractor entity is a follow-up
     notes: text("notes"),
     otherExpenseDescription: text("other_expense_description"), // required when category.isOtherExpense
+    receiptUrl: text("receipt_url"), // Vercel Blob URL of an attached receipt photo/image
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

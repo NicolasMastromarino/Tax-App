@@ -3,7 +3,7 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { ArrowDown, ArrowUp, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Paperclip, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import { deleteTransactionAction } from "@/lib/actions/transaction-actions";
@@ -121,7 +121,21 @@ export function TransactionTable({
               <tr key={tx.id} className="border-b border-border last:border-0 hover:bg-surface-muted/60">
                 <td className="whitespace-nowrap px-4 py-3 text-muted">{formatDate(tx.date, locale)}</td>
                 <td className="px-4 py-3">
-                  <span className="font-medium">{tx.description}</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="font-medium">{tx.description}</span>
+                    {tx.receiptUrl && (
+                      <a
+                        href={tx.receiptUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={t.table.viewReceipt}
+                        title={t.table.viewReceipt}
+                        className="text-muted hover:text-foreground"
+                      >
+                        <Paperclip className="h-3.5 w-3.5" />
+                      </a>
+                    )}
+                  </span>
                   {tx.isOtherExpense && tx.otherExpenseDescription && (
                     <span className="block text-xs text-muted">{tx.otherExpenseDescription}</span>
                   )}

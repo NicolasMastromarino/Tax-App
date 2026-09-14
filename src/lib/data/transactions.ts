@@ -56,6 +56,7 @@ export async function listTransactions(businessId: string, filters: TransactionF
       vendorName: transactions.vendorName,
       notes: transactions.notes,
       otherExpenseDescription: transactions.otherExpenseDescription,
+      receiptUrl: transactions.receiptUrl,
       categoryId: transactions.categoryId,
       categoryName: categories.name,
       isOtherExpense: categories.isOtherExpense,
