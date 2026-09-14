@@ -19,14 +19,21 @@ if (process.env.DATABASE_URL) {
   console.log("[db] DATABASE_URL is not set at runtime.");
 }
 
+// Cached on `global` in every environment, production included: each
+// serverless function instance is reused across invocations while warm, so
+// caching here means those invocations share one small pool instead of
+// each opening its own. Without this, a warm instance handling back-to-back
+// requests would open a fresh pool (and thus fresh connections) every time,
+// which is exactly what exhausted Supabase's pooler connection limit
+// (EMAXCONNSESSION) in production. `max` is kept low and conservative since
+// many concurrent serverless instances can each hold a pool at once.
 const pool =
   global.__pgPool ??
   new Pool({
     connectionString: process.env.DATABASE_URL,
+    max: 3,
   });
 
-if (process.env.NODE_ENV !== "production") {
-  global.__pgPool = pool;
-}
+global.__pgPool = pool;
 
 export const db = drizzle(pool, { schema });
