@@ -743,6 +743,8 @@ export const es: Dictionary = {
       missingToken: "Este enlace no tiene su token de restablecimiento. Solicita uno nuevo desde la página de inicio de sesión.",
     },
     register: {
+      heroHeadline: "Gratis para empezar, sin tarjeta de crédito.",
+      heroBenefits: ["La contabilidad básica es gratis, siempre", "Configúralo en menos de 10 minutos"],
       title: "Crea tu cuenta",
       subtitle: "Configura la contabilidad de tu negocio",
       yourName: "Tu nombre",

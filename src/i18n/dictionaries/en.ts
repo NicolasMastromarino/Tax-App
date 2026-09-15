@@ -738,6 +738,8 @@ export const en = {
       missingToken: "This link is missing its reset token. Request a new one from the login page.",
     },
     register: {
+      heroHeadline: "Free to start, no credit card needed.",
+      heroBenefits: ["Core bookkeeping is free, always", "Set up in under 10 minutes"],
       title: "Create your account",
       subtitle: "Set up bookkeeping for your business",
       yourName: "Your name",
