@@ -460,6 +460,12 @@ export const es: Dictionary = {
       canceled: "Cancelado",
       lifetime: "Acceso de por vida",
     },
+    thankYou: {
+      title: "¡Todo listo!",
+      body: "Gracias por suscribirte a Bookkeeply. El Planificador de Impuestos y Contratistas y 1099s están desbloqueados en tu cuenta, a partir de ahora.",
+      cta: "Ir al Panel",
+      receiptNote: "Un recibo está en camino a tu correo, enviado por Paddle, nuestro procesador de pagos.",
+    },
     planLabels: {
       monthly: "Mensual: $9.95/mes",
       annual: "Anual: $100/año",

@@ -463,6 +463,12 @@ export const en = {
       annual: "Annual: $100/yr",
       founder: "Founder account",
     },
+    thankYou: {
+      title: "You're all set!",
+      body: "Thanks for subscribing to Bookkeeply. Tax Planner and Contractors & 1099s are unlocked on your account, starting now.",
+      cta: "Go to Dashboard",
+      receiptNote: "A receipt is on its way to your email from Paddle, our payment processor.",
+    },
   },
   settings: {
     title: "Settings",
