@@ -838,8 +838,8 @@ export const en = {
       },
       pricing: {
         heading: "Pricing & billing",
-        body: "Core bookkeeping (transactions, reconciliation, and reports) is free. Tax Planner and Contractors & 1099s are part of a paid plan, billed monthly or annually through our payment processor, Paddle. You can cancel anytime from Settings: cancelling stops future billing, and you keep access through the end of the period you already paid for.",
-        refundIntro: "For details on refunds and our money-back guarantee, see our",
+        body: "Core bookkeeping (transactions, reconciliation, and reports) is free. Tax Planner and Contractors & 1099s are part of a paid plan, starting with a 14-day free trial, then billed monthly or annually through our payment processor, Paddle. You can cancel anytime from Settings: cancelling stops future billing, and you keep access through the end of the period you already paid for.",
+        refundIntro: "For details on our free trial and how refunds work, see our",
         refundLinkLabel: "Refund Policy",
       },
       warranties: {
@@ -862,18 +862,18 @@ export const en = {
     refunds: {
       title: "Refund Policy",
       intro:
-        "This policy covers refunds for Bookkeeply's paid plan (Tax Planner and Contractors & 1099s). Core bookkeeping is always free and isn't affected by it.",
-      guarantee: {
-        heading: "14-day money-back guarantee",
-        body: "Not satisfied with your paid plan? Email us within 14 days of your first charge and we'll issue a full refund, no questions asked. This guarantee applies to your first charge on a plan (see \"Renewals & cancellations\" below for charges after that).",
+        "This policy covers billing for Bookkeeply's paid plan (Tax Planner and Contractors & 1099s), including our free trial and how refunds work. Core bookkeeping is always free and isn't affected by it.",
+      trial: {
+        heading: "14-day free trial",
+        body: "Every paid plan starts with a 14-day free trial, and you won't be charged anything during it. If you don't cancel before the trial ends, we automatically charge your card for the plan you picked and your subscription continues from there.",
       },
       renewals: {
-        heading: "Renewals & cancellations",
-        body: "Outside the 14-day window, charges are non-refundable. You can cancel anytime from Settings to stop future billing. For a monthly plan, this takes effect at the end of your current billing month. For an annual plan, you keep full access through the end of the year you already paid for, with no prorated refund for the remaining months.",
+        heading: "Cancelling & refunds",
+        body: "Cancel anytime from Settings, no email needed. Cancel during your trial and you're never charged. Once you've been charged, cancelling stops future billing: for a monthly plan this takes effect at the end of your current billing month, and for an annual plan you keep full access through the end of the year you already paid for, with no prorated refund for the remaining months.",
       },
       howTo: {
-        heading: "How to request a refund",
-        body: "Email us from the address on your account (see \"Questions?\" below). Refunds are processed through Paddle, our payment processor and merchant of record, and typically appear back on your original payment method within 5-10 business days.",
+        heading: "Charged by mistake?",
+        body: "If you forgot to cancel before your trial ended, or think you were charged in error, email us from the address on your account (see \"Questions?\" below) and we'll take a look. Refunds are processed through Paddle, our payment processor and merchant of record, and typically appear back on your original payment method within 5-10 business days.",
       },
       changes: {
         heading: "Changes to this policy",

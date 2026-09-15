@@ -22,8 +22,8 @@ export default async function RefundsPage() {
           <p>{t.intro}</p>
 
           <section>
-            <h2 className="text-lg font-semibold text-foreground">{t.guarantee.heading}</h2>
-            <p className="mt-3 text-muted">{t.guarantee.body}</p>
+            <h2 className="text-lg font-semibold text-foreground">{t.trial.heading}</h2>
+            <p className="mt-3 text-muted">{t.trial.body}</p>
           </section>
 
           <section>

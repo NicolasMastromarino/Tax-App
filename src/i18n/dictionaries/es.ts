@@ -843,8 +843,8 @@ export const es: Dictionary = {
       },
       pricing: {
         heading: "Precios y facturación",
-        body: "La contabilidad básica (transacciones, conciliación y reportes) es gratuita. Tax Planner y Contratistas y 1099s forman parte de un plan de pago, facturado mensual o anualmente a través de nuestro procesador de pagos, Paddle. Puedes cancelar en cualquier momento desde Configuración: cancelar detiene la facturación futura, y conservas el acceso hasta el final del período que ya pagaste.",
-        refundIntro: "Para más detalles sobre reembolsos y nuestra garantía de devolución de dinero, consulta nuestra",
+        body: "La contabilidad básica (transacciones, conciliación y reportes) es gratuita. Tax Planner y Contratistas y 1099s forman parte de un plan de pago, que comienza con una prueba gratuita de 14 días y luego se factura mensual o anualmente a través de nuestro procesador de pagos, Paddle. Puedes cancelar en cualquier momento desde Configuración: cancelar detiene la facturación futura, y conservas el acceso hasta el final del período que ya pagaste.",
+        refundIntro: "Para más detalles sobre nuestra prueba gratuita y cómo funcionan los reembolsos, consulta nuestra",
         refundLinkLabel: "Política de Reembolsos",
       },
       warranties: {
@@ -867,18 +867,18 @@ export const es: Dictionary = {
     refunds: {
       title: "Política de Reembolsos",
       intro:
-        "Esta política cubre los reembolsos del plan de pago de Bookkeeply (Tax Planner y Contratistas y 1099s). La contabilidad básica siempre es gratuita y no se ve afectada por esta política.",
-      guarantee: {
-        heading: "Garantía de devolución de dinero de 14 días",
-        body: "¿No estás satisfecho con tu plan de pago? Escríbenos dentro de los 14 días posteriores a tu primer cargo y te haremos un reembolso completo, sin preguntas. Esta garantía aplica a tu primer cargo en un plan; consulta \"Renovaciones y cancelaciones\" más abajo para cargos posteriores.",
+        "Esta política cubre la facturación del plan de pago de Bookkeeply (Tax Planner y Contratistas y 1099s), incluyendo nuestra prueba gratuita y cómo funcionan los reembolsos. La contabilidad básica siempre es gratuita y no se ve afectada por esta política.",
+      trial: {
+        heading: "Prueba gratuita de 14 días",
+        body: "Todo plan de pago comienza con una prueba gratuita de 14 días, durante la cual no se te cobra nada. Si no cancelas antes de que termine la prueba, cobramos automáticamente a tu tarjeta el plan que elegiste y tu suscripción continúa a partir de ahí.",
       },
       renewals: {
-        heading: "Renovaciones y cancelaciones",
-        body: "Fuera de la ventana de 14 días, los cargos no son reembolsables. Puedes cancelar en cualquier momento desde Configuración para detener la facturación futura. En un plan mensual, esto entra en vigor al final de tu mes de facturación actual. En un plan anual, conservas el acceso completo hasta el final del año que ya pagaste, sin reembolso prorrateado por los meses restantes.",
+        heading: "Cancelaciones y reembolsos",
+        body: "Cancela en cualquier momento desde Configuración, sin necesidad de escribirnos. Si cancelas durante la prueba, nunca se te cobra. Una vez que se te ha cobrado, cancelar detiene la facturación futura: en un plan mensual, esto entra en vigor al final de tu mes de facturación actual, y en un plan anual, conservas el acceso completo hasta el final del año que ya pagaste, sin reembolso prorrateado por los meses restantes.",
       },
       howTo: {
-        heading: "Cómo solicitar un reembolso",
-        body: "Escríbenos desde la dirección de tu cuenta (consulta \"¿Preguntas?\" más abajo). Los reembolsos se procesan a través de Paddle, nuestro procesador de pagos y comerciante registrado, y normalmente aparecen de nuevo en tu método de pago original dentro de 5 a 10 días hábiles.",
+        heading: "¿Te cobraron por error?",
+        body: "Si olvidaste cancelar antes de que terminara tu prueba, o crees que se te cobró por error, escríbenos desde la dirección de tu cuenta (consulta \"¿Preguntas?\" más abajo) y lo revisaremos. Los reembolsos se procesan a través de Paddle, nuestro procesador de pagos y comerciante registrado, y normalmente aparecen de nuevo en tu método de pago original dentro de 5 a 10 días hábiles.",
       },
       changes: {
         heading: "Cambios a esta política",
