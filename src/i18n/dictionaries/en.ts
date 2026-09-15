@@ -829,7 +829,9 @@ export const en = {
       },
       pricing: {
         heading: "Pricing & billing",
-        body: "The Service is currently free to use during early access. If and when we introduce paid plans, we'll notify existing users in advance of any change that affects them, and you won't be charged without clear notice and your consent.",
+        body: "Core bookkeeping (transactions, reconciliation, and reports) is free. Tax Planner and Contractors & 1099s are part of a paid plan, billed monthly or annually through our payment processor, Paddle. You can cancel anytime from Settings: cancelling stops future billing, and you keep access through the end of the period you already paid for.",
+        refundIntro: "For details on refunds and our money-back guarantee, see our",
+        refundLinkLabel: "Refund Policy",
       },
       warranties: {
         heading: "Disclaimer of warranties",
@@ -846,6 +848,31 @@ export const en = {
       contact: {
         heading: "Contact us",
         body: "Questions about these Terms? Email",
+      },
+    },
+    refunds: {
+      title: "Refund Policy",
+      intro:
+        "This policy covers refunds for Bookkeeply's paid plan (Tax Planner and Contractors & 1099s). Core bookkeeping is always free and isn't affected by it.",
+      guarantee: {
+        heading: "14-day money-back guarantee",
+        body: "Not satisfied with your paid plan? Email us within 14 days of your first charge and we'll issue a full refund, no questions asked. This guarantee applies to your first charge on a plan (see \"Renewals & cancellations\" below for charges after that).",
+      },
+      renewals: {
+        heading: "Renewals & cancellations",
+        body: "Outside the 14-day window, charges are non-refundable. You can cancel anytime from Settings to stop future billing. For a monthly plan, this takes effect at the end of your current billing month. For an annual plan, you keep full access through the end of the year you already paid for, with no prorated refund for the remaining months.",
+      },
+      howTo: {
+        heading: "How to request a refund",
+        body: "Email us from the address on your account (see \"Questions?\" below). Refunds are processed through Paddle, our payment processor and merchant of record, and typically appear back on your original payment method within 5-10 business days.",
+      },
+      changes: {
+        heading: "Changes to this policy",
+        body: "If we make material changes to this policy, we'll update the date above.",
+      },
+      contact: {
+        heading: "Questions?",
+        body: "Email us at",
       },
     },
   },

@@ -834,7 +834,9 @@ export const es: Dictionary = {
       },
       pricing: {
         heading: "Precios y facturación",
-        body: "El Servicio actualmente es gratuito durante el acceso anticipado. Si y cuando introduzcamos planes de pago, notificaremos a los usuarios existentes con anticipación de cualquier cambio que los afecte, y no se te cobrará sin un aviso claro y tu consentimiento.",
+        body: "La contabilidad básica (transacciones, conciliación y reportes) es gratuita. Tax Planner y Contratistas y 1099s forman parte de un plan de pago, facturado mensual o anualmente a través de nuestro procesador de pagos, Paddle. Puedes cancelar en cualquier momento desde Configuración: cancelar detiene la facturación futura, y conservas el acceso hasta el final del período que ya pagaste.",
+        refundIntro: "Para más detalles sobre reembolsos y nuestra garantía de devolución de dinero, consulta nuestra",
+        refundLinkLabel: "Política de Reembolsos",
       },
       warranties: {
         heading: "Exención de garantías",
@@ -851,6 +853,31 @@ export const es: Dictionary = {
       contact: {
         heading: "Contáctanos",
         body: "¿Tienes preguntas sobre estos Términos? Escribe a",
+      },
+    },
+    refunds: {
+      title: "Política de Reembolsos",
+      intro:
+        "Esta política cubre los reembolsos del plan de pago de Bookkeeply (Tax Planner y Contratistas y 1099s). La contabilidad básica siempre es gratuita y no se ve afectada por esta política.",
+      guarantee: {
+        heading: "Garantía de devolución de dinero de 14 días",
+        body: "¿No estás satisfecho con tu plan de pago? Escríbenos dentro de los 14 días posteriores a tu primer cargo y te haremos un reembolso completo, sin preguntas. Esta garantía aplica a tu primer cargo en un plan; consulta \"Renovaciones y cancelaciones\" más abajo para cargos posteriores.",
+      },
+      renewals: {
+        heading: "Renovaciones y cancelaciones",
+        body: "Fuera de la ventana de 14 días, los cargos no son reembolsables. Puedes cancelar en cualquier momento desde Configuración para detener la facturación futura. En un plan mensual, esto entra en vigor al final de tu mes de facturación actual. En un plan anual, conservas el acceso completo hasta el final del año que ya pagaste, sin reembolso prorrateado por los meses restantes.",
+      },
+      howTo: {
+        heading: "Cómo solicitar un reembolso",
+        body: "Escríbenos desde la dirección de tu cuenta (consulta \"¿Preguntas?\" más abajo). Los reembolsos se procesan a través de Paddle, nuestro procesador de pagos y comerciante registrado, y normalmente aparecen de nuevo en tu método de pago original dentro de 5 a 10 días hábiles.",
+      },
+      changes: {
+        heading: "Cambios a esta política",
+        body: "Si hacemos cambios importantes a esta política, actualizaremos la fecha de arriba.",
+      },
+      contact: {
+        heading: "¿Preguntas?",
+        body: "Escríbenos a",
       },
     },
   },

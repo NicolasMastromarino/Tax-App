@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SiteHeader, SiteFooter } from "@/components/marketing/landing-page";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getDictionary, getLocale } from "@/i18n/dictionaries";
+import { localizedPath } from "@/i18n/locales";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -8,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function TermsPage() {
-  const dict = await getDictionary();
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
   const t = dict.legal.terms;
 
   return (
@@ -39,6 +41,13 @@ export default async function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-foreground">{t.pricing.heading}</h2>
             <p className="mt-3 text-muted">{t.pricing.body}</p>
+            <p className="mt-3 text-muted">
+              {t.pricing.refundIntro}{" "}
+              <Link href={localizedPath(locale, "/refunds")} className="text-primary hover:underline">
+                {t.pricing.refundLinkLabel}
+              </Link>
+              .
+            </p>
           </section>
 
           <section>
