@@ -43,9 +43,11 @@ export function Sidebar({ businessName, subscribed }: { businessName: string; su
     { href: "/tax-planner", label: t.taxPlanner, icon: Calculator, paid: true },
     { href: "/contractors", label: t.contractors, icon: Users, paid: true },
     { href: "/categories", label: t.categories, icon: BookOpen, paid: false },
-    { href: "/settings", label: t.settings, icon: Settings, paid: false },
     { href: "/help", label: t.help, icon: HelpCircle, paid: false },
   ];
+
+  const settingsActive =
+    pathname === localizedPath(locale, "/settings") || pathname?.startsWith(localizedPath(locale, "/settings") + "/");
 
   const nav = (
     <nav className="flex flex-1 flex-col gap-1 px-3">
@@ -73,6 +75,30 @@ export function Sidebar({ businessName, subscribed }: { businessName: string; su
         );
       })}
     </nav>
+  );
+
+  const accountControls = (
+    <div className="border-t border-border p-3 space-y-1">
+      <Link
+        href={localizedPath(locale, "/settings")}
+        onClick={() => setMobileOpen(false)}
+        className={cn(
+          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          settingsActive
+            ? "bg-primary/10 text-primary"
+            : "text-foreground/80 hover:bg-surface-muted hover:text-foreground"
+        )}
+      >
+        <Settings className="h-4 w-4" />
+        {t.settings}
+      </Link>
+      <form action={signOutAction.bind(null, locale)}>
+        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-surface-muted">
+          <LogOut className="h-4 w-4" />
+          {t.signOut}
+        </button>
+      </form>
+    </div>
   );
 
   return (
@@ -104,14 +130,7 @@ export function Sidebar({ businessName, subscribed }: { businessName: string; su
         <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-3">
           <LanguageSwitcher />
         </div>
-        <div className="border-t border-border p-3">
-          <form action={signOutAction.bind(null, locale)}>
-            <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-surface-muted">
-              <LogOut className="h-4 w-4" />
-              {t.signOut}
-            </button>
-          </form>
-        </div>
+        {accountControls}
       </aside>
 
       {/* Mobile drawer */}
@@ -123,14 +142,7 @@ export function Sidebar({ businessName, subscribed }: { businessName: string; su
             <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-3">
               <LanguageSwitcher />
             </div>
-            <div className="border-t border-border p-3">
-              <form action={signOutAction.bind(null, locale)}>
-                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 hover:bg-surface-muted">
-                  <LogOut className="h-4 w-4" />
-                  {t.signOut}
-                </button>
-              </form>
-            </div>
+            {accountControls}
           </aside>
         </div>
       )}
