@@ -3,7 +3,6 @@
 import { useActionState, useState } from "react";
 import { toast } from "sonner";
 import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -50,7 +49,6 @@ export function SettingsClient({
   const [totalSqFt, setTotalSqFt] = useState(business.totalHomeSqFt ?? "");
   const [filingStatus, setFilingStatus] = useState(business.filingStatus);
   const [isSstb, setIsSstb] = useState(business.isSstb);
-  const searchParams = useSearchParams();
   const dict = DICTIONARIES[locale];
   const t = dict.settings;
 
@@ -58,14 +56,6 @@ export function SettingsClient({
     if (state.success) toast.success(t.savedToast);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.success]);
-
-  useEffect(() => {
-    if (searchParams.get("upgraded") === "1") {
-      toast.success(t.upgradedToast);
-    }
-    // Only fire once on mount for whatever query string loaded the page.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const fieldErrors = state.fieldErrors ?? {};
   const pct = homeOfficeDeduction({

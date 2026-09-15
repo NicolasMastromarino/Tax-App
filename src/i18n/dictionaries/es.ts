@@ -520,7 +520,6 @@ export const es: Dictionary = {
     save: "Guardar Configuración",
     saving: "Guardando...",
     savedToast: "Configuración guardada",
-    upgradedToast: "¡Ya estás suscrito! El acceso puede tardar unos segundos en desbloquearse.",
     dangerZone: {
       heading: "Zona de Peligro",
       body: "Elimina permanentemente tu cuenta, tu negocio y todas las transacciones, conciliaciones y datos fiscales. Esto no se puede deshacer.",

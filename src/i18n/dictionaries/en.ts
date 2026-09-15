@@ -518,7 +518,6 @@ export const en = {
     save: "Save Settings",
     saving: "Saving...",
     savedToast: "Settings saved",
-    upgradedToast: "You're subscribed! It may take a few seconds for access to unlock.",
     dangerZone: {
       heading: "Danger Zone",
       body: "Permanently delete your account, business, and all transactions, reconciliations, and tax data. This can't be undone.",

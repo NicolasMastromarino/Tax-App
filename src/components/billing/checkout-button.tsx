@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { getPaddle } from "@/lib/paddle/client";
+import { useLocale } from "@/i18n/use-locale";
+import { localizedPath } from "@/i18n/locales";
 
 export function CheckoutButton({
   priceId,
@@ -18,6 +20,7 @@ export function CheckoutButton({
   children: React.ReactNode;
 } & Omit<ButtonProps, "onClick">) {
   const [loading, setLoading] = useState(false);
+  const locale = useLocale();
 
   async function handleClick() {
     if (!priceId) {
@@ -36,7 +39,7 @@ export function CheckoutButton({
         // see src/app/api/webhooks/paddle/route.ts.
         customData: { businessId },
         settings: {
-          successUrl: `${window.location.origin}/settings?upgraded=1`,
+          successUrl: `${window.location.origin}${localizedPath(locale, "/thank-you")}`,
         },
       });
     } finally {
