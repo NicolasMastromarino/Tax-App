@@ -262,8 +262,6 @@ export const es: Dictionary = {
       "Seguimiento de contratistas y 1099",
       "Conciliación bancaria y reportes",
     ],
-    monthly: "$9.95/mes",
-    annual: "$99.95/año",
     subscribe: "Suscribirse",
     cancelAnytime: "Cancela cuando quieras desde Configuración.",
   },

@@ -260,8 +260,6 @@ export const en = {
       "Contractors & 1099 tracking",
       "Bank reconciliation & reports",
     ],
-    monthly: "$9.95/month",
-    annual: "$99.95/year",
     subscribe: "Subscribe",
     cancelAnytime: "Cancel anytime from Settings.",
   },
