@@ -443,6 +443,8 @@ export const en = {
   billing: {
     heading: "Billing",
     unlockHeading: "Unlock the paid plan",
+    monthlyPrice: "$9.95/month",
+    annualPrice: "$99.95/year",
     founderTitle: "Founder account: lifetime access",
     founderBody: "Every feature, permanently, no subscription needed.",
     pastDueNote: "Your last payment didn't go through. Update your card to keep access. It will be paused if this isn't resolved soon.",

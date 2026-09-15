@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { CheckCircle2, AlertTriangle, Loader2, Infinity as InfinityIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { SubscribeCard } from "@/components/billing/subscribe-card";
+import { CheckoutButton } from "@/components/billing/checkout-button";
 import {
   openBillingPortalAction,
   type BillingActionState,
@@ -101,7 +101,23 @@ export function BillingCard({
         ) : (
           <div className="space-y-4">
             <p className="text-sm text-muted">{t.freeNotice}</p>
-            <SubscribeCard businessId={businessId} email={email} />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <CheckoutButton
+                priceId={process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_MONTHLY}
+                businessId={businessId}
+                email={email}
+                variant="outline"
+              >
+                {t.monthlyPrice}
+              </CheckoutButton>
+              <CheckoutButton
+                priceId={process.env.NEXT_PUBLIC_PADDLE_PRICE_ID_ANNUAL}
+                businessId={businessId}
+                email={email}
+              >
+                {t.annualPrice}
+              </CheckoutButton>
+            </div>
           </div>
         )}
       </CardContent>

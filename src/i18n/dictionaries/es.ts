@@ -445,6 +445,8 @@ export const es: Dictionary = {
   billing: {
     heading: "Facturación",
     unlockHeading: "Desbloquea el plan de pago",
+    monthlyPrice: "$9.95/mes",
+    annualPrice: "$99.95/año",
     founderTitle: "Cuenta de fundador: acceso de por vida",
     founderBody: "Todas las funciones, de forma permanente, sin necesidad de suscripción.",
     pastDueNote: "Tu último pago no se pudo procesar. Actualiza tu tarjeta para mantener el acceso. Se pausará si esto no se resuelve pronto.",
