@@ -44,7 +44,7 @@ export function Sidebar({ businessName, subscribed }: { businessName: string; su
     { href: "/tax-planner", label: t.taxPlanner, icon: Calculator, paid: true },
     { href: "/contractors", label: t.contractors, icon: Users, paid: true },
     { href: "/categories", label: t.categories, icon: BookOpen, paid: false },
-    { href: "/settings#billing", label: t.billing, icon: CreditCard, paid: false },
+    { href: "/billing", label: t.billing, icon: CreditCard, paid: false },
     { href: "/help", label: t.help, icon: HelpCircle, paid: false },
   ];
 
@@ -54,11 +54,7 @@ export function Sidebar({ businessName, subscribed }: { businessName: string; su
   const nav = (
     <nav className="flex flex-1 flex-col gap-1 px-3">
       {NAV_ITEMS.map((item) => {
-        // Strip a hash (e.g. "/settings#billing") before comparing against
-        // pathname, which never includes one, so an anchor link to a
-        // section of another page still highlights correctly.
-        const itemPath = item.href.split("#")[0];
-        const active = pathname === localizedPath(locale, itemPath) || pathname?.startsWith(localizedPath(locale, itemPath) + "/");
+        const active = pathname === localizedPath(locale, item.href) || pathname?.startsWith(localizedPath(locale, item.href) + "/");
         const Icon = item.icon;
         return (
           <Link

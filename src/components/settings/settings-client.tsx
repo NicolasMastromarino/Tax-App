@@ -285,9 +285,7 @@ export function SettingsClient({
         </Button>
       </form>
 
-      <div id="billing" className="scroll-mt-6">
-        <BillingCard summary={subscription} businessId={business.id} email={email} />
-      </div>
+      <BillingCard summary={subscription} businessId={business.id} email={email} />
 
       <Card className="border-danger/30">
         <CardHeader>
