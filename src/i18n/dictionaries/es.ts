@@ -116,7 +116,7 @@ export const es: Dictionary = {
       monthlyPrice: "$9.95",
       monthlyPeriod: "/mes",
       monthlyNote: "Facturado mensualmente, cancela cuando quieras",
-      annualPrice: "$100",
+      annualPrice: "$99.95",
       annualPeriod: "/año",
       annualNote: "Eso es cerca de $8.33/mes, facturado una vez al año",
       included: [
@@ -262,7 +262,7 @@ export const es: Dictionary = {
       "Conciliación bancaria y reportes",
     ],
     monthly: "$9.95/mes",
-    annual: "$100/año",
+    annual: "$99.95/año",
     cancelAnytime: "Cancela cuando quieras desde Configuración.",
   },
   categories: {
@@ -471,7 +471,7 @@ export const es: Dictionary = {
     },
     planLabels: {
       monthly: "Mensual: $9.95/mes",
-      annual: "Anual: $100/año",
+      annual: "Anual: $99.95/año",
       founder: "Cuenta de fundador",
     },
   },

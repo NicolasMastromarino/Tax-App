@@ -114,7 +114,7 @@ export const en = {
       monthlyPrice: "$9.95",
       monthlyPeriod: "/month",
       monthlyNote: "Billed monthly, cancel anytime",
-      annualPrice: "$100",
+      annualPrice: "$99.95",
       annualPeriod: "/year",
       annualNote: "That's about $8.33/mo, billed once a year",
       included: [
@@ -260,7 +260,7 @@ export const en = {
       "Bank reconciliation & reports",
     ],
     monthly: "$9.95/month",
-    annual: "$100/year",
+    annual: "$99.95/year",
     cancelAnytime: "Cancel anytime from Settings.",
   },
   categories: {
@@ -460,7 +460,7 @@ export const en = {
     },
     planLabels: {
       monthly: "Monthly: $9.95/mo",
-      annual: "Annual: $100/yr",
+      annual: "Annual: $99.95/yr",
       founder: "Founder account",
     },
     thankYou: {
