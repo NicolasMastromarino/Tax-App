@@ -263,6 +263,7 @@ export const es: Dictionary = {
     ],
     monthly: "$9.95/mes",
     annual: "$99.95/año",
+    subscribe: "Suscribirse",
     cancelAnytime: "Cancela cuando quieras desde Configuración.",
   },
   categories: {

@@ -261,6 +261,7 @@ export const en = {
     ],
     monthly: "$9.95/month",
     annual: "$99.95/year",
+    subscribe: "Subscribe",
     cancelAnytime: "Cancel anytime from Settings.",
   },
   categories: {
