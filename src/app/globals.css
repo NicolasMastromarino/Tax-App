@@ -77,6 +77,17 @@ body {
   background: color-mix(in srgb, var(--primary) 25%, transparent);
 }
 
+/* Number inputs are for typing an amount, not clicking a value up one at a
+   time — hide the native step spinner everywhere in the app. */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 /* --- Marketing landing page only, below --- */
 
 /* Subtle dot-grid texture for the hero background. Pure CSS (a repeating
