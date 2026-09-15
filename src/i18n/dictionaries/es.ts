@@ -461,8 +461,11 @@ export const es: Dictionary = {
       lifetime: "Acceso de por vida",
     },
     thankYou: {
+      heroHeadline: "Ya está todo desbloqueado.",
+      heroBenefits: ["Tax Planner y Contratistas y 1099s, listos para usar", "Cancela cuando quieras desde Configuración, sin preguntas"],
       title: "¡Todo listo!",
-      body: "Gracias por suscribirte a Bookkeeply. El Planificador de Impuestos y Contratistas y 1099s están desbloqueados en tu cuenta, a partir de ahora.",
+      subtitle: "Gracias por suscribirte a Bookkeeply.",
+      body: "El Planificador de Impuestos y Contratistas y 1099s están desbloqueados en tu cuenta, a partir de ahora.",
       cta: "Ir al Panel",
       receiptNote: "Un recibo está en camino a tu correo, enviado por Paddle, nuestro procesador de pagos.",
     },

@@ -464,8 +464,11 @@ export const en = {
       founder: "Founder account",
     },
     thankYou: {
+      heroHeadline: "You're unlocked.",
+      heroBenefits: ["Tax Planner and Contractors & 1099s, ready to use", "Cancel anytime from Settings, no questions asked"],
       title: "You're all set!",
-      body: "Thanks for subscribing to Bookkeeply. Tax Planner and Contractors & 1099s are unlocked on your account, starting now.",
+      subtitle: "Thanks for subscribing to Bookkeeply.",
+      body: "Tax Planner and Contractors & 1099s are unlocked on your account, starting now.",
       cta: "Go to Dashboard",
       receiptNote: "A receipt is on its way to your email from Paddle, our payment processor.",
     },
