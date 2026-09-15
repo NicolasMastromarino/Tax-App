@@ -3,6 +3,7 @@ import "../globals.css";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Contentsquare } from "./contentsquare";
 import { isLocale, defaultLocale } from "@/i18n/locales";
 
 // Resolves relative Open Graph/Twitter image URLs (used on the marketing
@@ -42,6 +43,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
         )}
+        <Contentsquare />
       </body>
     </html>
   );

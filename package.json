@@ -16,6 +16,7 @@
     "test:smoke": "NODE_OPTIONS=--conditions=react-server tsx scripts/smoke-test.ts"
   },
   "dependencies": {
+    "@contentsquare/tag-sdk": "^1.1.0",
     "@next/third-parties": "^16.3.5",
     "@paddle/paddle-js": "^1.6.5",
     "@tiptap/extension-image": "^3.31.3",
