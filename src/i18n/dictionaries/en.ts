@@ -205,6 +205,7 @@ export const en = {
     taxPlanner: "Tax Planner",
     contractors: "Contractors & 1099s",
     categories: "Expense Categories",
+    billing: "Billing",
     settings: "Settings",
     help: "Help / Getting Started",
     signOut: "Sign out",

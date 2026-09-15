@@ -207,6 +207,7 @@ export const es: Dictionary = {
     taxPlanner: "Planificador de Impuestos",
     contractors: "Contratistas y 1099s",
     categories: "Categorías de Gastos",
+    billing: "Facturación",
     settings: "Configuración",
     help: "Ayuda / Primeros pasos",
     signOut: "Cerrar sesión",
