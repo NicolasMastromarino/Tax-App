@@ -169,6 +169,7 @@ export const es: Dictionary = {
       legal: "Legal",
       privacy: "Política de Privacidad",
       terms: "Términos de Servicio",
+      cookiePreferences: "Preferencias de Cookies",
       disclaimer:
         "© {year} Bookkeeply. No afiliado con el IRS. Las estimaciones de impuestos son solo para fines de planificación y no constituyen asesoría fiscal, legal o financiera. Consulta a un profesional con licencia sobre tu situación específica.",
     },
@@ -198,6 +199,12 @@ export const es: Dictionary = {
     note: "Leemos cada mensaje nosotros mismos, normalmente respondemos dentro de un día hábil. ¿Prefieres el correo electrónico? Escríbenos a",
     faqEyebrow: "Preguntas Comunes",
     seeFullFaq: "Ver todas las preguntas frecuentes",
+  },
+  cookieConsent: {
+    body: "Usamos cookies para mantener tu sesión iniciada y recordar tu idioma, y, con tu permiso, para análisis que nos ayudan a mejorar el producto.",
+    learnMore: "Más información",
+    accept: "Aceptar",
+    reject: "Rechazar",
   },
   nav: {
     dashboard: "Panel",
@@ -799,6 +806,10 @@ export const es: Dictionary = {
             body: "información técnica básica como el tipo de navegador y datos de registro, usada únicamente para mantener la aplicación funcionando de forma confiable y segura.",
           },
         ],
+      },
+      cookies: {
+        heading: "Cookies",
+        body: 'Usamos un número reducido de cookies. Algunas son necesarias para que la aplicación funcione (mantener tu sesión iniciada, recordar tu idioma) y se ejecutan automáticamente. Otras son para análisis (Google Analytics y Contentsquare, que nos ayudan a entender cómo se usa el sitio) y solo se ejecutan si las aceptas cuando se te pregunta. Paddle, nuestro procesador de pagos, establece sus propias cookies para prevención de fraude durante el pago. Puedes cambiar tu elección de análisis en cualquier momento desde el enlace "Preferencias de Cookies" en el pie de página.',
       },
       usage: {
         heading: "Cómo usamos tu información",

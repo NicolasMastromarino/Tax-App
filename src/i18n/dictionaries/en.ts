@@ -167,6 +167,7 @@ export const en = {
       legal: "Legal",
       privacy: "Privacy Policy",
       terms: "Terms of Service",
+      cookiePreferences: "Cookie Preferences",
       disclaimer:
         "© {year} Bookkeeply. Not affiliated with the IRS. Tax estimates are for planning purposes only and are not tax, legal, or financial advice. Talk to a licensed professional about your specific situation.",
     },
@@ -196,6 +197,12 @@ export const en = {
     note: "We read every message ourselves, usually a reply within one business day. Prefer email? Write to",
     faqEyebrow: "Common Questions",
     seeFullFaq: "See the full FAQ",
+  },
+  cookieConsent: {
+    body: "We use cookies to keep you signed in and remember your language, and, with your permission, for analytics that help us improve the product.",
+    learnMore: "Learn more",
+    accept: "Accept",
+    reject: "Reject",
   },
   nav: {
     dashboard: "Dashboard",
@@ -794,6 +801,10 @@ export const en = {
             body: "basic technical information like browser type and log data, used only to keep the app running reliably and securely.",
           },
         ],
+      },
+      cookies: {
+        heading: "Cookies",
+        body: 'We use a small number of cookies. Some are necessary for the app to work (keeping you signed in, remembering your language choice) and run automatically. Others are for analytics (Google Analytics and Contentsquare, which help us understand how the site is used) and only run if you accept them when prompted. Paddle, our payment processor, sets its own cookies for fraud prevention while you\'re checking out. You can change your analytics choice anytime from the "Cookie Preferences" link in the footer.',
       },
       usage: {
         heading: "How we use your information",

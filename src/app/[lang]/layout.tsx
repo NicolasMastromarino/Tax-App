@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "../globals.css";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
-import { GoogleAnalytics } from "@next/third-parties/google";
-import { Contentsquare } from "./contentsquare";
+import { AnalyticsGate } from "@/components/cookie-consent/analytics-gate";
+import { CookieConsentBanner } from "@/components/cookie-consent/cookie-consent-banner";
 import { isLocale, defaultLocale } from "@/i18n/locales";
 
 // Resolves relative Open Graph/Twitter image URLs (used on the marketing
@@ -40,10 +40,8 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
         {children}
         <Toaster position="top-right" richColors closeButton />
         <Analytics />
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
-        )}
-        <Contentsquare />
+        <AnalyticsGate gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+        <CookieConsentBanner />
       </body>
     </html>
   );

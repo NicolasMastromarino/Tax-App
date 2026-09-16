@@ -33,6 +33,11 @@ export default async function PrivacyPage() {
           </section>
 
           <section>
+            <h2 className="text-lg font-semibold text-foreground">{t.cookies.heading}</h2>
+            <p className="mt-3 text-muted">{t.cookies.body}</p>
+          </section>
+
+          <section>
             <h2 className="text-lg font-semibold text-foreground">{t.usage.heading}</h2>
             <p className="mt-3 text-muted">{t.usage.body}</p>
           </section>

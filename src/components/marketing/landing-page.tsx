@@ -7,6 +7,7 @@ const SCREENSHOT_VERSION = "20260913f";
 import { Pricing } from "./pricing";
 import { BrandMark } from "@/components/brand-mark";
 import { LanguageSwitcher } from "@/components/nav/language-switcher";
+import { CookiePreferencesLink } from "@/components/cookie-consent/cookie-preferences-link";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
 import { localizedPath } from "@/i18n/locales";
 import {
@@ -497,6 +498,7 @@ export async function SiteFooter() {
               <ul className="mt-3 space-y-2 text-sm">
                 <li><Link href={href("/privacy")} className="text-muted hover:text-foreground">{t.privacy}</Link></li>
                 <li><Link href={href("/terms")} className="text-muted hover:text-foreground">{t.terms}</Link></li>
+                <li><CookiePreferencesLink label={t.cookiePreferences} /></li>
               </ul>
             </div>
           </div>
