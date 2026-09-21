@@ -76,6 +76,15 @@ export async function getAllPosts(): Promise<BlogPostListItem[]> {
   }));
 }
 
+/** Slug + last-modified for every published post, for sitemap.xml. */
+export async function getPublishedPostSitemapEntries(): Promise<{ slug: string; updatedAt: Date }[]> {
+  return db
+    .select({ slug: blogPosts.slug, updatedAt: blogPosts.updatedAt })
+    .from(blogPosts)
+    .where(eq(blogPosts.published, true))
+    .orderBy(desc(blogPosts.publishedAt));
+}
+
 /**
  * A single post by slug, with rendered HTML, for /blog/[slug]. Returns
  * unpublished (draft) posts too — there's no public listing or search
