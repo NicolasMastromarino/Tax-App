@@ -5,7 +5,9 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/marketing/landing-page";
 import { getPostBySlug, readingTime } from "@/lib/blog";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
-import { localizedPath, type Locale } from "@/i18n/locales";
+import { defaultLocale, localizedPath, type Locale } from "@/i18n/locales";
+import { JsonLd } from "@/components/seo/json-ld";
+import { absoluteUrl } from "@/lib/seo";
 
 // No generateStaticParams here: this route is nested under [lang], which has
 // no generateStaticParams of its own (locale is resolved per-request by
@@ -21,9 +23,35 @@ export async function generateMetadata(
   const { slug } = await props.params;
   const post = await getPostBySlug(slug);
   if (!post) return {};
+  const locale = await getLocale();
+  // Post bodies are English-only, so /es/blog/<slug> is the same article
+  // under a Spanish shell: canonicalize it to the English URL instead of
+  // advertising two competing versions.
+  const canonical = localizedPath(defaultLocale, `/blog/${slug}`);
+  const images = post.featuredImage ? [{ url: post.featuredImage }] : [{ url: "/marketing/og-image.png", width: 1200, height: 630 }];
   return {
     title: post.title,
     description: post.description,
+    alternates: { canonical },
+    // A draft can be opened by URL (see draftNotice below): keep it out of the index.
+    robots: post.published ? undefined : { index: false, follow: false },
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      siteName: "Bookkeeply",
+      type: "article",
+      locale: locale === "es" ? "es_US" : "en_US",
+      url: canonical,
+      publishedTime: post.publishedAt.toISOString(),
+      section: post.category ?? undefined,
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+      images: images.map((i) => i.url),
+    },
   };
 }
 
@@ -43,10 +71,25 @@ export default async function BlogPostPage(props: PageProps<"/[lang]/blog/[slug]
 
   const minutes = readingTime(post.html);
   const t = dict.blog;
+  const postUrl = absoluteUrl(defaultLocale, `/blog/${slug}`);
 
   return (
     <div className="flex min-h-full flex-col">
       <SiteHeader />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: post.title,
+          description: post.description,
+          datePublished: post.publishedAt.toISOString(),
+          image: post.featuredImage ? new URL(post.featuredImage, postUrl).toString() : undefined,
+          inLanguage: "en",
+          mainEntityOfPage: postUrl,
+          author: { "@type": "Organization", name: "Bookkeeply" },
+          publisher: { "@type": "Organization", name: "Bookkeeply" },
+        }}
+      />
       <main className="flex-1">
         {/* Gradient header, matching the blog index and login page's brand gradient */}
         <section

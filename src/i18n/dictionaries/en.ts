@@ -4,6 +4,20 @@ export const en = {
     english: "English",
     spanish: "Español",
   },
+  // <title>/<meta description> for the public marketing pages (src/lib/seo.ts
+  // builds the canonical/hreflang tags around these).
+  seo: {
+    home: {
+      title: "Bookkeeply: Bookkeeping and Taxes, Without the Dread",
+      description:
+        "Simple bookkeeping and accurate tax estimates for freelancers and service-based businesses. Track income and expenses, then see your self-employment tax, QBI deduction, and quarterly payments, sourced from the IRS. Free to start.",
+    },
+    blog: {
+      title: "Blog: Tax and Bookkeeping Guides for Freelancers",
+      description:
+        "Plain-English guides for freelancers and solopreneurs: how much to set aside for taxes, quarterly payments, the IRS safe harbor rule, and when an S-Corp makes sense. General information, not tax advice.",
+    },
+  },
   marketing: {
     nav: {
       features: "Features",

@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
+import { localizedAlternates } from "@/lib/seo";
 import { SiteHeader, SiteFooter } from "@/components/marketing/landing-page";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getDictionary, getLocale } from "@/i18n/dictionaries";
 
-export const metadata: Metadata = {
-  title: "Refund Policy",
-  description: "Bookkeeply's refund policy for paid plans.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  return {
+    title: "Refund Policy",
+    description: "Bookkeeply's refund policy for paid plans.",
+    alternates: localizedAlternates(locale, "/refunds"),
+  };
+}
 
 export default async function RefundsPage() {
   const dict = await getDictionary();

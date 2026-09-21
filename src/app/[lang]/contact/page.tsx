@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
+import { localizedAlternates } from "@/lib/seo";
 import { SiteHeader, SiteFooter } from "@/components/marketing/landing-page";
 import { ContactForm } from "@/components/marketing/contact-client";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
 import { localizedPath } from "@/i18n/locales";
 
-export const metadata: Metadata = {
-  title: "Contact Us",
-  description: "Questions about your bookkeeping or taxes? Send Bookkeeply a message.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  return {
+    title: "Contact Us",
+    description: "Questions about your bookkeeping or taxes? Send Bookkeeply a message.",
+    alternates: localizedAlternates(locale, "/contact"),
+  };
+}
 
 export default async function ContactPage() {
   const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);

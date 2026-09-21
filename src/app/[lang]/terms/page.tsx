@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
+import { localizedAlternates } from "@/lib/seo";
 import Link from "next/link";
 import { SiteHeader, SiteFooter } from "@/components/marketing/landing-page";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
 import { localizedPath } from "@/i18n/locales";
 
-export const metadata: Metadata = {
-  title: "Terms of Service",
-  description: "The terms that govern your use of Bookkeeply.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  return {
+    title: "Terms of Service",
+    description: "The terms that govern your use of Bookkeeply.",
+    alternates: localizedAlternates(locale, "/terms"),
+  };
+}
 
 export default async function TermsPage() {
   const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);

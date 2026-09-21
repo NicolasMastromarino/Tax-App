@@ -6,6 +6,18 @@ export const es: Dictionary = {
     english: "English",
     spanish: "Español",
   },
+  seo: {
+    home: {
+      title: "Bookkeeply: Contabilidad e impuestos, sin el estrés",
+      description:
+        "Contabilidad sencilla y estimaciones de impuestos precisas para freelancers y negocios de servicios. Registra tus ingresos y gastos y mira tu impuesto sobre el trabajo por cuenta propia, la deducción QBI y los pagos trimestrales, con cifras del IRS. Gratis para empezar.",
+    },
+    blog: {
+      title: "Blog: guías de impuestos y contabilidad para freelancers",
+      description:
+        "Guías claras para freelancers y autónomos: cuánto apartar para impuestos, pagos trimestrales, la regla de puerto seguro del IRS y cuándo conviene una S-Corp. Información general, no asesoría fiscal.",
+    },
+  },
   marketing: {
     nav: {
       features: "Funciones",
