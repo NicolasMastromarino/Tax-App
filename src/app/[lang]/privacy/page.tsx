@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
+import { localizedAlternates } from "@/lib/seo";
 import { SiteHeader, SiteFooter } from "@/components/marketing/landing-page";
-import { getDictionary } from "@/i18n/dictionaries";
+import { getDictionary, getLocale } from "@/i18n/dictionaries";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description: "How Bookkeeply collects, uses, and protects your information.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  return {
+    title: "Privacy Policy",
+    description: "How Bookkeeply collects, uses, and protects your information.",
+    alternates: localizedAlternates(locale, "/privacy"),
+  };
+}
 
 export default async function PrivacyPage() {
   const dict = await getDictionary();

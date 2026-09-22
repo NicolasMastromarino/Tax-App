@@ -6,11 +6,28 @@ import { getAllPosts, type BlogPostListItem } from "@/lib/blog";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
 import { localizedPath, type Locale } from "@/i18n/locales";
 import type { Dictionary } from "@/i18n/dictionaries";
+import { localizedAlternates } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description: "Bookkeeping and tax-planning notes for freelancers and service-based businesses.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const [dict, locale] = await Promise.all([getDictionary(), getLocale()]);
+  const { title, description } = dict.seo.blog;
+  const alternates = localizedAlternates(locale, "/blog");
+  return {
+    title,
+    description,
+    alternates,
+    openGraph: {
+      title,
+      description,
+      siteName: "Bookkeeply",
+      type: "website",
+      locale: locale === "es" ? "es_US" : "en_US",
+      url: alternates.canonical as string,
+      images: [{ url: "/marketing/og-image.png", width: 1200, height: 630 }],
+    },
+    twitter: { card: "summary_large_image", title, description, images: ["/marketing/og-image.png"] },
+  };
+}
 
 // Post content itself (title/body) is English-only for now -- see the i18n
 // plan's scope note on editorial content -- but the date is still worth
