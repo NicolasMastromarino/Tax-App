@@ -17,6 +17,11 @@ export const en = {
       description:
         "Plain-English guides for freelancers and solopreneurs: how much to set aside for taxes, quarterly payments, the IRS safe harbor rule, and when an S-Corp makes sense. General information, not tax advice.",
     },
+    seTax: {
+      title: "Self-Employment Tax 2026: Rate, How It's Calculated, Example",
+      description:
+        "Self-employment tax explained: the 15.3% rate, the 2026 Social Security wage base, how the IRS calculates it, and a worked example. General information, not tax advice.",
+    },
   },
   marketing: {
     nav: {
@@ -792,6 +797,116 @@ export const en = {
       body: "Track your bookkeeping and see your real tax estimate in minutes a day, free, no credit card required.",
       button: "Get Started Free",
     },
+  },
+  // Public /self-employment-tax explainer. Figures ({wageBase}, thresholds,
+  // the worked example) are filled in by the page from the same IRS-sourced
+  // tax parameters the Tax Planner uses, so no dollar amount is hardcoded here.
+  seTaxPage: {
+    navLabel: "Self-employment tax",
+    eyebrow: "{year} guide",
+    heading: "Self-employment tax, explained",
+    subtitle:
+      "What the 15.3% covers, how the IRS calculates it, and a worked example you can follow line by line. Plain English, no jargon.",
+    ctaPrimary: "Estimate yours free",
+    ctaSecondary: "See the example",
+    whatHeading: "What is self-employment tax?",
+    whatBody:
+      "When you work for an employer, Social Security and Medicare are split: half comes out of your paycheck and your employer pays the other half. When you work for yourself, you pay both halves. That combined amount is self-employment tax. It is separate from, and in addition to, federal income tax.",
+    rates: [
+      {
+        rate: "12.4%",
+        label: "Social Security",
+        body: "Applies to net self-employment earnings up to the {year} wage base of {wageBase}. Earnings above that are not subject to this part.",
+      },
+      {
+        rate: "2.9%",
+        label: "Medicare",
+        body: "Applies to all net self-employment earnings, with no cap.",
+      },
+      {
+        rate: "+0.9%",
+        label: "Additional Medicare",
+        body: "Applies only to combined earnings above {threshold} for single filers ({thresholdMfj} if married filing jointly).",
+      },
+    ],
+    stepsHeading: "How it's calculated",
+    steps: [
+      {
+        title: "Start with net profit",
+        body: "Your business income minus your deductible business expenses, the same number that ends up on Schedule C.",
+      },
+      {
+        title: "Multiply by 92.35%",
+        body: "This mirrors how an employer's share is left out of an employee's taxable wages. The result is your net earnings from self-employment.",
+      },
+      {
+        title: "Apply 15.3%",
+        body: "12.4% for Social Security (up to the wage base) plus 2.9% for Medicare. The total is reported on Schedule SE.",
+      },
+      {
+        title: "Deduct half of it",
+        body: "Half of your self-employment tax is generally deductible as an adjustment to income. It lowers your income tax, not the self-employment tax itself.",
+      },
+    ],
+    exampleHeading: "A worked example",
+    exampleIntro:
+      "A single freelance designer with {profit} in net profit for {year} and no W-2 wages. Numbers are rounded to the cent.",
+    exampleRows: {
+      profit: "Net profit (Schedule C)",
+      base: "× 92.35% = net earnings from self-employment",
+      tax: "× 15.3% = self-employment tax",
+      deduction: "Half, deductible as an adjustment to income",
+      monthly: "Roughly what to set aside per month for SE tax alone",
+    },
+    exampleNote:
+      "Income tax comes on top of this. How much depends on your filing status, deductions, and other income, which is exactly what the Tax Planner works out for you.",
+    payHeading: "How you pay it",
+    payBody:
+      "No employer is withholding it for you, so self-employment tax is usually paid during the year through quarterly estimated payments (Form 1040-ES), then reconciled on Schedule SE when you file your return.",
+    relatedHeading: "Keep reading",
+    related: [
+      { slug: "how-to-calculate-self-employment-tax-with-example", title: "How to calculate self-employment tax, step by step" },
+      { slug: "q4-estimated-tax-payment-deadline-how-to-calculate-it", title: "Q4 estimated tax payment: deadline and how to calculate it" },
+      { slug: "the-irs-safe-harbor-rule-how-to-avoid-a-penalty-without-overpaying-every-quarter", title: "The IRS safe harbor rule for quarterly payments" },
+      { slug: "how-much-should-a-freelancer-set-aside-for-taxes", title: "How much should a freelancer set aside for taxes?" },
+    ],
+    plannerEyebrow: "Tax Planner",
+    plannerHeading: "Skip the spreadsheet",
+    plannerBody:
+      "Bookkeeply turns the income and expenses you track into a running estimate of your self-employment tax, income tax, and quarterly payments, using current IRS figures.",
+    plannerBullets: [
+      "Self-employment tax, including the wage-base cap and Additional Medicare Tax",
+      "Quarterly payment amounts based on the IRS safe-harbor rule",
+      "Updates automatically as you log income and expenses",
+    ],
+    plannerCta: "Get Started Free",
+    plannerNote: "Free to start. No credit card required.",
+    faqHeading: "Common questions",
+    faq: [
+      {
+        q: "Who has to pay self-employment tax?",
+        a: "Generally, anyone with net earnings from self-employment of $400 or more in a year, including freelancers, independent contractors, and sole proprietors. Single-member LLC owners are usually in the same position unless the LLC has elected to be taxed as a corporation.",
+      },
+      {
+        q: "Is self-employment tax the same as income tax?",
+        a: "No. Self-employment tax covers Social Security and Medicare. Income tax is calculated separately on your taxable income, and most self-employed people owe both.",
+      },
+      {
+        q: "Why is it calculated on 92.35% of my profit?",
+        a: "Employees never pay tax on their employer's half of Social Security and Medicare. Multiplying by 92.35% (100% minus 7.65%) gives self-employed people a comparable adjustment.",
+      },
+      {
+        q: "Does the deductible half reduce my self-employment tax?",
+        a: "No. It is an adjustment to income, so it lowers the income you pay income tax on. The self-employment tax itself stays the same.",
+      },
+      {
+        q: "What if I also have a W-2 job?",
+        a: "Social Security wages from a job count toward the same {wageBase} wage base, so if your combined earnings go over it, less of your self-employment income is subject to the 12.4% portion. Medicare still applies to all of it.",
+      },
+    ],
+    disclaimerHeading: "General information, not tax advice.",
+    disclaimerBody:
+      "Bookkeeply is not a CPA firm and this page is not tax, legal, or financial advice. Figures reflect {year} federal rules and do not cover state taxes or every situation. Talk to a licensed tax professional before making decisions for your business.",
   },
   legal: {
     lastUpdated: "Last updated: September 2026",

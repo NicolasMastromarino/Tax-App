@@ -17,6 +17,11 @@ export const es: Dictionary = {
       description:
         "Guías claras para freelancers y autónomos: cuánto apartar para impuestos, pagos trimestrales, la regla de puerto seguro del IRS y cuándo conviene una S-Corp. Información general, no asesoría fiscal.",
     },
+    seTax: {
+      title: "Impuesto de trabajo por cuenta propia 2026: tasa y ejemplo",
+      description:
+        "El self-employment tax explicado: la tasa del 15.3%, la base salarial del Seguro Social de 2026, cómo lo calcula el IRS y un ejemplo. Información general, no asesoría fiscal.",
+    },
   },
   marketing: {
     nav: {
@@ -795,6 +800,113 @@ export const es: Dictionary = {
       body: "Lleva tu contabilidad y mira tu estimación real de impuestos en minutos al día, gratis, sin necesidad de tarjeta de crédito.",
       button: "Empieza gratis",
     },
+  },
+  seTaxPage: {
+    navLabel: "Impuesto de trabajo por cuenta propia",
+    eyebrow: "Guía {year}",
+    heading: "El impuesto sobre el trabajo por cuenta propia, explicado",
+    subtitle:
+      "Qué cubre el 15.3%, cómo lo calcula el IRS y un ejemplo que puedes seguir línea por línea. En palabras claras, sin tecnicismos.",
+    ctaPrimary: "Calcula el tuyo gratis",
+    ctaSecondary: "Ver el ejemplo",
+    whatHeading: "¿Qué es el impuesto sobre el trabajo por cuenta propia?",
+    whatBody:
+      "Cuando trabajas para un empleador, el Seguro Social y Medicare se dividen: la mitad sale de tu cheque y tu empleador paga la otra mitad. Cuando trabajas por tu cuenta, pagas ambas mitades. Ese monto combinado es el impuesto sobre el trabajo por cuenta propia (self-employment tax). Es aparte del impuesto federal sobre la renta y se suma a él.",
+    rates: [
+      {
+        rate: "12.4%",
+        label: "Seguro Social",
+        body: "Se aplica a tus ganancias netas del trabajo por cuenta propia hasta la base salarial de {year}, que es de {wageBase}. Lo que ganes por encima no paga esta parte.",
+      },
+      {
+        rate: "2.9%",
+        label: "Medicare",
+        body: "Se aplica a todas tus ganancias netas del trabajo por cuenta propia, sin tope.",
+      },
+      {
+        rate: "+0.9%",
+        label: "Medicare adicional",
+        body: "Solo se aplica a las ganancias combinadas por encima de {threshold} si declaras como soltero ({thresholdMfj} si es casado con declaración conjunta).",
+      },
+    ],
+    stepsHeading: "Cómo se calcula",
+    steps: [
+      {
+        title: "Empieza con tu ganancia neta",
+        body: "Tus ingresos del negocio menos tus gastos de negocio deducibles, el mismo número que termina en el Anexo C (Schedule C).",
+      },
+      {
+        title: "Multiplica por 92.35%",
+        body: "Esto imita cómo la parte del empleador queda fuera del salario tributable de un empleado. El resultado son tus ganancias netas del trabajo por cuenta propia.",
+      },
+      {
+        title: "Aplica el 15.3%",
+        body: "12.4% para el Seguro Social (hasta la base salarial) más 2.9% para Medicare. El total se reporta en el Anexo SE (Schedule SE).",
+      },
+      {
+        title: "Deduce la mitad",
+        body: "En general, la mitad de este impuesto se puede deducir como ajuste a los ingresos. Reduce tu impuesto sobre la renta, no el impuesto de trabajo por cuenta propia en sí.",
+      },
+    ],
+    exampleHeading: "Un ejemplo paso a paso",
+    exampleIntro:
+      "Una diseñadora freelance, soltera, con {profit} de ganancia neta en {year} y sin salarios W-2. Las cifras están redondeadas al centavo.",
+    exampleRows: {
+      profit: "Ganancia neta (Schedule C)",
+      base: "× 92.35% = ganancias netas del trabajo por cuenta propia",
+      tax: "× 15.3% = impuesto sobre el trabajo por cuenta propia",
+      deduction: "La mitad, deducible como ajuste a los ingresos",
+      monthly: "Más o menos lo que conviene apartar al mes solo para este impuesto",
+    },
+    exampleNote:
+      "El impuesto sobre la renta va aparte. Cuánto será depende de tu estado civil para la declaración, tus deducciones y tus otros ingresos, que es justo lo que calcula el Planificador de impuestos.",
+    payHeading: "Cómo se paga",
+    payBody:
+      "Como no hay un empleador que te lo retenga, normalmente se paga durante el año con pagos trimestrales de impuestos estimados (Formulario 1040-ES) y luego se concilia en el Anexo SE cuando presentas tu declaración.",
+    relatedHeading: "Sigue leyendo",
+    related: [
+      { slug: "formulario-1099-nec-que-es-y-para-que-sirve", title: "Formulario 1099-NEC: qué es y para qué sirve" },
+      { slug: "how-to-calculate-self-employment-tax-with-example", title: "Cómo calcular el impuesto de trabajo por cuenta propia (en inglés)" },
+      { slug: "q4-estimated-tax-payment-deadline-how-to-calculate-it", title: "Pago estimado del cuarto trimestre (en inglés)" },
+      { slug: "the-irs-safe-harbor-rule-how-to-avoid-a-penalty-without-overpaying-every-quarter", title: "La regla de puerto seguro del IRS (en inglés)" },
+    ],
+    plannerEyebrow: "Planificador de impuestos",
+    plannerHeading: "Olvídate de la hoja de cálculo",
+    plannerBody:
+      "Bookkeeply convierte los ingresos y gastos que registras en una estimación al día de tu impuesto de trabajo por cuenta propia, tu impuesto sobre la renta y tus pagos trimestrales, con cifras actuales del IRS.",
+    plannerBullets: [
+      "Impuesto de trabajo por cuenta propia, con el tope de la base salarial y el Medicare adicional",
+      "Montos de pagos trimestrales según la regla de puerto seguro del IRS",
+      "Se actualiza solo a medida que registras ingresos y gastos",
+    ],
+    plannerCta: "Empieza gratis",
+    plannerNote: "Gratis para empezar. Sin tarjeta de crédito.",
+    faqHeading: "Preguntas frecuentes",
+    faq: [
+      {
+        q: "¿Quién tiene que pagar este impuesto?",
+        a: "En general, cualquier persona con ganancias netas del trabajo por cuenta propia de $400 o más en el año, incluidos freelancers, contratistas independientes y dueños únicos. Los dueños de una LLC de un solo miembro suelen estar en la misma situación, salvo que la LLC haya elegido tributar como corporación.",
+      },
+      {
+        q: "¿Es lo mismo que el impuesto sobre la renta?",
+        a: "No. Este impuesto cubre el Seguro Social y Medicare. El impuesto sobre la renta se calcula aparte sobre tu ingreso tributable, y la mayoría de quienes trabajan por su cuenta pagan ambos.",
+      },
+      {
+        q: "¿Por qué se calcula sobre el 92.35% de mi ganancia?",
+        a: "Los empleados nunca pagan impuestos sobre la mitad que aporta su empleador al Seguro Social y Medicare. Multiplicar por 92.35% (100% menos 7.65%) da un ajuste comparable a quienes trabajan por su cuenta.",
+      },
+      {
+        q: "¿La mitad deducible reduce este impuesto?",
+        a: "No. Es un ajuste a los ingresos, así que reduce el ingreso sobre el que pagas impuesto sobre la renta. El impuesto de trabajo por cuenta propia sigue siendo el mismo.",
+      },
+      {
+        q: "¿Y si además tengo un empleo W-2?",
+        a: "Los salarios de un empleo cuentan para la misma base salarial de {wageBase}, así que si tus ganancias combinadas la superan, una parte menor de tus ingresos por cuenta propia paga el 12.4%. Medicare se sigue aplicando a todo.",
+      },
+    ],
+    disclaimerHeading: "Información general, no asesoría fiscal.",
+    disclaimerBody:
+      "Bookkeeply no es una firma de CPA y esta página no es asesoría fiscal, legal ni financiera. Las cifras reflejan las reglas federales de {year} y no cubren impuestos estatales ni todas las situaciones. Habla con un profesional de impuestos con licencia antes de tomar decisiones para tu negocio.",
   },
   legal: {
     lastUpdated: "Última actualización: septiembre de 2026",

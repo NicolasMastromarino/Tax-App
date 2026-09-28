@@ -483,6 +483,7 @@ export async function SiteFooter() {
                 <li><a href={`${href("/")}#pricing`} className="text-muted hover:text-foreground">{dict.marketing.nav.pricing}</a></li>
                 <li><a href={`${href("/")}#faq`} className="text-muted hover:text-foreground">{dict.marketing.nav.faq}</a></li>
                 <li><Link href={href("/blog")} className="text-muted hover:text-foreground">{dict.marketing.nav.blog}</Link></li>
+                <li><Link href={href("/self-employment-tax")} className="text-muted hover:text-foreground">{dict.seTaxPage.navLabel}</Link></li>
                 <li><Link href={href("/contact")} className="text-muted hover:text-foreground">{dict.marketing.nav.contact}</Link></li>
               </ul>
             </div>
