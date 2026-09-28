@@ -865,7 +865,7 @@ export const es: Dictionary = {
       "Como no hay un empleador que te lo retenga, normalmente se paga durante el año con pagos trimestrales de impuestos estimados (Formulario 1040-ES) y luego se concilia en el Anexo SE cuando presentas tu declaración.",
     relatedHeading: "Sigue leyendo",
     related: [
-      { slug: "formulario-1099-nec-que-es-y-para-que-sirve", title: "Formulario 1099-NEC: qué es y para qué sirve" },
+      { slug: "how-much-should-a-freelancer-set-aside-for-taxes", title: "Cuánto apartar para impuestos como freelancer (en inglés)" },
       { slug: "how-to-calculate-self-employment-tax-with-example", title: "Cómo calcular el impuesto de trabajo por cuenta propia (en inglés)" },
       { slug: "q4-estimated-tax-payment-deadline-how-to-calculate-it", title: "Pago estimado del cuarto trimestre (en inglés)" },
       { slug: "the-irs-safe-harbor-rule-how-to-avoid-a-penalty-without-overpaying-every-quarter", title: "La regla de puerto seguro del IRS (en inglés)" },
