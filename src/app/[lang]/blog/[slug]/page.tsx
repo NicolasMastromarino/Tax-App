@@ -7,7 +7,13 @@ import { getPostBySlug, readingTime } from "@/lib/blog";
 import { getDictionary, getLocale } from "@/i18n/dictionaries";
 import { defaultLocale, localizedPath, type Locale } from "@/i18n/locales";
 import { JsonLd } from "@/components/seo/json-ld";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, siteUrl } from "@/lib/seo";
+
+// Google cuts titles at roughly 60 characters. When the root layout's
+// " | Bookkeeply" suffix would push a post title past that, drop the suffix
+// so the visible title is spent on the post's own keywords.
+const TITLE_BUDGET = 60;
+const BRAND_SUFFIX = " | Bookkeeply";
 
 // No generateStaticParams here: this route is nested under [lang], which has
 // no generateStaticParams of its own (locale is resolved per-request by
@@ -30,7 +36,8 @@ export async function generateMetadata(
   const canonical = localizedPath(defaultLocale, `/blog/${slug}`);
   const images = post.featuredImage ? [{ url: post.featuredImage }] : [{ url: "/marketing/og-image.png", width: 1200, height: 630 }];
   return {
-    title: post.title,
+    title:
+      post.title.length + BRAND_SUFFIX.length > TITLE_BUDGET ? { absolute: post.title } : post.title,
     description: post.description,
     alternates: { canonical },
     // A draft can be opened by URL (see draftNotice below): keep it out of the index.
@@ -72,6 +79,15 @@ export default async function BlogPostPage(props: PageProps<"/[lang]/blog/[slug]
   const minutes = readingTime(post.html);
   const t = dict.blog;
   const postUrl = absoluteUrl(defaultLocale, `/blog/${slug}`);
+  const homeUrl = absoluteUrl(defaultLocale, "/");
+  // Same @id as the Organization node on the home page, so both describe one entity.
+  const organization = {
+    "@type": "Organization",
+    "@id": `${homeUrl}#organization`,
+    name: "Bookkeeply",
+    url: homeUrl,
+    logo: { "@type": "ImageObject", url: new URL("/icon.png", siteUrl).toString(), width: 512, height: 512 },
+  };
 
   return (
     <div className="flex min-h-full flex-col">
@@ -79,15 +95,30 @@ export default async function BlogPostPage(props: PageProps<"/[lang]/blog/[slug]
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "Article",
-          headline: post.title,
-          description: post.description,
-          datePublished: post.publishedAt.toISOString(),
-          image: post.featuredImage ? new URL(post.featuredImage, postUrl).toString() : undefined,
-          inLanguage: "en",
-          mainEntityOfPage: postUrl,
-          author: { "@type": "Organization", name: "Bookkeeply" },
-          publisher: { "@type": "Organization", name: "Bookkeeply" },
+          "@graph": [
+            {
+              "@type": "Article",
+              headline: post.title,
+              description: post.description,
+              datePublished: post.publishedAt.toISOString(),
+              image: post.featuredImage ? new URL(post.featuredImage, postUrl).toString() : undefined,
+              inLanguage: "en",
+              url: postUrl,
+              mainEntityOfPage: postUrl,
+              articleSection: post.category ?? undefined,
+              author: organization,
+              publisher: organization,
+            },
+            {
+              // Lets Google show "Bookkeeply > Blog" in results instead of the long post slug.
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Bookkeeply", item: homeUrl },
+                { "@type": "ListItem", position: 2, name: "Blog", item: absoluteUrl(defaultLocale, "/blog") },
+                { "@type": "ListItem", position: 3, name: post.title, item: postUrl },
+              ],
+            },
+          ],
         }}
       />
       <main className="flex-1">
