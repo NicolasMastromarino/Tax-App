@@ -8,6 +8,7 @@ import { getDictionary, getLocale } from "@/i18n/dictionaries";
 import { defaultLocale, localizedPath, type Locale } from "@/i18n/locales";
 import { JsonLd } from "@/components/seo/json-ld";
 import { absoluteUrl, siteUrl } from "@/lib/seo";
+import { blogSeo } from "@/lib/blog-seo";
 
 // Google cuts titles at roughly 60 characters. When the root layout's
 // " | Bookkeeply" suffix would push a post title past that, drop the suffix
@@ -34,17 +35,17 @@ export async function generateMetadata(
   // under a Spanish shell: canonicalize it to the English URL instead of
   // advertising two competing versions.
   const canonical = localizedPath(defaultLocale, `/blog/${slug}`);
+  const { title, description } = blogSeo(post);
   const images = post.featuredImage ? [{ url: post.featuredImage }] : [{ url: "/marketing/og-image.png", width: 1200, height: 630 }];
   return {
-    title:
-      post.title.length + BRAND_SUFFIX.length > TITLE_BUDGET ? { absolute: post.title } : post.title,
-    description: post.description,
+    title: title.length + BRAND_SUFFIX.length > TITLE_BUDGET ? { absolute: title } : title,
+    description,
     alternates: { canonical },
     // A draft can be opened by URL (see draftNotice below): keep it out of the index.
     robots: post.published ? undefined : { index: false, follow: false },
     openGraph: {
-      title: post.title,
-      description: post.description,
+      title,
+      description,
       siteName: "Bookkeeply",
       type: "article",
       locale: locale === "es" ? "es_US" : "en_US",
@@ -55,8 +56,8 @@ export async function generateMetadata(
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
-      description: post.description,
+      title,
+      description,
       images: images.map((i) => i.url),
     },
   };
@@ -99,7 +100,7 @@ export default async function BlogPostPage(props: PageProps<"/[lang]/blog/[slug]
             {
               "@type": "Article",
               headline: post.title,
-              description: post.description,
+              description: blogSeo(post).description,
               datePublished: post.publishedAt.toISOString(),
               image: post.featuredImage ? new URL(post.featuredImage, postUrl).toString() : undefined,
               inLanguage: "en",
